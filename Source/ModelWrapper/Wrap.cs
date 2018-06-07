@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ModelWrapper.Core;
+using ModelWrapper.Core.Binders.Models;
 
 namespace ModelWrapper
 {
-    public class Wrap<T> : IWrap<T> where T : class
+    [ModelBinder(BinderType = typeof(WrapModelBinder))]
+    public class Wrap<T> : DynamicObject, IWrap<T>
+        where T : class
     {
         private Dictionary<string, object> Attributes;
 
@@ -36,6 +42,23 @@ namespace ModelWrapper
         public void Set(T model)
         {
             model.GetType().GetProperties().ToList().ForEach(property => Attributes.Add(property.Name.ToLower(), property.GetValue(model)));
+        }
+        
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            return Attributes.TryGetValue(binder.Name, out result);
+        }
+
+        public override bool TrySetMember(SetMemberBinder binder, object value)
+        {
+            Attributes[binder.Name] = value;
+
+            return true;
+        }
+
+        internal void Bind(ModelBindingContext bindingContext)
+        {
+
         }
     }
 }
