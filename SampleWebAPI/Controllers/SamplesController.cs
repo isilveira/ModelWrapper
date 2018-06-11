@@ -42,7 +42,7 @@ namespace SampleWebAPI.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]Wrap<SampleModel> value)
+        public void Put(int id, [FromForm]Wrap<SampleModel> value)
         {
             var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
             value.Put(sample);
