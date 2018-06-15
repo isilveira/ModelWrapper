@@ -1,3 +1,3 @@
 # ModelWrapper
 
-Model wrapper - Tool to enrich the experience of manipulating data models in RestFul APIs in C # WebApi projects.
+Model wrapper - Tool wich enrich the experience of data models manipulation in RestFul APIs in C # WebApi projects.
