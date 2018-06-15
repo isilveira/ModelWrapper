@@ -9,5 +9,10 @@ namespace SampleWebAPI.Model
     {
         public int SampleID { get; set; }
         public string Description { get; set; }
+        public SampleModel SetID(int sampleID)
+        {
+            this.SampleID = sampleID;
+            return this;
+        }
     }
 }

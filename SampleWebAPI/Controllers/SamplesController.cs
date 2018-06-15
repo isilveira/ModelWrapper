@@ -45,12 +45,12 @@ namespace SampleWebAPI.Controllers
         public void Put(int id, [FromForm]Wrap<SampleModel> value)
         {
             var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
-            value.Put(sample);
+            value.Put(sample).SetID(id);
         }
 
         // PATCH api/values/5
         [HttpPatch("{id}")]
-        public void Patch(int id, [FromBody]Wrap<SampleModel> value)
+        public void Patch(int id, Wrap<SampleModel> value)
         {
             var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
             value.Patch(sample);

@@ -43,7 +43,8 @@ namespace ModelWrapper
 
         public T Put(T model)
         {
-            model.GetType().GetProperties().ToList().ForEach(property => {
+            model.GetType().GetProperties().ToList().ForEach(property =>
+            {
                 object value;
 
                 this.Attributes.TryGetValue(property.Name, out value);
@@ -59,7 +60,7 @@ namespace ModelWrapper
         {
             model.GetType().GetProperties().ToList().ForEach(property => Attributes.Add(property.Name.ToLower(), property.GetValue(model)));
         }
-        
+
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             return Attributes.TryGetValue(binder.Name, out result);
@@ -74,64 +75,103 @@ namespace ModelWrapper
 
         internal void Bind(ModelBindingContext bindingContext)
         {
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Body.Id))
+            if (bindingContext.BindingSource.Id.Equals(BindingSource.Body.Id) && bindingContext.HttpContext.Request.ContentLength > 0)
             {
                 TrackFromBody(bindingContext);
+                return;
             }
-            else if (bindingContext.BindingSource.Id.Equals(BindingSource.Form.Id))
+
+            if (bindingContext.BindingSource.Id.Equals(BindingSource.Form.Id) && bindingContext.HttpContext.Request.HasFormContentType)
             {
                 TrackFromForm(bindingContext);
+                return;
             }
-            else if (bindingContext.BindingSource.Id.Equals(BindingSource.Query.Id))
+
+            if (bindingContext.BindingSource.Id.Equals(BindingSource.Query.Id) && bindingContext.HttpContext.Request.Query.Count > 0)
             {
                 TrackFromQuery(bindingContext);
+                return;
             }
-            else
+
+            if (bindingContext.BindingSource.Id.Equals(BindingSource.Custom))
             {
-                TrackFromForm(bindingContext);
+                if (bindingContext.HttpContext.Request.HasFormContentType)
+                {
+                    TrackFromForm(bindingContext);
+                    return;
+                }
+
+                if (bindingContext.HttpContext.Request.ContentLength > 0)
+                {
+                    TrackFromBody(bindingContext);
+                    return;
+                }
+
+                if (bindingContext.HttpContext.Request.Query.Count > 0)
+                {
+                    TrackFromQuery(bindingContext);
+                    return;
+                } 
             }
         }
 
         private void TrackFromQuery(ModelBindingContext bindingContext)
         {
-            throw new NotImplementedException();
+            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+            if (bindingContext.HttpContext.Request.Query.Count > 0)
+            {
+                bindingContext.HttpContext.Request.Query.ToList().ForEach(query =>
+                   {
+                       var property = properties.Where(p => p.Name.ToLower().Equals(query.Key.ToLower())).SingleOrDefault();
+                       if (property != null)
+                       {
+                           Attributes[property.Name] = SetValue(property.PropertyType, query.Value);
+                       }
+                   });
+            }
         }
 
         private void TrackFromForm(ModelBindingContext bindingContext)
         {
             List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
-            bindingContext.HttpContext.Request.Form.ToList().ForEach(x =>
+            if (bindingContext.HttpContext.Request.HasFormContentType)
             {
-                var property = properties.Where(p => p.Name.ToUpper().Equals(x.Key.ToUpper())).SingleOrDefault();
-
-                if (property != null)
+                bindingContext.HttpContext.Request.Form.ToList().ForEach(x =>
                 {
-                    Attributes[property.Name] = SetValue(property.PropertyType, x.Value);
-                }
-            });
+                    var property = properties.Where(p => p.Name.ToUpper().Equals(x.Key.ToUpper())).SingleOrDefault();
+
+                    if (property != null)
+                    {
+                        Attributes[property.Name] = SetValue(property.PropertyType, x.Value);
+                    }
+                });
+            }
         }
 
         private void TrackFromBody(ModelBindingContext bindingContext)
         {
             string content = string.Empty;
-            using (StreamReader reader = new StreamReader(bindingContext.HttpContext.Request.Body, Encoding.UTF8))
+            if (bindingContext.HttpContext.Request.Body != null)
             {
-                Task<string> task = reader.ReadToEndAsync();
-                if (task.IsCompletedSuccessfully)
+                using (StreamReader reader = new StreamReader(bindingContext.HttpContext.Request.Body, Encoding.UTF8))
                 {
-                    content = task.Result;
+                    Task<string> task = reader.ReadToEndAsync();
+                    if (task.IsCompletedSuccessfully)
+                    {
+                        content = task.Result;
+                    }
                 }
-            }
 
-            JObject jObject = JObject.Parse(content);
+                JObject jObject = JObject.Parse(content);
 
-            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
+                List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
 
-            foreach (var property in properties)
-            {
-                if (jObject[property.Name] != null)
+                foreach (var property in properties)
                 {
-                    Attributes[property.Name] = SetValue(property.PropertyType, (string)jObject[property.Name]);
+                    if (jObject.Properties().ToList().Exists(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())))
+                    {
+                        Attributes[property.Name] = SetValue(property.PropertyType, (string)jObject[jObject.Properties().ToList().Where(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())).SingleOrDefault().Name]);
+                    }
                 }
             }
         }
