@@ -15,40 +15,63 @@ namespace SampleWebAPI.Controllers
 
         public SamplesController()
         {
-            if (FakeContext == null) FakeContext = new List<SampleModel> { new SampleModel { SampleID = 1, Description = "Sample 01" }, new SampleModel { SampleID = 2, Description = "Sample 02" } };
+            if (FakeContext == null)
+                FakeContext = new List<SampleModel> {
+                    new SampleModel { SampleID = 1, Title = "Sample title 01", Description = "Sample description 01", Items=new List<ItemSampleModel>{ } },
+                    new SampleModel { SampleID = 2, Title = "Sample title 02", Description = "Sample description 02", Items=new List<ItemSampleModel>{ new ItemSampleModel { ItemSampleID = 1, Description = "Sample 02 - Item 01" }, new ItemSampleModel { ItemSampleID = 2, Description = "Sample 02 - Item 02" } } },
+                    new SampleModel { SampleID = 3, Title = "Sample title 03", Description = "Sample description 03", Items=new List<ItemSampleModel>{ } },
+                    new SampleModel { SampleID = 4, Title = "Sample title 04", Description = "Sample description 04", Items=new List<ItemSampleModel>{ } },
+                    new SampleModel { SampleID = 5, Title = "Sample title 05", Description = "Sample description 05", Items=new List<ItemSampleModel>{ } }
+                };
         }
 
-        // GET api/values
+        // GET api/samples
         [HttpGet]
         public IEnumerable<SampleModel> Get()
         {
             return FakeContext.ToList();
         }
 
-        // GET api/values/5
+        // GET api/samples/5
         [HttpGet("{id}")]
         public SampleModel Get(int id)
         {
             return FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
         }
 
-        // POST api/values
+        // GET api/samples
+        [HttpGet("{id}/items")]
+        public IEnumerable<ItemSampleModel> GetItems(int id)
+        {
+            return FakeContext.Where(x => x.SampleID == id).SingleOrDefault().Items.ToList();
+        }
+
+        // GET api/samples/5/Items/1
+        [HttpGet("{id}/items/{item_id}")]
+        public ItemSampleModel GetItems(int id, int item_id)
+        {
+            return FakeContext.Where(x => x.SampleID == id).SingleOrDefault().Items.Where(x=>x.ItemSampleID == item_id).SingleOrDefault();
+        }
+
+
+
+        // POST api/samples
         [HttpPost]
-        public void Post([FromBody]SampleModel value)
+        public void Post(SampleModel value)
         {
             value.SampleID = FakeContext.Max(x => x.SampleID)+1;
             FakeContext.Add(value);
         }
 
-        // PUT api/values/5
+        // PUT api/samples/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromForm]Wrap<SampleModel> value)
+        public void Put(int id, Wrap<SampleModel> value)
         {
             var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
             value.Put(sample).SetID(id);
         }
 
-        // PATCH api/values/5
+        // PATCH api/samples/5
         [HttpPatch("{id}")]
         public void Patch(int id, Wrap<SampleModel> value)
         {
@@ -56,7 +79,7 @@ namespace SampleWebAPI.Controllers
             value.Patch(sample);
         }
 
-        // DELETE api/values/5
+        // DELETE api/samples/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

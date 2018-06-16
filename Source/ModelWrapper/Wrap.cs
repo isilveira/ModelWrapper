@@ -93,7 +93,7 @@ namespace ModelWrapper
                 return;
             }
 
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Custom))
+            if (bindingContext.BindingSource.Id.Equals(BindingSource.Custom.Id))
             {
                 if (bindingContext.HttpContext.Request.HasFormContentType)
                 {
