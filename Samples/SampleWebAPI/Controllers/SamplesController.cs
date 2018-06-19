@@ -33,58 +33,100 @@ namespace SampleWebAPI.Controllers
         }
 
         // GET api/samples/5
-        [HttpGet("{id}")]
-        public SampleModel Get(int id)
+        [HttpGet("{sampleID}")]
+        public SampleModel Get(int sampleID)
         {
-            return FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
+            return FakeContext.SingleOrDefault(x => x.SampleID == sampleID);
         }
-
-        // GET api/samples
-        [HttpGet("{id}/items")]
-        public IEnumerable<ItemSampleModel> GetItems(int id)
-        {
-            return FakeContext.Where(x => x.SampleID == id).SingleOrDefault().Items.ToList();
-        }
-
-        // GET api/samples/5/Items/1
-        [HttpGet("{id}/items/{item_id}")]
-        public ItemSampleModel GetItems(int id, int item_id)
-        {
-            return FakeContext.Where(x => x.SampleID == id).SingleOrDefault().Items.Where(x=>x.ItemSampleID == item_id).SingleOrDefault();
-        }
-
-
-
+        
         // POST api/samples
         [HttpPost]
-        public void Post(SampleModel value)
+        public void Post([FromBody]SampleModel value)
         {
             value.SampleID = FakeContext.Max(x => x.SampleID)+1;
+
+            if (value.Items != null && value.Items.Count > 0)
+            {
+                int nextItemSampleID = FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID);
+
+                value.Items.ForEach(x =>
+                {
+                    nextItemSampleID++;
+                    x.ItemSampleID = nextItemSampleID;
+                });
+            }
+
             FakeContext.Add(value);
         }
 
         // PUT api/samples/5
-        [HttpPut("{id}")]
-        public void Put(int id, Wrap<SampleModel> value)
+        [HttpPut("{sampleID}")]
+        public void Put(int sampleID, [FromBody]Wrap<SampleModel> value)
         {
-            var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
-            value.Put(sample).SetID(id);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID);
+            value.Put(model).SetID(sampleID);
         }
 
         // PATCH api/samples/5
-        [HttpPatch("{id}")]
-        public void Patch(int id, Wrap<SampleModel> value)
+        [HttpPatch("{sampleID}")]
+        public void Patch(int sampleID, [FromBody]Wrap<SampleModel> value)
         {
-            var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
-            value.Patch(sample);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID);
+            value.Patch(model);
         }
 
         // DELETE api/samples/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{sampleID}")]
+        public void Delete(int sampleID)
         {
-            var sample = FakeContext.Where(x => x.SampleID == id).SingleOrDefault();
-            FakeContext.Remove(sample);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID);
+            FakeContext.Remove(model);
+        }
+
+        // GET api/samples
+        [HttpGet("{sampleID}/items")]
+        public IEnumerable<ItemSampleModel> GetItems(int sampleID)
+        {
+            return FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.ToList();
+        }
+
+        // GET api/samples/5/Items/1
+        [HttpGet("{sampleID}/items/{itemSampleID}")]
+        public ItemSampleModel GetItems(int sampleID, int itemSampleID)
+        {
+            return FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+        }
+
+        // POST api/samples/5/items
+        [HttpPost("{sampleID}/items")]
+        public void PostItems(int sampleID, [FromBody]ItemSampleModel value)
+        {
+            value.ItemSampleID = FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID) + 1;
+            FakeContext.SingleOrDefault(x=>x.SampleID == sampleID).Items.Add(value);
+        }
+
+        // PUT api/samples/5/items/2
+        [HttpPut("{sampleID}/items/{itemSampleID}")]
+        public void Put(int sampleID, int itemSampleID, [FromBody]Wrap<ItemSampleModel> value)
+        {
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            value.Put(model).SetID(itemSampleID);
+        }
+
+        // PATCH api/samples/5/items/2
+        [HttpPatch("{sampleID}/items/{itemSampleID}")]
+        public void Patch(int sampleID, int itemSampleID, [FromBody]Wrap<ItemSampleModel> value)
+        {
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            value.Patch(model);
+        }
+
+        // DELETE api/samples/5/items/2
+        [HttpDelete("{sampleID}/items/{itemSampleID}")]
+        public void Delete(int sampleID, int itemSampleID)
+        {
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.Remove(model);
         }
     }
 }
