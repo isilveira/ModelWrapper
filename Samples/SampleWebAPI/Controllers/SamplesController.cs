@@ -38,21 +38,22 @@ namespace SampleWebAPI.Controllers
         {
             return FakeContext.SingleOrDefault(x => x.SampleID == sampleID);
         }
-        
+
         // POST api/samples
         [HttpPost]
         public void Post([FromBody]SampleModel value)
         {
-            value.SampleID = FakeContext.Max(x => x.SampleID)+1;
+            int? lastID = (FakeContext.Any() ? FakeContext.Max(x => x.SampleID) : 0);
+            value.SampleID = (lastID.HasValue ? lastID.Value : 0) + 1;
 
             if (value.Items != null && value.Items.Count > 0)
             {
-                int nextItemSampleID = FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID);
+                int? lastItemID = (FakeContext.SelectMany(x => x.Items).Any() ? FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID) : 0);
 
                 value.Items.ForEach(x =>
                 {
-                    nextItemSampleID++;
-                    x.ItemSampleID = nextItemSampleID;
+                    lastItemID = (lastItemID.HasValue ? lastItemID.Value : 0) + 1;
+                    x.ItemSampleID = lastItemID.Value;
                 });
             }
 
@@ -94,22 +95,23 @@ namespace SampleWebAPI.Controllers
         [HttpGet("{sampleID}/items/{itemSampleID}")]
         public ItemSampleModel GetItems(int sampleID, int itemSampleID)
         {
-            return FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            return FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x => x.ItemSampleID == itemSampleID);
         }
 
         // POST api/samples/5/items
         [HttpPost("{sampleID}/items")]
         public void PostItems(int sampleID, [FromBody]ItemSampleModel value)
         {
-            value.ItemSampleID = FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID) + 1;
-            FakeContext.SingleOrDefault(x=>x.SampleID == sampleID).Items.Add(value);
+            int? lastID = (FakeContext.SelectMany(x => x.Items).Any() ? FakeContext.SelectMany(x => x.Items).Max(x => x.ItemSampleID) : 0);
+            value.ItemSampleID = (lastID.HasValue ? lastID.Value : 0) + 1;
+            FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.Add(value);
         }
 
         // PUT api/samples/5/items/2
         [HttpPut("{sampleID}/items/{itemSampleID}")]
         public void Put(int sampleID, int itemSampleID, [FromBody]Wrap<ItemSampleModel> value)
         {
-            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x => x.ItemSampleID == itemSampleID);
             value.Put(model).SetID(itemSampleID);
         }
 
@@ -117,7 +119,7 @@ namespace SampleWebAPI.Controllers
         [HttpPatch("{sampleID}/items/{itemSampleID}")]
         public void Patch(int sampleID, int itemSampleID, [FromBody]Wrap<ItemSampleModel> value)
         {
-            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x => x.ItemSampleID == itemSampleID);
             value.Patch(model);
         }
 
@@ -125,7 +127,7 @@ namespace SampleWebAPI.Controllers
         [HttpDelete("{sampleID}/items/{itemSampleID}")]
         public void Delete(int sampleID, int itemSampleID)
         {
-            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x=>x.ItemSampleID == itemSampleID);
+            var model = FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.SingleOrDefault(x => x.ItemSampleID == itemSampleID);
             FakeContext.SingleOrDefault(x => x.SampleID == sampleID).Items.Remove(model);
         }
     }

@@ -190,14 +190,28 @@ namespace ModelWrapper
             {
                 if (value is JToken && ((JToken)value).Children().Count() > 0)
                 {
-                    //Carrega os jtokens filhos para a lista de objetos
+                    ((JToken)value).Children().ToList().ForEach(token =>
+                    {
+                        var newObject = SetValue(o.GetType().GetGenericArguments()[0], token);
+
+                        o.GetType().GetMethod("Add").Invoke(o, new[] { newObject });
+                    });
                 }
             }
             else
             {
                 if (value is JToken)
                 {
-                    return Convert.ChangeType(value, type);
+                    if (((JToken)value).Children().Count() > 0)
+                    {
+                        ((JToken)value).Children().ToList().ForEach(token =>
+                        {
+                            PropertyInfo property = o.GetType().GetProperties().SingleOrDefault(x => x.Name.ToLower().Equals(((JProperty)token).Name));
+                            property.SetValue(o, SetValue(property.PropertyType, ((JProperty)token).Value));
+                        });
+                    }
+                    else
+                        return Convert.ChangeType(value, type);
                 }
                 else
                 {
