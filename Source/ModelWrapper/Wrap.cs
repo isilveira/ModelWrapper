@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
@@ -111,7 +112,7 @@ namespace ModelWrapper
                 {
                     TrackFromQuery(bindingContext);
                     return;
-                } 
+                }
             }
         }
 
@@ -170,35 +171,41 @@ namespace ModelWrapper
                 {
                     if (jObject.Properties().ToList().Exists(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())))
                     {
-                        Attributes[property.Name] = SetValue(property.PropertyType, (string)jObject[jObject.Properties().ToList().Where(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())).SingleOrDefault().Name]);
+                        Attributes[property.Name] = SetValue(property.PropertyType, jObject[jObject.Properties().ToList().Where(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())).SingleOrDefault().Name]);
                     }
                 }
             }
         }
-
-        private object SetValue(Type type, StringValues values)
+        //REFATORAR: Tratar os tipos de dados possiveis e para casos de JSON realizar a navegação dentro dos filhos preenchendo a model.
+        // usar recursividade para o preenchimento em árvore.
+        private object SetValue(Type type, object value)
         {
+            object o = null;
+
             if (type.GetConstructors().ToList().Exists(constructor => constructor.GetParameters().Count() == 0))
             {
-                object o = Activator.CreateInstance(type);
-
-                return o;
+                o = Activator.CreateInstance(type);
             }
-            if (type.IsGenericType && (
-                type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
-                || type.GetGenericTypeDefinition() == typeof(ICollection<>)
-                || type.GetGenericTypeDefinition() == typeof(IList<>)))
+            if (type.IsGenericType && o != null && (o is IList || o is IEnumerable || o is ICollection))
             {
-                foreach (var item in values.ToList())
+                if (value is JToken && ((JToken)value).Children().Count() > 0)
                 {
+                    //Carrega os jtokens filhos para a lista de objetos
                 }
             }
             else
             {
-                return Convert.ChangeType(values.ToList()[0], type);
+                if (value is JToken)
+                {
+                    return Convert.ChangeType(value, type);
+                }
+                else
+                {
+                    return Convert.ChangeType(((StringValues)value).ToList()[0], type);
+                }
             }
 
-            return null;
+            return o;
         }
     }
 }
