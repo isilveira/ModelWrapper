@@ -12,20 +12,26 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Primitives;
 using ModelWrapper.Core;
 using ModelWrapper.Core.Binders.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ModelWrapper
 {
-    [ModelBinder(BinderType = typeof(WrapModelBinder))]
+    //[ModelBinder(BinderType = typeof(WrapModelBinder))]
     public class Wrap<T> : DynamicObject, IWrap<T>
         where T : class
     {
+        private T InternalObject { get; set; }
         private Dictionary<string, object> Attributes;
 
         static Wrap() { }
-        public Wrap() { if (Attributes == null) Attributes = new Dictionary<string, object>(); }
+        public Wrap() {
+            this.InternalObject = Activator.CreateInstance<T>();
+            if (Attributes == null) Attributes = new Dictionary<string, object>();
+        }
         public Wrap(Dictionary<string, object> attributes)
         {
+            this.InternalObject = Activator.CreateInstance<T>();
             Attributes = attributes;
         }
 
@@ -36,9 +42,10 @@ namespace ModelWrapper
 
         public T Patch(T model)
         {
-            Attributes.ToList().ForEach(attribute =>
-                model.GetType().GetProperties().Where(x => x.Name.ToLower().Equals(attribute.Key.ToLower())).SingleOrDefault()
-                    .SetValue(model, attribute.Value));
+            Attributes.ToList().ForEach(attribute => {
+                var property = model.GetType().GetProperties().Where(x => x.Name.ToLower().Equals(attribute.Key.ToLower())).SingleOrDefault();
+                property.SetValue(model, property.GetValue(this.InternalObject));
+            });
             return model;
         }
 
@@ -71,25 +78,31 @@ namespace ModelWrapper
         {
             Attributes[binder.Name] = value;
 
+            var property = typeof(T).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
+
+            property.SetValue(this.InternalObject, (value is JToken) ? JsonConvert.DeserializeObject(value.ToString(), property.PropertyType) : Convert.ChangeType(value,property.PropertyType));
+
             return true;
         }
 
         internal void Bind(ModelBindingContext bindingContext)
         {
             if (bindingContext.BindingSource.Id.Equals(BindingSource.Body.Id) && bindingContext.HttpContext.Request.ContentLength > 0)
-            {
+            {                
                 TrackFromBody(bindingContext);
                 return;
             }
 
             if (bindingContext.BindingSource.Id.Equals(BindingSource.Form.Id) && bindingContext.HttpContext.Request.HasFormContentType)
             {
+                var values = new FormValueProvider(bindingContext.BindingSource, bindingContext.HttpContext.Request.Form, new System.Globalization.CultureInfo("pt-BR"));
                 TrackFromForm(bindingContext);
                 return;
             }
 
             if (bindingContext.BindingSource.Id.Equals(BindingSource.Query.Id) && bindingContext.HttpContext.Request.Query.Count > 0)
             {
+                var values = new QueryStringValueProvider(bindingContext.BindingSource, bindingContext.HttpContext.Request.Query, new System.Globalization.CultureInfo("pt-BR"));
                 TrackFromQuery(bindingContext);
                 return;
             }
