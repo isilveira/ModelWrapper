@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Primitives;
-using ModelWrapper.Core;
-using ModelWrapper.Core.Binders.Models;
+﻿using ModelWrapper.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using System.Reflection;
 
 namespace ModelWrapper
 {
-    //[ModelBinder(BinderType = typeof(WrapModelBinder))]
     public class Wrap<TModel> : DynamicObject, IWrap<TModel>
         where TModel : class
     {
