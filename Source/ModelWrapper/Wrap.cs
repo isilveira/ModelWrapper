@@ -18,21 +18,34 @@ using Newtonsoft.Json.Linq;
 namespace ModelWrapper
 {
     //[ModelBinder(BinderType = typeof(WrapModelBinder))]
-    public class Wrap<T> : DynamicObject, IWrap<T>
-        where T : class
+    public class Wrap<TModel> : DynamicObject, IWrap<TModel>
+        where TModel : class
     {
-        private T InternalObject { get; set; }
+        private TModel InternalObject { get; set; }
+        private List<PropertyInfo> AllProperties { get; set; }
+        private List<PropertyInfo> SuppliedProperties { get; set; }
+
         private Dictionary<string, object> Attributes;
 
         static Wrap() { }
-        public Wrap() {
-            this.InternalObject = Activator.CreateInstance<T>();
-            if (Attributes == null) Attributes = new Dictionary<string, object>();
+
+        private void InitializePrivateObjects()
+        {
+            InternalObject = Activator.CreateInstance<TModel>();
+            SuppliedProperties = new List<PropertyInfo>();
+            AllProperties = typeof(TModel).GetProperties().ToList();
+            Attributes = new Dictionary<string, object>();
+        }
+
+        public Wrap()
+        {
+            InitializePrivateObjects();
         }
         public Wrap(Dictionary<string, object> attributes)
         {
-            this.InternalObject = Activator.CreateInstance<T>();
+            InitializePrivateObjects();
             Attributes = attributes;
+            Attributes.ToList().ForEach(pair => SetPropertyValue(pair));
         }
 
         public Dictionary<string, object> AsDictionary()
@@ -40,33 +53,16 @@ namespace ModelWrapper
             return Attributes;
         }
 
-        public T Patch(T model)
+        public TModel Patch(TModel model)
         {
-            Attributes.ToList().ForEach(attribute => {
-                var property = model.GetType().GetProperties().Where(x => x.Name.ToLower().Equals(attribute.Key.ToLower())).SingleOrDefault();
-                property.SetValue(model, property.GetValue(this.InternalObject));
-            });
+            SuppliedProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
             return model;
         }
 
-        public T Put(T model)
+        public TModel Put(TModel model)
         {
-            model.GetType().GetProperties().ToList().ForEach(property =>
-            {
-                object value;
-
-                this.Attributes.TryGetValue(property.Name, out value);
-
-                object propertyValue = value != null ? Convert.ChangeType(value, property.PropertyType) : null;
-
-                property.SetValue(model, propertyValue);
-            });
+            AllProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
             return model;
-        }
-
-        public void Set(T model)
-        {
-            model.GetType().GetProperties().ToList().ForEach(property => Attributes.Add(property.Name.ToLower(), property.GetValue(model)));
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
@@ -76,163 +72,23 @@ namespace ModelWrapper
 
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            Attributes[binder.Name] = value;
+            Attributes.Add(binder.Name, value);
 
-            var property = typeof(T).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
-
-            property.SetValue(this.InternalObject, (value is JToken) ? JsonConvert.DeserializeObject(value.ToString(), property.PropertyType) : Convert.ChangeType(value,property.PropertyType));
+            SetPropertyValue(Attributes.SingleOrDefault(x => x.Key.Equals(binder.Name)));
 
             return true;
         }
 
-        internal void Bind(ModelBindingContext bindingContext)
+        private void SetPropertyValue(KeyValuePair<string, object> token)
         {
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Body.Id) && bindingContext.HttpContext.Request.ContentLength > 0)
-            {                
-                TrackFromBody(bindingContext);
-                return;
-            }
+            var property = typeof(TModel).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(token.Key.ToLower()));
 
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Form.Id) && bindingContext.HttpContext.Request.HasFormContentType)
+            if (property != null)
             {
-                var values = new FormValueProvider(bindingContext.BindingSource, bindingContext.HttpContext.Request.Form, new System.Globalization.CultureInfo("pt-BR"));
-                TrackFromForm(bindingContext);
-                return;
+                SuppliedProperties.Add(property);
+                var newPropertyValue = (token.Value is JToken) ? JsonConvert.DeserializeObject(token.Value.ToString(), property.PropertyType) : Convert.ChangeType(token.Value, property.PropertyType);
+                property.SetValue(this.InternalObject, newPropertyValue);
             }
-
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Query.Id) && bindingContext.HttpContext.Request.Query.Count > 0)
-            {
-                var values = new QueryStringValueProvider(bindingContext.BindingSource, bindingContext.HttpContext.Request.Query, new System.Globalization.CultureInfo("pt-BR"));
-                TrackFromQuery(bindingContext);
-                return;
-            }
-
-            if (bindingContext.BindingSource.Id.Equals(BindingSource.Custom.Id))
-            {
-                if (bindingContext.HttpContext.Request.HasFormContentType)
-                {
-                    TrackFromForm(bindingContext);
-                    return;
-                }
-
-                if (bindingContext.HttpContext.Request.ContentLength > 0)
-                {
-                    TrackFromBody(bindingContext);
-                    return;
-                }
-
-                if (bindingContext.HttpContext.Request.Query.Count > 0)
-                {
-                    TrackFromQuery(bindingContext);
-                    return;
-                }
-            }
-        }
-
-        private void TrackFromQuery(ModelBindingContext bindingContext)
-        {
-            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
-            if (bindingContext.HttpContext.Request.Query.Count > 0)
-            {
-                bindingContext.HttpContext.Request.Query.ToList().ForEach(query =>
-                   {
-                       var property = properties.Where(p => p.Name.ToLower().Equals(query.Key.ToLower())).SingleOrDefault();
-                       if (property != null)
-                       {
-                           Attributes[property.Name] = SetValue(property.PropertyType, query.Value);
-                       }
-                   });
-            }
-        }
-
-        private void TrackFromForm(ModelBindingContext bindingContext)
-        {
-            List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
-            if (bindingContext.HttpContext.Request.HasFormContentType)
-            {
-                bindingContext.HttpContext.Request.Form.ToList().ForEach(x =>
-                {
-                    var property = properties.Where(p => p.Name.ToUpper().Equals(x.Key.ToUpper())).SingleOrDefault();
-
-                    if (property != null)
-                    {
-                        Attributes[property.Name] = SetValue(property.PropertyType, x.Value);
-                    }
-                });
-            }
-        }
-
-        private void TrackFromBody(ModelBindingContext bindingContext)
-        {
-            string content = string.Empty;
-            if (bindingContext.HttpContext.Request.Body != null)
-            {
-                using (StreamReader reader = new StreamReader(bindingContext.HttpContext.Request.Body, Encoding.UTF8))
-                {
-                    Task<string> task = reader.ReadToEndAsync();
-                    if (task.IsCompletedSuccessfully)
-                    {
-                        content = task.Result;
-                    }
-                }
-
-                JObject jObject = JObject.Parse(content);
-
-                List<PropertyInfo> properties = typeof(T).GetProperties().ToList();
-
-                foreach (var property in properties)
-                {
-                    if (jObject.Properties().ToList().Exists(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())))
-                    {
-                        Attributes[property.Name] = SetValue(property.PropertyType, jObject[jObject.Properties().ToList().Where(jproperty => jproperty.Name.ToLower().Equals(property.Name.ToLower())).SingleOrDefault().Name]);
-                    }
-                }
-            }
-        }
-        //REFATORAR: Tratar os tipos de dados possiveis e para casos de JSON realizar a navegação dentro dos filhos preenchendo a model.
-        // usar recursividade para o preenchimento em árvore.
-        private object SetValue(Type type, object value)
-        {
-            object o = null;
-
-            if (type.GetConstructors().ToList().Exists(constructor => constructor.GetParameters().Count() == 0))
-            {
-                o = Activator.CreateInstance(type);
-            }
-            if (type.IsGenericType && o != null && (o is IList || o is IEnumerable || o is ICollection))
-            {
-                if (value is JToken && ((JToken)value).Children().Count() > 0)
-                {
-                    ((JToken)value).Children().ToList().ForEach(token =>
-                    {
-                        var newObject = SetValue(o.GetType().GetGenericArguments()[0], token);
-
-                        o.GetType().GetMethod("Add").Invoke(o, new[] { newObject });
-                    });
-                }
-            }
-            else
-            {
-                if (value is JToken)
-                {
-                    if (((JToken)value).Children().Count() > 0)
-                    {
-                        ((JToken)value).Children().ToList().ForEach(token =>
-                        {
-                            PropertyInfo property = o.GetType().GetProperties().SingleOrDefault(x => x.Name.ToLower().Equals(((JProperty)token).Name));
-                            property.SetValue(o, SetValue(property.PropertyType, ((JProperty)token).Value));
-                        });
-                    }
-                    else
-                        return Convert.ChangeType(value, type);
-                }
-                else
-                {
-                    return Convert.ChangeType(((StringValues)value).ToList()[0], type);
-                }
-            }
-
-            return o;
         }
     }
 }
