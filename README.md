@@ -7,5 +7,6 @@ Nuget
 ----
 https://www.nuget.org/packages/ModelWrapper
 
-Nuget CLI
+CLI
+----
 PM> Install-Package ModelWrapper -Version 1.0.0-beta 
