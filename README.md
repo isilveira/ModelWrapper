@@ -5,11 +5,11 @@ ____
 
 Nuget
 ----
-https://www.nuget.org/packages/ModelWrapper
+> https://www.nuget.org/packages/ModelWrapper
 
 Package Manager
 ----
-PM> Install-Package ModelWrapper -Version 1.0.0-beta
+> PM> Install-Package ModelWrapper -Version 1.0.0-beta
 
 .NET CLI
 ----
