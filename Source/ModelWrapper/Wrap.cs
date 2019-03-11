@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace ModelWrapper
@@ -32,6 +33,7 @@ namespace ModelWrapper
         /// Dictionary with all supplied data.
         /// </summary>
         private Dictionary<string, object> Attributes;
+        private List<MemberExpression> MemberExpressions;
         #endregion
 
         #region Contructors
@@ -63,6 +65,14 @@ namespace ModelWrapper
         public Dictionary<string, object> AsDictionary()
         {
             return Attributes;
+        }
+
+        public void SuppressProperty(MemberExpression expression)
+        {
+            if (MemberExpressions == null)
+                MemberExpressions = new List<MemberExpression>();
+
+            MemberExpressions.Add(expression);
         }
 
         /// <summary>
@@ -126,6 +136,7 @@ namespace ModelWrapper
             SuppliedProperties = new List<PropertyInfo>();
             AllProperties = typeof(TModel).GetProperties().ToList();
             Attributes = new Dictionary<string, object>();
+            MemberExpressions = new List<MemberExpression>();
         }
 
         /// <summary>
