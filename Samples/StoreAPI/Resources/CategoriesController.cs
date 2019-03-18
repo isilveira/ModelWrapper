@@ -42,7 +42,7 @@ namespace StoreAPI.Resources
         [HttpPatch("{categoryid}")]
         public async Task<ActionResult<PatchCategoryCommandResponse>> Patch([FromRoute]int categoryID, [FromBody] PatchCategoryCommand request)
         {
-            request.CategoryID = categoryID;
+            request.SetID(categoryID, nameof(categoryID));
             return await Send(request);
         }
 

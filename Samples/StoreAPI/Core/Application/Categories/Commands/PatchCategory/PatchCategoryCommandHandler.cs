@@ -16,35 +16,20 @@ namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
         }
         public async Task<PatchCategoryCommandResponse> Handle(PatchCategoryCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.CategoryID);
+            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.GetID());
 
             if (data == null)
             {
                 throw new Exception("Category not found!");
             }
 
-            // This "patch" implementation will never allow to set null value on RootCategory
-            // becouse there's no way no know if the value was or not supplied
-            if (request.RootCategoryID.HasValue)
-            {
-                data.RootCategoryID = request.RootCategoryID.Value;
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.Name))
-            {
-                data.Name = request.Name;
-            }
-
-            if (!string.IsNullOrWhiteSpace(request.Description))
-            {
-                data.Description = request.Description;
-            }
+            request.Patch(data);
 
             await Context.SaveChangesAsync();
 
             return new PatchCategoryCommandResponse
             {
-                Request = request,
+                Request = request.AsDictionary(),
                 Message = "Successful operation!",
                 Data = new PatchCategoryCommandResponseDTO
                 {

@@ -23,9 +23,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
                 throw new Exception("Category not found!");
             }
 
-            data.RootCategoryID = request.RootCategoryID;
-            data.Name = request.Name;
-            data.Description = request.Description;
+            request.Put(data);
 
             await Context.SaveChangesAsync();
 
