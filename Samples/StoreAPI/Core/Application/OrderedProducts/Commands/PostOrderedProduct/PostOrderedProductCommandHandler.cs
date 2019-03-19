@@ -16,14 +16,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
         }
         public async Task<PostOrderedProductCommandResponse> Handle(PostOrderedProductCommand request, CancellationToken cancellationToken)
         {
-            var data = new OrderedProduct
-            {
-                OrderID = request.OrderID,
-                ProductID = request.ProductID,
-                Amount = request.Amount,
-                Value = request.Value,
-                RegistrationDate = DateTime.UtcNow
-            };
+            var data = request.Post();
 
             await Context.OrderedProducts.AddAsync(data);
 
@@ -31,8 +24,8 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
 
             return new PostOrderedProductCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PostOrderedProductCommandResponseDTO
                 {
                     OrderedProductID = data.OrderedProductID,

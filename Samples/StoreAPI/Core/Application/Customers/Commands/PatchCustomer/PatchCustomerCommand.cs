@@ -1,12 +1,14 @@
 ﻿using MediatR;
+using ModelWrapper;
+using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
 {
-    public class PatchCustomerCommand : IRequest<PatchCustomerCommandResponse>
+    public class PatchCustomerCommand : Wrap<Customer,int>, IRequest<PatchCustomerCommandResponse>
     {
-        public int CustomerID { get; set; }
-
-        public string Name { get; set; }
-        public string Email { get; set; }
+        public PatchCustomerCommand()
+        {
+            SuppressProperty(x => x.CustomerID);
+        }
     }
 }

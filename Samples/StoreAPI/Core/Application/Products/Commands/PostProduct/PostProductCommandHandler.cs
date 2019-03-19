@@ -16,17 +16,7 @@ namespace StoreAPI.Core.Application.Products.Commands.PostProduct
         }
         public async Task<PostProductCommandResponse> Handle(PostProductCommand request, CancellationToken cancellationToken)
         {
-            var data = new Product
-            {
-                CategoryID = request.CategoryID,
-                Name = request.Name,
-                Description = request.Description,
-                Specifications = request.Specifications,
-                RegistrationDate = DateTime.UtcNow,
-                Value = request.Value,
-                Amount = request.Amount,
-                IsVisible = request.IsVisible
-            };
+            var data = request.Post();
 
             await Context.Products.AddAsync(data);
 
@@ -34,8 +24,8 @@ namespace StoreAPI.Core.Application.Products.Commands.PostProduct
 
             return new PostProductCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PostProductCommandResponseDTO
                 {
                     ProductID = data.ProductID,

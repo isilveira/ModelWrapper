@@ -16,23 +16,21 @@ namespace StoreAPI.Core.Application.Orders.Commands.PutOrder
         }
         public async Task<PutOrderCommandResponse> Handle(PutOrderCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == request.OrderID);
+            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == request.GetID());
 
             if (data == null)
             {
                 throw new Exception("Order not found!");
             }
 
-            data.CustomerID = request.CustomerID;
-            data.ConfirmationDate = request.ConfirmationDate;
-            data.CancellationDate = request.CancellationDate;
+            request.Put(data);
 
             await Context.SaveChangesAsync();
 
             return new PutOrderCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PutOrderCommandResponseDTO
                 {
                     OrderID = data.OrderID,

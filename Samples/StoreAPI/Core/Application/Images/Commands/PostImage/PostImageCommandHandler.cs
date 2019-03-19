@@ -16,12 +16,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PostImage
         }
         public async Task<PostImageCommandResponse> Handle(PostImageCommand request, CancellationToken cancellationToken)
         {
-            var data = new Image
-            {
-                MimeType = request.MimeType,
-                ProductID = request.ProductID,
-                Url = request.Url
-            };
+            var data = request.Post();
 
             await Context.Images.AddAsync(data);
 
@@ -30,7 +25,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PostImage
             return new PostImageCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request,
+                Request = request.AsDictionary(),
                 Data = new PostImageCommandResponseDTO
                 {
                     ImageID = data.ImageID,

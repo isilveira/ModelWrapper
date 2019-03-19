@@ -16,39 +16,21 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PatchOrderedProduct
         }
         public async Task<PatchOrderedProductCommandResponse> Handle(PatchOrderedProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == request.OrderedProductID);
+            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == request.GetID());
 
             if (data == null)
             {
                 throw new Exception("OrderedProduct not found!");
             }
 
-            if (request.OrderID.HasValue)
-            {
-                data.OrderID = request.OrderID.Value;
-            }
-
-            if (request.ProductID.HasValue)
-            {
-                data.ProductID = request.ProductID.Value;
-            }
-
-            if (request.Amount.HasValue)
-            {
-                data.Amount = request.Amount.Value;
-            }
-
-            if (request.Value.HasValue)
-            {
-                data.Value = request.Value.Value;
-            }
+            request.Patch(data);
 
             await Context.SaveChangesAsync();
 
             return new PatchOrderedProductCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PatchOrderedProductCommandResponseDTO
                 {
                     OrderedProductID = data.OrderedProductID,

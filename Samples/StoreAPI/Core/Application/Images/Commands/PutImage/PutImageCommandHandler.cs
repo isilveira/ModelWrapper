@@ -18,21 +18,19 @@ namespace StoreAPI.Core.Application.Images.Commands.PutImage
         }
         public async Task<PutImageCommandResponse> Handle(PutImageCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == request.ImageID);
+            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == request.GetID());
 
             if (data == null)
                 throw new Exception("Image not found!");
 
-            data.MimeType = request.MimeType;
-            data.ProductID = request.ProductID;
-            data.Url = request.Url;
+            request.Put(data);
 
             await Context.SaveChangesAsync();
 
             return new PutImageCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request,
+                Request = request.AsDictionary(),
                 Data = new PutImageCommandResponseDTO
                 {
                     ImageID = data.ImageID,

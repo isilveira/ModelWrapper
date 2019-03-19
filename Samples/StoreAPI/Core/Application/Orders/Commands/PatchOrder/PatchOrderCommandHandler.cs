@@ -16,32 +16,21 @@ namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
         }
         public async Task<PatchOrderCommandResponse> Handle(PatchOrderCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == request.OrderID);
+            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == request.GetID());
 
             if (data == null)
             {
                 throw new Exception("Order not found!");
             }
 
-            if (request.CustomerID.HasValue)
-            {
-                data.CustomerID = request.CustomerID.Value;
-            }
-            if (request.ConfirmationDate.HasValue)
-            {
-                data.ConfirmationDate = request.ConfirmationDate.Value;
-            }
-            if (request.CancellationDate.HasValue)
-            {
-                data.CancellationDate = request.CancellationDate.Value;
-            }
+            request.Patch(data);
 
             await Context.SaveChangesAsync();
 
             return new PatchOrderCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PatchOrderCommandResponseDTO
                 {
                     OrderID = data.OrderID,

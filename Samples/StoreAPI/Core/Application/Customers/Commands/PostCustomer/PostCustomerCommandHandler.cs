@@ -16,12 +16,7 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
         }
         public async Task<PostCustomerCommandResponse> Handle(PostCustomerCommand request, CancellationToken cancellationToken)
         {
-            var data = new Customer
-            {
-                Name = request.Name,
-                Email = request.Email,
-                RegistrationDate = DateTime.UtcNow
-            };
+            var data = request.Post();
 
             await Context.Customers.AddAsync(data);
 
@@ -29,7 +24,7 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
 
             return new PostCustomerCommandResponse
             {
-                Request = request,
+                Request = request.AsDictionary(),
                 Message = "Successful operation!",
                 Data = new PostCustomerCommandResponseDTO
                 {

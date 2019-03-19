@@ -16,25 +16,19 @@ namespace StoreAPI.Core.Application.Products.Commands.PutProduct
         }
         public async Task<PutProductCommandResponse> Handle(PutProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == request.ProductID);
+            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == request.GetID());
 
             if (data == null)
                 throw new Exception("Product not found!");
 
-            data.CategoryID = request.CategoryID;
-            data.Name = request.Name;
-            data.Description = request.Description;
-            data.Specifications = request.Specifications;
-            data.Value = request.Value;
-            data.Amount = request.Amount;
-            data.IsVisible = request.IsVisible;
+            request.Put(data);
 
             await Context.SaveChangesAsync();
 
             return new PutProductCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PutProductCommandResponseDTO
                 {
                     ProductID = data.ProductID,

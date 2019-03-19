@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Images.Commands.PutImage
 {
-    public class PutImageCommandResponse : CommandResponse<PutImageCommand, PutImageCommandResponseDTO>
+    public class PutImageCommandResponse : CommandResponse<Dictionary<string, object>, PutImageCommandResponseDTO>
     {
-
-        public PutImageCommandResponse()
-        {
-        }
     }
 }
