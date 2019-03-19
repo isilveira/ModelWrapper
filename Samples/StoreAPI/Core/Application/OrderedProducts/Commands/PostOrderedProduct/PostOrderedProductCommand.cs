@@ -10,6 +10,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
         public PostOrderedProductCommand()
         {
             SuppressProperty(x => x.OrderedProductID);
+            SuppressProperty(x => x.RegistrationDate);
         }
     }
 }

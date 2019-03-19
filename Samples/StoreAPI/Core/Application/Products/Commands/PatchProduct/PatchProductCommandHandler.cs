@@ -29,8 +29,8 @@ namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
 
             return new PatchProductCommandResponse
             {
-                Request = request,
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PatchProductCommandResponseDTO
                 {
                     ProductID = data.ProductID,

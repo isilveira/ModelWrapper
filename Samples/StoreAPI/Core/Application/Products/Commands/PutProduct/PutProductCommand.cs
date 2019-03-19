@@ -12,6 +12,7 @@ namespace StoreAPI.Core.Application.Products.Commands.PutProduct
     {
         public PutProductCommand()
         {
+            SuppressProperty(x => x.ProductID);
         }
     }
 }
