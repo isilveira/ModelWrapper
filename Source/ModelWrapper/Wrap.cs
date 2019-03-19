@@ -1,4 +1,4 @@
-﻿using ModelWrapper.Core;
+﻿using ModelWrapper.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -10,30 +10,39 @@ using System.Reflection;
 
 namespace ModelWrapper
 {
-    public class Wrap<TModel> : DynamicObject, IWrap<TModel>
+    public enum EnumProperties
+    {
+        All,
+        AllWithoutKeys,
+        OnlySupplieds,
+        SuppliedsWithoutKeys
+    }
+    public class Wrap<TModel> : DynamicObject
         where TModel : class
     {
         #region Properties
         /// <summary>
         /// Internal model object that hold the supplied value.
         /// </summary>
-        private TModel InternalObject { get; set; }
+        internal TModel InternalObject { get; set; }
 
         /// <summary>
         /// List of properties of the model wrapped.
         /// </summary>
-        private List<PropertyInfo> AllProperties { get; set; }
+        internal List<PropertyInfo> AllProperties { get; set; }
 
         /// <summary>
         /// List of supplied properties of the model wrapped.
         /// </summary>
-        private List<PropertyInfo> SuppliedProperties { get; set; }
+        internal List<PropertyInfo> SuppliedProperties { get; set; }
 
         /// <summary>
         /// Dictionary with all supplied data.
         /// </summary>
-        private Dictionary<string, object> Attributes;
-        private List<MemberExpression> MemberExpressions;
+        internal Dictionary<string, object> Attributes;
+        internal List<Expression<Func<TModel, object>>> SupressedMembers;
+        internal List<Expression<Func<TModel, object>>> KeyMembers;
+        internal string PropertyID { get; set; }
         #endregion
 
         #region Contructors
@@ -56,33 +65,69 @@ namespace ModelWrapper
             Attributes.ToList().ForEach(pair => SetPropertyValue(pair));
         }
         #endregion
-        
+
         #region Wrapper public methods
         /// <summary>
         /// Method that deliver the dictionary of wrapper.
         /// </summary>
         /// <returns>Dictionary with values of wrapper</returns>
-        public Dictionary<string, object> AsDictionary()
+        public Dictionary<string, object> AsDictionary(EnumProperties enumProperties = EnumProperties.All)
         {
-            return Attributes;
+            var dictionary = new Dictionary<string, object>();
+            var properties = AllProperties.Where(x => !SupressedMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+
+            if (enumProperties == EnumProperties.OnlySupplieds || enumProperties == EnumProperties.SuppliedsWithoutKeys)
+            {
+                properties = properties.Where(property => SuppliedProperties.Exists(x => x.Name == property.Name)).ToList();
+            }
+
+            if (enumProperties == EnumProperties.AllWithoutKeys || enumProperties == EnumProperties.SuppliedsWithoutKeys)
+            {
+                properties = properties.Where(x => !KeyMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+            }
+
+            properties.ForEach(x =>
+                dictionary.Add(x.Name.ToCamelCase(), x.GetValue(this.InternalObject))
+            );
+
+            return dictionary;
         }
 
-        public void SuppressProperty(MemberExpression expression)
+        public void KeyProperty(Expression<Func<TModel, object>> expression)
         {
-            if (MemberExpressions == null)
-                MemberExpressions = new List<MemberExpression>();
+            if (KeyMembers == null)
+            {
+                KeyMembers = new List<Expression<Func<TModel, object>>>();
+            }
 
-            MemberExpressions.Add(expression);
+            KeyMembers.Add(expression);
+        }
+        public void SuppressProperty(Expression<Func<TModel, object>> expression)
+        {
+            if (SupressedMembers == null)
+            {
+                SupressedMembers = new List<Expression<Func<TModel, object>>>();
+            }
+
+            SupressedMembers.Add(expression);
         }
 
         /// <summary>
-        /// Method that patch data into the model object
+        /// Method that put data into the model object
         /// </summary>
         /// <param name="model">Model object</param>
         /// <returns>Return model object</returns>
-        public TModel Patch(TModel model)
+        public TModel Post()
         {
-            SuppliedProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+            var model = Activator.CreateInstance<TModel>();
+
+            var postProperties = AllProperties.ToList();
+
+            postProperties = postProperties.Where(x => !SupressedMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+            postProperties = postProperties.Where(x => !KeyMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+
+            postProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+
             return model;
         }
 
@@ -93,7 +138,30 @@ namespace ModelWrapper
         /// <returns>Return model object</returns>
         public TModel Put(TModel model)
         {
-            AllProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+            var putProperties = AllProperties.ToList();
+
+            putProperties = putProperties.Where(x => !SupressedMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+            putProperties = putProperties.Where(x => !KeyMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+
+            putProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+
+            return model;
+        }
+
+        /// <summary>
+        /// Method that patch data into the model object
+        /// </summary>
+        /// <param name="model">Model object</param>
+        /// <returns>Return model object</returns>
+        public TModel Patch(TModel model)
+        {
+            var patchtProperties = AllProperties.Where(x => SuppliedProperties.Exists(y => y.Name == x.Name)).ToList();
+
+            patchtProperties = patchtProperties.Where(x => !SupressedMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+            patchtProperties = patchtProperties.Where(x => !KeyMembers.Any(y => GetPropertyName(y) == x.Name)).ToList();
+
+            patchtProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+
             return model;
         }
         #endregion
@@ -136,24 +204,66 @@ namespace ModelWrapper
             SuppliedProperties = new List<PropertyInfo>();
             AllProperties = typeof(TModel).GetProperties().ToList();
             Attributes = new Dictionary<string, object>();
-            MemberExpressions = new List<MemberExpression>();
+            SupressedMembers = new List<Expression<Func<TModel, object>>>();
         }
 
         /// <summary>
         /// Method used to set property value
         /// </summary>
         /// <param name="token">Dictionary key value pair</param>
-        private void SetPropertyValue(KeyValuePair<string, object> token)
+        internal void SetPropertyValue(KeyValuePair<string, object> token)
         {
             var property = typeof(TModel).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(token.Key.ToLower()));
 
             if (property != null)
             {
+                Type propertyType = property.PropertyType;
+                if (Nullable.GetUnderlyingType(propertyType) != null)
+                {
+                    propertyType = Nullable.GetUnderlyingType(propertyType);
+                }
+
                 SuppliedProperties.Add(property);
-                var newPropertyValue = (token.Value is JToken) ? JsonConvert.DeserializeObject(token.Value.ToString(), property.PropertyType) : Convert.ChangeType(token.Value, property.PropertyType);
+                var newPropertyValue = (token.Value is JToken) ? JsonConvert.DeserializeObject(token.Value.ToString(), property.PropertyType) : Convert.ChangeType(token.Value, propertyType);
                 property.SetValue(this.InternalObject, newPropertyValue);
             }
-        } 
+        }
+
+        public string GetPropertyName(Expression<Func<TModel, object>> property)
+        {
+            LambdaExpression lambda = (LambdaExpression)property;
+            MemberExpression memberExpression;
+
+            if (lambda.Body is UnaryExpression)
+            {
+                UnaryExpression unaryExpression = (UnaryExpression)(lambda.Body);
+                memberExpression = (MemberExpression)(unaryExpression.Operand);
+            }
+            else
+            {
+                memberExpression = (MemberExpression)(lambda.Body);
+            }
+
+            return ((PropertyInfo)memberExpression.Member).Name;
+        }
         #endregion
+    }
+
+    public class Wrap<TModel, TKey> : Wrap<TModel>
+        where TModel : class
+        where TKey : struct
+    {
+        public void SetID(TKey id, string property = "ID")
+        {
+            this.PropertyID = property;
+            Attributes.Add(property, id);
+            SetPropertyValue(new KeyValuePair<string, object>(property, id));
+        }
+
+        public TKey GetID()
+        {
+            var propertyInfo = AllProperties.SingleOrDefault(x => x.Name.ToLower() == PropertyID.ToLower());
+            return (TKey)propertyInfo.GetValue(this.InternalObject);
+        }
     }
 }
