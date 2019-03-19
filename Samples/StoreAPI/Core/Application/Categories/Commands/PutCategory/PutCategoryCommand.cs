@@ -10,8 +10,6 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
 {
     public class PutCategoryCommand : Wrap<Category,int>,IRequest<PutCategoryCommandResponse>
     {
-        public int CategoryID { get; set; }
-
         public PutCategoryCommand()
         {
             SuppressProperty(x => x.CategoryID);

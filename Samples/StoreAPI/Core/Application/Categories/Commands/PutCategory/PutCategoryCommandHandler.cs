@@ -16,7 +16,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
         }
         public async Task<PutCategoryCommandResponse> Handle(PutCategoryCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.CategoryID);
+            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.GetID());
 
             if (data == null)
             {
@@ -29,7 +29,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
 
             return new PutCategoryCommandResponse
             {
-                Request = request,
+                Request = request.AsDictionary(),
                 Message = "Successful operation!",
                 Data = new PutCategoryCommandResponseDTO
                 {

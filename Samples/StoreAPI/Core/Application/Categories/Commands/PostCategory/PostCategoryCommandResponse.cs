@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 {
-    public class PostCategoryCommandResponse : CommandResponse<PostCategoryCommand, PostCategoryCommandResponseDTO>
+    public class PostCategoryCommandResponse : CommandResponse<Dictionary<string, object>, PostCategoryCommandResponseDTO>
     {
     }
 }

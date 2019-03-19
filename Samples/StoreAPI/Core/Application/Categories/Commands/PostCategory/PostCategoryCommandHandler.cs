@@ -15,12 +15,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
         }
         public async Task<PostCategoryCommandResponse> Handle(PostCategoryCommand request, CancellationToken cancellationToken)
         {
-            var data = new Category
-            {
-                RootCategoryID = request.RootCategoryID,
-                Name = request.Name,
-                Description = request.Description,
-            };
+            var data = request.Post();
 
             await Context.Categories.AddAsync(data);
 
@@ -28,7 +23,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 
             return new PostCategoryCommandResponse
             {
-                Request = request,
+                Request = request.AsDictionary(),
                 Message = "Successful operation!",
                 Data = new PostCategoryCommandResponseDTO
                 {

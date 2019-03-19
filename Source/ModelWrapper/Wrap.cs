@@ -10,33 +10,31 @@ using System.Reflection;
 
 namespace ModelWrapper
 {
-    [Serializable]
-    public class Wrap<TModel, TKey> : DynamicObject, IWrap<TModel>, IDynamicMetaObjectProvider
+    public class Wrap<TModel> : DynamicObject, IWrap<TModel>, IDynamicMetaObjectProvider
         where TModel : class
-        where TKey : struct
     {
         #region Properties
         /// <summary>
         /// Internal model object that hold the supplied value.
         /// </summary>
-        private TModel InternalObject { get; set; }
+        internal TModel InternalObject { get; set; }
 
         /// <summary>
         /// List of properties of the model wrapped.
         /// </summary>
-        private List<PropertyInfo> AllProperties { get; set; }
+        internal List<PropertyInfo> AllProperties { get; set; }
 
         /// <summary>
         /// List of supplied properties of the model wrapped.
         /// </summary>
-        private List<PropertyInfo> SuppliedProperties { get; set; }
+        internal List<PropertyInfo> SuppliedProperties { get; set; }
 
         /// <summary>
         /// Dictionary with all supplied data.
         /// </summary>
-        private Dictionary<string, object> Attributes;
-        private List<Expression<Func<TModel, object>>> MemberExpressions;
-        private string PropertyID { get; set; }
+        internal Dictionary<string, object> Attributes;
+        internal List<Expression<Func<TModel, object>>> MemberExpressions;
+        internal string PropertyID { get; set; }
         #endregion
 
         #region Contructors
@@ -81,15 +79,17 @@ namespace ModelWrapper
         }
 
         /// <summary>
-        /// Method that patch data into the model object
+        /// Method that put data into the model object
         /// </summary>
         /// <param name="model">Model object</param>
         /// <returns>Return model object</returns>
-        public TModel Patch(TModel model)
+        public TModel Post()
         {
-            var patchProperties = SuppliedProperties.Where(x => !MemberExpressions.Any(y => GetPropertyName(y) == x.Name)).ToList();
+            var model = Activator.CreateInstance<TModel>();
 
-            patchProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+            var putProperties = AllProperties.Where(x => !MemberExpressions.Any(y => GetPropertyName(y) == x.Name)).ToList();
+
+            putProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
 
             return model;
         }
@@ -108,17 +108,18 @@ namespace ModelWrapper
             return model;
         }
 
-        public void SetID(TKey id, string property = "ID")
+        /// <summary>
+        /// Method that patch data into the model object
+        /// </summary>
+        /// <param name="model">Model object</param>
+        /// <returns>Return model object</returns>
+        public TModel Patch(TModel model)
         {
-            this.PropertyID = property;
-            Attributes.Add(property, id);
-            SetPropertyValue(new KeyValuePair<string, object>(property, id));
-        }
+            var patchProperties = SuppliedProperties.Where(x => !MemberExpressions.Any(y => GetPropertyName(y) == x.Name)).ToList();
 
-        public TKey GetID()
-        {
-            var propertyInfo = AllProperties.SingleOrDefault(x => x.Name.ToLower() == PropertyID.ToLower());
-            return (TKey)propertyInfo.GetValue(this.InternalObject);
+            patchProperties.ForEach(property => property.SetValue(model, property.GetValue(InternalObject)));
+
+            return model;
         }
         #endregion
 
@@ -167,7 +168,7 @@ namespace ModelWrapper
         /// Method used to set property value
         /// </summary>
         /// <param name="token">Dictionary key value pair</param>
-        private void SetPropertyValue(KeyValuePair<string, object> token)
+        internal void SetPropertyValue(KeyValuePair<string, object> token)
         {
             var property = typeof(TModel).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(token.Key.ToLower()));
 
@@ -185,7 +186,7 @@ namespace ModelWrapper
             }
         }
 
-        public string GetPropertyName<TModel>(Expression<Func<TModel, object>> property)
+        public string GetPropertyName(Expression<Func<TModel, object>> property)
         {
             LambdaExpression lambda = (LambdaExpression)property;
             MemberExpression memberExpression;
@@ -203,5 +204,23 @@ namespace ModelWrapper
             return ((PropertyInfo)memberExpression.Member).Name;
         }
         #endregion
+    }
+
+    public class Wrap<TModel, TKey> : Wrap<TModel>
+        where TModel : class
+        where TKey : struct
+    {
+        public void SetID(TKey id, string property = "ID")
+        {
+            this.PropertyID = property;
+            Attributes.Add(property, id);
+            SetPropertyValue(new KeyValuePair<string, object>(property, id));
+        }
+
+        public TKey GetID()
+        {
+            var propertyInfo = AllProperties.SingleOrDefault(x => x.Name.ToLower() == PropertyID.ToLower());
+            return (TKey)propertyInfo.GetValue(this.InternalObject);
+        }
     }
 }
