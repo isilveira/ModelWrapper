@@ -30,7 +30,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
             return new PatchOrderCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
                 Data = new PatchOrderCommandResponseDTO
                 {
                     OrderID = data.OrderID,

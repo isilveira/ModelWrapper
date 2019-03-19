@@ -18,6 +18,8 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
         {
             var data = request.Post();
 
+            data.RegistrationDate = DateTime.UtcNow;
+
             await Context.OrderedProducts.AddAsync(data);
 
             await Context.SaveChangesAsync();
@@ -25,7 +27,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
             return new PostOrderedProductCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
                 Data = new PostOrderedProductCommandResponseDTO
                 {
                     OrderedProductID = data.OrderedProductID,

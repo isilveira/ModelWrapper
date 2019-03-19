@@ -8,7 +8,8 @@ namespace StoreAPI.Core.Application.Images.Commands.PostImage
     {
         public PostImageCommand()
         {
-            SuppressProperty(x => x.ImageID);
+            KeyProperty(x => x.ImageID);
+            SuppressProperty(x => x.Product);
         }
     }
 }

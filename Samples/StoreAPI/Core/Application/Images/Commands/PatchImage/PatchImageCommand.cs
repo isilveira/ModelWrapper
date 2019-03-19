@@ -8,7 +8,8 @@ namespace StoreAPI.Core.Application.Images.Commands.PatchImage
     {
         public PatchImageCommand()
         {
-            SuppressProperty(x => x.ImageID);
+            KeyProperty(x => x.ImageID);
+            SuppressProperty(x => x.Product);
         }
     }
 }

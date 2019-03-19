@@ -12,7 +12,8 @@ namespace StoreAPI.Core.Application.Images.Commands.PutImage
     {
         public PutImageCommand()
         {
-            SuppressProperty(x => x.ImageID);
+            KeyProperty(x => x.ImageID);
+            SuppressProperty(x => x.Product);
         }
     }
 }

@@ -20,12 +20,14 @@ namespace StoreAPI.Core.Application.Products.Commands.PostProduct
 
             await Context.Products.AddAsync(data);
 
+            data.RegistrationDate = DateTime.UtcNow;
+
             await Context.SaveChangesAsync();
 
             return new PostProductCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
                 Data = new PostProductCommandResponseDTO
                 {
                     ProductID = data.ProductID,

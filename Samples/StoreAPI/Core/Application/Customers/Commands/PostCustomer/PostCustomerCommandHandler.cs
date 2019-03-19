@@ -18,14 +18,16 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
         {
             var data = request.Post();
 
+            data.RegistrationDate = DateTime.UtcNow;
+
             await Context.Customers.AddAsync(data);
 
             await Context.SaveChangesAsync();
 
             return new PostCustomerCommandResponse
             {
-                Request = request.AsDictionary(),
                 Message = "Successful operation!",
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
                 Data = new PostCustomerCommandResponseDTO
                 {
                     CustomerID = data.CustomerID,

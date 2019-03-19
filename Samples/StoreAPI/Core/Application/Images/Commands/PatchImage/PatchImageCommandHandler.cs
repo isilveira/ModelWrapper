@@ -30,7 +30,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PatchImage
             return new PatchImageCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
                 Data = new PatchImageCommandResponseDTO
                 {
                     ImageID = data.ImageID,

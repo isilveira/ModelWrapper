@@ -34,14 +34,14 @@ namespace StoreAPI.Resources
         [HttpPut("{productid}")]
         public async Task<ActionResult<PutProductCommandResponse>> Put([FromRoute]int productid, [FromBody]PutProductCommand request)
         {
-            request.ProductID = productid;
+            request.SetID(productid, nameof(productid));
             return await Send(request);
         }
 
         [HttpPatch("{productid}")]
         public async Task<ActionResult<PatchProductCommandResponse>> Patch([FromRoute]int productid, [FromBody] PatchProductCommand request)
         {
-            request.ProductID = productid;
+            request.SetID(productid, nameof(productid));
             return await Send(request);
         }
 

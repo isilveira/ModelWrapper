@@ -29,8 +29,8 @@ namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
 
             return new PatchCustomerCommandResponse
             {
-                Request = request.AsDictionary(),
                 Message = "Successful operation!",
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
                 Data = new PatchCustomerCommandResponseDTO
                 {
                     CustomerID = data.CustomerID,

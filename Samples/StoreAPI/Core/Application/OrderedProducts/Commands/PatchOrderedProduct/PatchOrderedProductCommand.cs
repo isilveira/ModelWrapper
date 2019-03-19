@@ -9,8 +9,10 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PatchOrderedProduct
     {
         public PatchOrderedProductCommand()
         {
-            SuppressProperty(x => x.OrderedProductID);
+            KeyProperty(x => x.OrderedProductID);
             SuppressProperty(x => x.RegistrationDate);
+            SuppressProperty(x => x.Order);
+            SuppressProperty(x => x.Product);
         }
     }
 }

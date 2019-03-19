@@ -18,6 +18,8 @@ namespace StoreAPI.Core.Application.Orders.Commands.PostOrder
         {
             var data = request.Post();
 
+            data.RegistrationDate = DateTime.UtcNow;
+
             await Context.Orders.AddAsync(data);
 
             await Context.SaveChangesAsync();
@@ -25,7 +27,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PostOrder
             return new PostOrderCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
                 Data = new PostOrderCommandResposeDTO
                 {
                     OrderID = data.OrderID,

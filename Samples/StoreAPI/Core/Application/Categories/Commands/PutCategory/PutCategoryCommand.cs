@@ -12,7 +12,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
     {
         public PutCategoryCommand()
         {
-            SuppressProperty(x => x.CategoryID);
+            KeyProperty(x => x.CategoryID);
             SuppressProperty(x => x.LeafCategories);
             SuppressProperty(x => x.Products);
             SuppressProperty(x => x.RootCategory);

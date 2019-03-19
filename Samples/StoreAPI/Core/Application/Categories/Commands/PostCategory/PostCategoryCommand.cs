@@ -10,5 +10,12 @@ namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 {
     public class PostCategoryCommand : Wrap<Category, int>, IRequest<PostCategoryCommandResponse>
     {
+        public PostCategoryCommand()
+        {
+            KeyProperty(x => x.CategoryID);
+            SuppressProperty(x => x.LeafCategories);
+            SuppressProperty(x => x.Products);
+            SuppressProperty(x => x.RootCategory);
+        }
     }
 }

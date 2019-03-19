@@ -29,8 +29,8 @@ namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
 
             return new PatchCategoryCommandResponse
             {
-                Request = request.AsDictionary(),
                 Message = "Successful operation!",
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
                 Data = new PatchCategoryCommandResponseDTO
                 {
                     CategoryID = data.CategoryID,

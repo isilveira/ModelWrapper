@@ -25,7 +25,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PostImage
             return new PostImageCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(),
+                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
                 Data = new PostImageCommandResponseDTO
                 {
                     ImageID = data.ImageID,

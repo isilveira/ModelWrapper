@@ -29,8 +29,8 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
 
             return new PutCategoryCommandResponse
             {
-                Request = request.AsDictionary(),
                 Message = "Successful operation!",
+                Request = request.AsDictionary(),
                 Data = new PutCategoryCommandResponseDTO
                 {
                     CategoryID = data.CategoryID,
