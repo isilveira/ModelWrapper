@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <Version>1.0.1</Version>
     <RepositoryUrl>https://github.com/isilveira/ModelWrapper</RepositoryUrl>
-    <PackageIconUrl>https://github.com/isilveira/ModelWrapper/raw/master/Docs/Logo/ModelWrapper.jpeg</PackageIconUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/isilveira/ModelWrapper/master/Docs/Logo/Logo_ModelWrapper.jpg</PackageIconUrl>
     <PackageProjectUrl>https://github.com/isilveira/ModelWrapper</PackageProjectUrl>
     <Description>Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.</Description>
     <Authors>https://github.com/isilveira</Authors>
