@@ -16,7 +16,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
         }
         public async Task<PatchCategoryCommandResponse> Handle(PatchCategoryCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.GetID());
+            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.Project(y => y.CategoryID));
 
             if (data == null)
             {

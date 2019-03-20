@@ -112,11 +112,18 @@ namespace ModelWrapper
             SupressedMembers.Add(expression);
         }
 
+        public TResult Project<TResult>(Func<TModel, TResult> function)
+        {
+            return function.Invoke(this.InternalObject);
+        }
+
         /// <summary>
         /// Method that put data into the model object
         /// </summary>
         /// <param name="model">Model object</param>
         /// <returns>Return model object</returns>
+        /// 
+
         public TModel Post()
         {
             var model = Activator.CreateInstance<TModel>();
