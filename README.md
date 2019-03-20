@@ -1,4 +1,4 @@
-# ModelWrapper - Current version 1.0.0
+# ModelWrapper - Current version 1.0.1
 
 Model wrapper - Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.
 ____
@@ -13,12 +13,12 @@ ____
 
 *Package Manager*
 ----
-> ```PM> Install-Package ModelWrapper -Version 1.0.0```
+> ```PM> Install-Package ModelWrapper -Version 1.0.1```
 
 *.NET CLI*
 ----
-> ```> dotnet add package ModelWrapper --version 1.0.0```
+> ```> dotnet add package ModelWrapper --version 1.0.1```
 
 *Packet*
 ----
-> ```> paket add ModelWrapper --version 1.0.0```
+> ```> paket add ModelWrapper --version 1.0.1```
