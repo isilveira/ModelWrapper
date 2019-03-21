@@ -3,9 +3,10 @@
 Model wrapper - Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.
 ____
 *Usage*
+
 Model class:
 ```
-public class PatchCustomerCommand : Wrap<Customer,int>, IRequest<PatchCustomerCommandResponse>
+public class PatchCustomerCommand : Wrap<Customer>, IRequest<PatchCustomerCommandResponse>
 {
     public PatchCustomerCommand()
     {
@@ -16,8 +17,18 @@ public class PatchCustomerCommand : Wrap<Customer,int>, IRequest<PatchCustomerCo
 }
 ```
 Methods:
+
 ```
-var entity = model.Post(); //return a new instance of the entity.
+int categoryID = 12;
+model.Project(x=>x.CategoryID = categoryID); //Sets the value into the internal object;
+```
+
+```
+int categoryID = model.Project(x=>x.CategoryID); //Gets the value of the internal object;
+```
+
+```
+Customer entity = model.Post(); //return a new instance of the entity.
 ```
 ```
 model.Patch(entity); //Update the supplied properties on entity.
