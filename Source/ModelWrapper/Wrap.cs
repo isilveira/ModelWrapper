@@ -21,6 +21,7 @@ namespace ModelWrapper
         where TModel : class
     {
         #region Properties
+        internal TModel InternalEmptyObject { get; set; }
         /// <summary>
         /// Internal model object that hold the supplied value.
         /// </summary>
@@ -42,7 +43,6 @@ namespace ModelWrapper
         internal Dictionary<string, object> Attributes;
         internal List<Expression<Func<TModel, object>>> SupressedMembers;
         internal List<Expression<Func<TModel, object>>> KeyMembers;
-        internal string PropertyID { get; set; }
         #endregion
 
         #region Contructors
@@ -62,7 +62,7 @@ namespace ModelWrapper
         {
             InitializePrivateObjects();
             Attributes = attributes;
-            Attributes.ToList().ForEach(pair => SetPropertyValue(pair));
+            Attributes.ToList().ForEach(pair => SetPropertyValue(pair.Key, pair.Value));
         }
         #endregion
 
@@ -114,15 +114,29 @@ namespace ModelWrapper
 
         public TResult Project<TResult>(Func<TModel, TResult> function)
         {
-            return function.Invoke(this.InternalObject);
+            TResult value = function.Invoke(this.InternalObject);
+            UpdateSuppliedProperties();
+            return value;
         }
 
-        /// <summary>
-        /// Method that put data into the model object
-        /// </summary>
-        /// <param name="model">Model object</param>
-        /// <returns>Return model object</returns>
-        /// 
+        public void Project(Action<TModel> action)
+        {
+            action.Invoke(this.InternalObject);
+            UpdateSuppliedProperties();
+        }
+
+        private void UpdateSuppliedProperties()
+        {
+            foreach (var property in AllProperties)
+            {
+                var propertyValue = GetPropertyValue(property.Name);
+                var propertyEmptyValue = GetPropertyValue(property.Name, true);
+                if (propertyValue != propertyEmptyValue && !SuppliedProperties.Exists(p => p.Name == property.Name))
+                {
+                    SuppliedProperties.Add(property);
+                }
+            }
+        }
 
         public TModel Post()
         {
@@ -182,7 +196,9 @@ namespace ModelWrapper
         /// <returns>bool, if succeeds true</returns>
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            return Attributes.TryGetValue(binder.Name, out result);
+            result = GetPropertyValue(binder.Name);
+
+            return result != null ? true : false;
         }
 
         /// <summary>
@@ -195,7 +211,7 @@ namespace ModelWrapper
         {
             Attributes.Add(binder.Name, value);
 
-            SetPropertyValue(Attributes.SingleOrDefault(x => x.Key.Equals(binder.Name)));
+            SetPropertyValue(binder.Name, value);
 
             return true;
         }
@@ -208,19 +224,16 @@ namespace ModelWrapper
         private void InitializePrivateObjects()
         {
             InternalObject = Activator.CreateInstance<TModel>();
+            InternalEmptyObject = Activator.CreateInstance<TModel>();
             SuppliedProperties = new List<PropertyInfo>();
             AllProperties = typeof(TModel).GetProperties().ToList();
             Attributes = new Dictionary<string, object>();
             SupressedMembers = new List<Expression<Func<TModel, object>>>();
         }
 
-        /// <summary>
-        /// Method used to set property value
-        /// </summary>
-        /// <param name="token">Dictionary key value pair</param>
-        internal void SetPropertyValue(KeyValuePair<string, object> token)
+        internal void SetPropertyValue(string propertyName, object propertyValue)
         {
-            var property = typeof(TModel).GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(token.Key.ToLower()));
+            var property = AllProperties.SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
 
             if (property != null)
             {
@@ -231,9 +244,18 @@ namespace ModelWrapper
                 }
 
                 SuppliedProperties.Add(property);
-                var newPropertyValue = (token.Value is JToken) ? JsonConvert.DeserializeObject(token.Value.ToString(), property.PropertyType) : Convert.ChangeType(token.Value, propertyType);
+                var newPropertyValue = (propertyValue is JToken) ? JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType) : Convert.ChangeType(propertyValue, propertyType);
                 property.SetValue(this.InternalObject, newPropertyValue);
             }
+        }
+
+        internal object GetPropertyValue(string propertyName, bool empty = false)
+        {
+            var property = AllProperties.SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
+            if (empty)
+                return property.GetValue(this.InternalEmptyObject);
+            else
+                return property.GetValue(this.InternalObject);
         }
 
         public string GetPropertyName(Expression<Func<TModel, object>> property)
@@ -254,23 +276,5 @@ namespace ModelWrapper
             return ((PropertyInfo)memberExpression.Member).Name;
         }
         #endregion
-    }
-
-    public class Wrap<TModel, TKey> : Wrap<TModel>
-        where TModel : class
-        where TKey : struct
-    {
-        public void SetID(TKey id, string property = "ID")
-        {
-            this.PropertyID = property;
-            Attributes.Add(property, id);
-            SetPropertyValue(new KeyValuePair<string, object>(property, id));
-        }
-
-        public TKey GetID()
-        {
-            var propertyInfo = AllProperties.SingleOrDefault(x => x.Name.ToLower() == PropertyID.ToLower());
-            return (TKey)propertyInfo.GetValue(this.InternalObject);
-        }
     }
 }

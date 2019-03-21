@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PatchOrderedProduct
         }
         public async Task<PatchOrderedProductCommandResponse> Handle(PatchOrderedProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == request.GetID());
+            var id = request.Project(x => x.OrderedProductID);
+            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == id);
 
             if (data == null)
             {

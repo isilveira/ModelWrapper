@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
 {
-    public class PatchProductCommand : Wrap<Product, int>, IRequest<PatchProductCommandResponse>
+    public class PatchProductCommand : Wrap<Product>, IRequest<PatchProductCommandResponse>
     {
         public PatchProductCommand()
         {

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Application.Interfaces.Contexts;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
 {
@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
         }
         public async Task<PatchCustomerCommandResponse> Handle(PatchCustomerCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Customers.SingleOrDefaultAsync(x => x.CustomerID== request.GetID());
+            var id = request.Project(x => x.CustomerID);
+            var data = await Context.Customers.SingleOrDefaultAsync(x => x.CustomerID == id);
 
             if (data == null)
             {

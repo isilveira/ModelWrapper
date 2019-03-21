@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
         }
         public async Task<PatchOrderCommandResponse> Handle(PatchOrderCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == request.GetID());
+            var id = request.Project(x => x.OrderID);
+            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == id);
 
             if (data == null)
             {

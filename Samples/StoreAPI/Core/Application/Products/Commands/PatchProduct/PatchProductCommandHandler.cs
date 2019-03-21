@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
         }
         public async Task<PatchProductCommandResponse> Handle(PatchProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == request.GetID());
+            var id = request.Project(x => x.ProductID);
+            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == id);
 
             if (data == null)
             {

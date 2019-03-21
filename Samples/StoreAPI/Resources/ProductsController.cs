@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using StoreAPI.Core.Application.Products.Commands.DeleteProduct;
 using StoreAPI.Core.Application.Products.Commands.PatchProduct;
 using StoreAPI.Core.Application.Products.Commands.PostProduct;
@@ -7,7 +6,6 @@ using StoreAPI.Core.Application.Products.Commands.PutProduct;
 using StoreAPI.Core.Application.Products.Queries.GetProductByID;
 using StoreAPI.Core.Application.Products.Queries.GetProductsByFilter;
 using StoreAPI.Resources._Bases;
-using System;
 using System.Threading.Tasks;
 
 namespace StoreAPI.Resources
@@ -34,14 +32,14 @@ namespace StoreAPI.Resources
         [HttpPut("{productid}")]
         public async Task<ActionResult<PutProductCommandResponse>> Put([FromRoute]int productid, [FromBody]PutProductCommand request)
         {
-            request.SetID(productid, nameof(productid));
+            request.Project(x => x.ProductID = productid);
             return await Send(request);
         }
 
         [HttpPatch("{productid}")]
         public async Task<ActionResult<PatchProductCommandResponse>> Patch([FromRoute]int productid, [FromBody] PatchProductCommand request)
         {
-            request.SetID(productid, nameof(productid));
+            request.Project(x => x.ProductID = productid);
             return await Send(request);
         }
 

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 {
-    public class PostCategoryCommand : Wrap<Category, int>, IRequest<PostCategoryCommandResponse>
+    public class PostCategoryCommand : Wrap<Category>, IRequest<PostCategoryCommandResponse>
     {
         public PostCategoryCommand()
         {

@@ -4,7 +4,7 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Images.Commands.PatchImage
 {
-    public class PatchImageCommand : Wrap<Image,int>, IRequest<PatchImageCommandResponse>
+    public class PatchImageCommand : Wrap<Image>, IRequest<PatchImageCommandResponse>
     {
         public PatchImageCommand()
         {

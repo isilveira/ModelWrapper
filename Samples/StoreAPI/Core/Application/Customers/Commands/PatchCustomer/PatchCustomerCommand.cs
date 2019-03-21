@@ -4,7 +4,7 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
 {
-    public class PatchCustomerCommand : Wrap<Customer,int>, IRequest<PatchCustomerCommandResponse>
+    public class PatchCustomerCommand : Wrap<Customer>, IRequest<PatchCustomerCommandResponse>
     {
         public PatchCustomerCommand()
         {

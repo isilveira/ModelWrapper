@@ -4,7 +4,7 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
 {
-    public class PatchCategoryCommand : Wrap<Category, int>, IRequest<PatchCategoryCommandResponse>
+    public class PatchCategoryCommand : Wrap<Category>, IRequest<PatchCategoryCommandResponse>
     {
         public PatchCategoryCommand()
         {

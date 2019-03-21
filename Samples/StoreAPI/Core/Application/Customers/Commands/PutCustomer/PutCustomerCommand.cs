@@ -4,7 +4,7 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Customers.Commands.PutCustomer
 {
-    public class PutCustomerCommand : Wrap<Customer,int>, IRequest<PutCustomerCommandResponse>
+    public class PutCustomerCommand : Wrap<Customer>, IRequest<PutCustomerCommandResponse>
     {
         public PutCustomerCommand()
         {

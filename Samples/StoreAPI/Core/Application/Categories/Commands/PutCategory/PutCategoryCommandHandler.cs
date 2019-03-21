@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
         }
         public async Task<PutCategoryCommandResponse> Handle(PutCategoryCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == request.GetID());
+            var id = request.Project(x => x.CategoryID);
+            var data = await Context.Categories.SingleOrDefaultAsync(x => x.CategoryID == id);
 
             if (data == null)
             {

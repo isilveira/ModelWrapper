@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
 {
-    public class PutCategoryCommand : Wrap<Category,int>,IRequest<PutCategoryCommandResponse>
+    public class PutCategoryCommand : Wrap<Category>,IRequest<PutCategoryCommandResponse>
     {
         public PutCategoryCommand()
         {

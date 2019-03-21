@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Products.Commands.PutProduct
         }
         public async Task<PutProductCommandResponse> Handle(PutProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == request.GetID());
+            var id = request.Project(x => x.ProductID);
+            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == id);
 
             if (data == null)
                 throw new Exception("Product not found!");

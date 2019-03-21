@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Products.Commands.PostProduct
 {
-    public class PostProductCommand : Wrap<Product, int>, IRequest<PostProductCommandResponse>
+    public class PostProductCommand : Wrap<Product>, IRequest<PostProductCommandResponse>
     {
         public PostProductCommand()
         {

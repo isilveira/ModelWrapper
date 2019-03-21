@@ -16,7 +16,8 @@ namespace StoreAPI.Core.Application.Images.Commands.PatchImage
         }
         public async Task<PatchImageCommandResponse> Handle(PatchImageCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == request.GetID());
+            var id = request.Project(x => x.ImageID);
+            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == id);
 
             if (data == null)
             {

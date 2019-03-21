@@ -5,7 +5,7 @@ using System;
 
 namespace StoreAPI.Core.Application.Orders.Commands.PostOrder
 {
-    public class PostOrderCommand : Wrap<Order, int>, IRequest<PostOrderCommandResponse>
+    public class PostOrderCommand : Wrap<Order>, IRequest<PostOrderCommandResponse>
     {
         public PostOrderCommand()
         {

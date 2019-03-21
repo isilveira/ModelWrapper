@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Images.Commands.PutImage
 {
-    public class PutImageCommand : Wrap<Image, int>, IRequest<PutImageCommandResponse>
+    public class PutImageCommand : Wrap<Image>, IRequest<PutImageCommandResponse>
     {
         public PutImageCommand()
         {

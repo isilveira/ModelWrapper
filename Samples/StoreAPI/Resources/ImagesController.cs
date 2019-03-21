@@ -32,14 +32,14 @@ namespace StoreAPI.Resources
         [HttpPut("{imageid}")]
         public async Task<ActionResult<PutImageCommandResponse>> Put([FromRoute]int imageID, [FromBody]PutImageCommand request)
         {
-            request.SetID(imageID, nameof(imageID));
+            request.Project(x => x.ImageID = imageID);
             return await Send(request);
         }
 
         [HttpPatch("{imageid}")]
         public async Task<ActionResult<PatchImageCommandResponse>> Patch([FromRoute]int imageID, [FromBody] PatchImageCommand request)
         {
-            request.SetID(imageID, nameof(imageID));
+            request.Project(x=>x.ImageID = imageID);
             return await Send(request);
         }
 

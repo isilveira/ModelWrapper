@@ -32,14 +32,14 @@ namespace StoreAPI.Resources
         [HttpPut("{categoryid}")]
         public async Task<ActionResult<PutCategoryCommandResponse>> Put([FromRoute]int categoryID, [FromBody]PutCategoryCommand request)
         {
-            request.SetID(categoryID, nameof(categoryID));
+            request.Project(x => x.CategoryID = categoryID);
             return await Send(request);
         }
 
         [HttpPatch("{categoryid}")]
         public async Task<ActionResult<PatchCategoryCommandResponse>> Patch([FromRoute]int categoryID, [FromBody] PatchCategoryCommand request)
         {
-            request.SetID(categoryID, nameof(categoryID));
+            request.Project(x => x.CategoryID = categoryID);
             return await Send(request);
         }
 

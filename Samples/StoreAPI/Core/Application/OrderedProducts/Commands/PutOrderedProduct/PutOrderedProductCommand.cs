@@ -5,7 +5,7 @@ using System;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Commands.PutOrderedProduct
 {
-    public class PutOrderedProductCommand : Wrap<OrderedProduct, int>, IRequest<PutOrderedProductCommandResponse>
+    public class PutOrderedProductCommand : Wrap<OrderedProduct>, IRequest<PutOrderedProductCommandResponse>
     {
         public PutOrderedProductCommand()
         {

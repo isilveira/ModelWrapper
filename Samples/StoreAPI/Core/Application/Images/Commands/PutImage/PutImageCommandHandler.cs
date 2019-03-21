@@ -18,7 +18,8 @@ namespace StoreAPI.Core.Application.Images.Commands.PutImage
         }
         public async Task<PutImageCommandResponse> Handle(PutImageCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == request.GetID());
+            var id = request.Project(x => x.ImageID);
+            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == id);
 
             if (data == null)
                 throw new Exception("Image not found!");
