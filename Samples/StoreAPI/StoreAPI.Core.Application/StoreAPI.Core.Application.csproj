@@ -7,10 +7,10 @@
   <ItemGroup>
     <PackageReference Include="EntitySearch" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="7.0.0" />
-    <PackageReference Include="ModelWrapper" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\ModelWrapper\ModelWrapper.csproj" />
     <ProjectReference Include="..\StoreAPI.Core.Domain.Interfaces\StoreAPI.Core.Domain.Interfaces.csproj" />
   </ItemGroup>
 
