@@ -24,6 +24,7 @@ namespace ModelWrapper
     public class Wrap<TModel> : DynamicObject
         where TModel : class
     {
+        [FromQuery]
         public Dictionary<string, object> QueryStringProperties { get; set; }
         public TModel WrappedModel { get; set; }
 
