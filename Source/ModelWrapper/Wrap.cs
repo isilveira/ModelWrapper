@@ -1,4 +1,6 @@
-﻿using ModelWrapper.Extensions;
+﻿using Microsoft.AspNetCore.Mvc;
+using ModelWrapper.Binders;
+using ModelWrapper.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,9 +19,15 @@ namespace ModelWrapper
         OnlySupplieds,
         SuppliedsWithoutKeys
     }
+
+    //[ModelBinder(BinderType =typeof(WrapBinder))]
     public class Wrap<TModel> : DynamicObject
         where TModel : class
     {
+        public Dictionary<string, object> QueryStringProperties { get; set; }
+        public TModel WrappedModel { get; set; }
+
+        #region OldWrapper
         #region Properties
         internal TModel InternalEmptyObject { get; set; }
         /// <summary>
@@ -275,6 +283,7 @@ namespace ModelWrapper
 
             return ((PropertyInfo)memberExpression.Member).Name;
         }
+        #endregion 
         #endregion
     }
 }

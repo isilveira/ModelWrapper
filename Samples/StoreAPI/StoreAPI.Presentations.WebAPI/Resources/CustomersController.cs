@@ -24,7 +24,7 @@ namespace StoreAPI.Resources
             return await Send(request);
         }
         [HttpPost]
-        public async Task<ActionResult<PostCustomerCommandResponse>> Post([FromBody] PostCustomerCommand request)
+        public async Task<ActionResult<PostCustomerCommandResponse>> Post(PostCustomerCommand request)
         {
             return await Send(request);
         }
