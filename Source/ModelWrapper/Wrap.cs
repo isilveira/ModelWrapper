@@ -20,7 +20,7 @@ namespace ModelWrapper
         SuppliedsWithoutKeys
     }
 
-    //[ModelBinder(BinderType =typeof(WrapBinder))]
+    //[ModelBinder(BinderType = typeof(WrapBinder))]
     public class Wrap<TModel> : DynamicObject
         where TModel : class
     {
