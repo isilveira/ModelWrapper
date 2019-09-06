@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Resources
 {
+    public class PostCustomerVM
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+    }
     public class CustomersController : ResourceControllerBase
     {
         [HttpGet]
@@ -24,9 +29,10 @@ namespace StoreAPI.Resources
             return await Send(request);
         }
         [HttpPost]
-        public async Task<ActionResult<PostCustomerCommandResponse>> Post([FromForm]PostCustomerCommand request)
+        public async Task<ActionResult<PostCustomerCommandResponse>> Post(PostCustomerCommand request)
         {
             return await Send(request);
+            //return Ok(request);
         }
 
         [HttpPut("{customerid}")]

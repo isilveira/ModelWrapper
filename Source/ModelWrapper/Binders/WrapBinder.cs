@@ -12,6 +12,17 @@ using System.Threading.Tasks;
 
 namespace ModelWrapper.Binders
 {
+    public class WrapMemberBinder : SetMemberBinder
+    {
+        public WrapMemberBinder(string name, bool ignoreCase) : base(name, ignoreCase)
+        {
+        }
+
+        public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class WrapBinder : IModelBinder
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
@@ -27,16 +38,12 @@ namespace ModelWrapper.Binders
                 {
                     var value = bindingContext.HttpContext.Request.Form[key];
 
-                    ///SetMemberBinder setMemberBinder = new SetMemberBinder(key);
+                    var setMemberBinder = new WrapMemberBinder(key, true);
 
-                    //var method = bindingContext.Model.GetType().GetMethod("TrySetMember").Invoke(bindingContext.Model, new object[] { setMemberBinder, value });
-
-                    var property = bindingContext.ModelType.BaseType.GetGenericArguments()[0].GetProperties().SingleOrDefault(x => x.Name.ToLower().Equals(key.ToLower()));
-                    property.SetValue(bindingContext.Model, value);
-
+                    bindingContext.Model.GetType().GetMethod("TrySetMember").Invoke(bindingContext.Model, new object[] { setMemberBinder, value });
                 }
             }
-
+            
             if (bindingContext.BindingSource == BindingSource.Body)
             {
                 var body = string.Empty;
@@ -45,10 +52,13 @@ namespace ModelWrapper.Binders
                     body = reader.ReadToEnd();
                 }
 
-                var json = JObject.Parse(body);
+                if (!string.IsNullOrWhiteSpace(body))
+                {
+                    var json = JObject.Parse(body);
 
-                JsonSerializer serializer = new JsonSerializer();
-                bindingContext.Model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
+                    JsonSerializer serializer = new JsonSerializer();
+                    bindingContext.Model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
+                }
             }
 
             var responsePropertiesValues = bindingContext.ValueProvider.GetValue("responseProperties").Values;
