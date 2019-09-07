@@ -15,25 +15,26 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
         }
         public async Task<PostCustomerCommandResponse> Handle(PostCustomerCommand request, CancellationToken cancellationToken)
         {
-            var data = request.Post();
+            throw new NotImplementedException();
+            //var data = request.Post();
 
-            data.RegistrationDate = DateTime.UtcNow;
+            //data.RegistrationDate = DateTime.UtcNow;
 
-            await Context.Customers.AddAsync(data);
+            //await Context.Customers.AddAsync(data);
 
-            await Context.SaveChangesAsync();
+            //await Context.SaveChangesAsync();
 
-            return new PostCustomerCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
-                Data = new PostCustomerCommandResponseDTO
-                {
-                    CustomerID = data.CustomerID,
-                    Name = data.Name,
-                    Email = data.Email
-                }
-            };
+            //return new PostCustomerCommandResponse
+            //{
+            //    Message = "Successful operation!",
+            //    Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
+            //    Data = new PostCustomerCommandResponseDTO
+            //    {
+            //        CustomerID = data.CustomerID,
+            //        Name = data.Name,
+            //        Email = data.Email
+            //    }
+            //};
         }
     }
 }

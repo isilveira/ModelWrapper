@@ -29,10 +29,10 @@ namespace StoreAPI.Resources
             return await Send(request);
         }
         [HttpPost]
-        public async Task<ActionResult<PostCustomerCommandResponse>> Post(PostCustomerCommand request)
+        public async Task<ActionResult<PostCustomerCommandResponse>> Post([FromForm]PostCustomerCommand request)
         {
-            return await Send(request);
-            //return Ok(request);
+            //return await Send(request);
+            return Ok(request);
         }
 
         [HttpPut("{customerid}")]

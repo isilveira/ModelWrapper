@@ -14,8 +14,16 @@ namespace ModelWrapper.Binders
 {
     public class WrapMemberBinder : SetMemberBinder
     {
+        public WrapPropertySource Source { get; set; }
+
+        public WrapMemberBinder(string name, WrapPropertySource source, bool ignoreCase) : base(name, ignoreCase)
+        {
+            Source = source;
+        }
+
         public WrapMemberBinder(string name, bool ignoreCase) : base(name, ignoreCase)
         {
+            Source = WrapPropertySource.FromBody;
         }
 
         public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
@@ -38,9 +46,9 @@ namespace ModelWrapper.Binders
                 {
                     var value = bindingContext.HttpContext.Request.Form[key];
 
-                    var setMemberBinder = new WrapMemberBinder(key, true);
+                    var setMemberBinder = new WrapMemberBinder(key, WrapPropertySource.FromForm, true);
 
-                    bindingContext.Model.GetType().GetMethod("TrySetMember").Invoke(bindingContext.Model, new object[] { setMemberBinder, value });
+                    bindingContext.Model.GetType().GetMethod("TrySetMember").Invoke(bindingContext.Model, new object[] { setMemberBinder, value.ToString() });
                 }
             }
             
