@@ -22,6 +22,9 @@ namespace ModelWrapper
         private IList<PropertyInfo> SupressedProperties { get; set; }
         private IList<PropertyInfo> SuppliedProperties { get; set; }
         private IList<PropertyInfo> ResponseProperties { get; set; }
+
+        public Dictionary<string, object> Request { get; set; }
+        public Dictionary<string, object> Response { get; set; }
         protected NewWrap()
         {
             Initialize();
@@ -94,6 +97,28 @@ namespace ModelWrapper
                 return property.GetValue(Activator.CreateInstance<TModel>());
             else
                 return property.GetValue(this.Model);
+        }
+
+        public Dictionary<string,object> GetResponse()
+        {
+            Dictionary<string, object> requestData = new Dictionary<string, object>();
+
+            requestData.Add("name", "Ítalo Silveira");
+            requestData.Add("email", "italo.silveira@baysoft.com.br");
+
+            Dictionary<string, object> responseData = new Dictionary<string, object>();
+
+            responseData.Add("customerid", "1");
+            responseData.Add("name", "Ítalo Silveira");
+            responseData.Add("email", "italo.silveira@baysoft.com.br");
+
+            Request.Add("data", requestData);
+
+            Response.Add("message", "Operation was successed!");
+            Response.Add("request", Request);
+            Response.Add("data", responseData);
+
+            return Response;
         }
     }
 }

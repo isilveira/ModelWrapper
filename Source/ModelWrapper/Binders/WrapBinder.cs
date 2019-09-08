@@ -41,14 +41,16 @@ namespace ModelWrapper.Binders
             
             if(bindingContext.BindingSource == BindingSource.Form)
             {
-                bindingContext.Model = Activator.CreateInstance(bindingContext.ModelType);
-                foreach(var key in bindingContext.HttpContext.Request.Form.Keys)
+                if (bindingContext.HttpContext.Request.HasFormContentType)
                 {
-                    var value = bindingContext.HttpContext.Request.Form[key];
+                    foreach (var key in bindingContext.HttpContext.Request.Form.Keys)
+                    {
+                        var value = bindingContext.HttpContext.Request.Form[key];
 
-                    var setMemberBinder = new WrapMemberBinder(key, WrapPropertySource.FromForm, true);
+                        var setMemberBinder = new WrapMemberBinder(key, WrapPropertySource.FromForm, true);
 
-                    bindingContext.Model.GetType().GetMethod("TrySetMember").Invoke(bindingContext.Model, new object[] { setMemberBinder, value.ToString() });
+                        model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { setMemberBinder, value.ToString() });
+                    }
                 }
             }
             
@@ -65,11 +67,21 @@ namespace ModelWrapper.Binders
                     var json = JObject.Parse(body);
 
                     JsonSerializer serializer = new JsonSerializer();
-                    bindingContext.Model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
+                    model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
                 }
             }
 
-            var responsePropertiesValues = bindingContext.ValueProvider.GetValue("responseProperties").Values;
+            if(bindingContext.HttpContext.Request.Query.Count > 0)
+            {
+                foreach(var queryProperty in bindingContext.HttpContext.Request.Query.Keys)
+                {
+                    var memberBinder = new WrapMemberBinder(queryProperty, WrapPropertySource.FromQuery, true);
+                    var value = bindingContext.HttpContext.Request.Query[queryProperty];
+                    model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { memberBinder, value.ToString() });
+                }
+            }
+
+            bindingContext.Model = model;
 
             if(bindingContext.Model == null)
             {
