@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
+using StoreAPI.Core.Domain.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,9 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
         }
         public async Task<PostCustomerCommandResponse> Handle(PostCustomerCommand request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var response = new PostCustomerCommandResponse();
+
+            return new PostCustomerCommandResponse(request, new Customer { CustomerID = 1, Email = "italobrian@gmail.com", Name = "Ítalo Silveira" }, "Successful operation!");
             //var data = request.Post();
 
             //data.RegistrationDate = DateTime.UtcNow;

@@ -31,8 +31,7 @@ namespace StoreAPI.Resources
         [HttpPost]
         public async Task<ActionResult<PostCustomerCommandResponse>> Post([FromBody]PostCustomerCommand request)
         {
-            //return await Send(request);
-            return Ok(request.GetResponse());
+            return await Send(request);
         }
 
         [HttpPut("{customerid}")]

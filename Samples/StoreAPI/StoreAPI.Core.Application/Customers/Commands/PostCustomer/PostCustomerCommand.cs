@@ -4,7 +4,7 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
 {
-    public class PostCustomerCommand : NewWrap<Customer>,IRequest<PostCustomerCommandResponse>
+    public class PostCustomerCommand : WrapRequest<Customer>,IRequest<PostCustomerCommandResponse>
     {
         public PostCustomerCommand()
         {

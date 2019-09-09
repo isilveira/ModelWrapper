@@ -12,7 +12,7 @@ using System.Text;
 namespace ModelWrapper
 {
     [ModelBinder(BinderType = typeof(WrapBinder))]
-    public class NewWrap<TModel> : DynamicObject
+    public class WrapRequest<TModel> : DynamicObject
         where TModel : class
     {
         private string ModelName { get; set; }
@@ -23,9 +23,8 @@ namespace ModelWrapper
         private IList<PropertyInfo> SuppliedProperties { get; set; }
         private IList<PropertyInfo> ResponseProperties { get; set; }
 
-        public Dictionary<string, object> Request { get; set; }
-        public Dictionary<string, object> Response { get; set; }
-        protected NewWrap()
+        public Dictionary<string, object> RequestObject { get; set; }
+        protected WrapRequest()
         {
             Initialize();
         }
@@ -38,6 +37,7 @@ namespace ModelWrapper
             SupressedProperties = new List<PropertyInfo>();
             SuppliedProperties = new List<PropertyInfo>();
             ResponseProperties = new List<PropertyInfo>();
+            RequestObject = new Dictionary<string, object>();
         }
 
 
@@ -99,26 +99,26 @@ namespace ModelWrapper
                 return property.GetValue(this.Model);
         }
 
-        public Dictionary<string,object> GetResponse()
+        public Dictionary<string,object> GetRequestAsDictionary()
         {
             Dictionary<string, object> requestData = new Dictionary<string, object>();
 
             requestData.Add("name", "Ítalo Silveira");
             requestData.Add("email", "italo.silveira@baysoft.com.br");
 
-            Dictionary<string, object> responseData = new Dictionary<string, object>();
+            //Dictionary<string, object> responseData = new Dictionary<string, object>();
 
-            responseData.Add("customerid", "1");
-            responseData.Add("name", "Ítalo Silveira");
-            responseData.Add("email", "italo.silveira@baysoft.com.br");
+            //responseData.Add("customerid", "1");
+            //responseData.Add("name", "Ítalo Silveira");
+            //responseData.Add("email", "italo.silveira@baysoft.com.br");
 
-            Request.Add("data", requestData);
+            RequestObject.Add("data", requestData);
 
-            Response.Add("message", "Operation was successed!");
-            Response.Add("request", Request);
-            Response.Add("data", responseData);
+            //Response.Add("message", "Operation was successed!");
+            //Response.Add("request", Request);
+            //Response.Add("data", responseData);
 
-            return Response;
+            return RequestObject;
         }
     }
 }
