@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModelWrapper.Binders;
+using ModelWrapper.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,7 +14,7 @@ using System.Text;
 namespace ModelWrapper
 {
     [ModelBinder(BinderType = typeof(WrapBinder))]
-    public class WrapRequest<TModel> : DynamicObject
+    public class WrapRequest<TModel> : DynamicObject, IWrapRequest<TModel>
         where TModel : class
     {
         private string ModelName { get; set; }
@@ -21,7 +22,7 @@ namespace ModelWrapper
         public IList<NewWrapProperty> AllProperties { get; set; }
         private IList<PropertyInfo> KeyProperties { get; set; }
         internal IList<PropertyInfo> SupressedProperties { get; set; }
-        private IList<PropertyInfo> SuppliedProperties { get; set; }
+        public IList<PropertyInfo> SuppliedProperties { get; set; }
         internal IList<PropertyInfo> ResponseProperties { get; set; }
 
         public Dictionary<string, object> RequestObject { get; set; }
