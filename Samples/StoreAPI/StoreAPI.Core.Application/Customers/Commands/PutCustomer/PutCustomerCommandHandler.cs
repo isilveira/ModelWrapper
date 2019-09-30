@@ -17,6 +17,7 @@ namespace StoreAPI.Core.Application.Customers.Commands.PutCustomer
         public async Task<PutCustomerCommandResponse> Handle(PutCustomerCommand request, CancellationToken cancellationToken)
         {
             var id = request.Project(x => x.CustomerID);
+
             var data = await Context.Customers.SingleOrDefaultAsync(x => x.CustomerID == id);
 
             if (data == null)
@@ -24,13 +25,13 @@ namespace StoreAPI.Core.Application.Customers.Commands.PutCustomer
                 throw new Exception("Customer not found!");
             }
 
-            request.Put(data);
+            //request.Put(data);
 
             await Context.SaveChangesAsync();
 
             return new PutCustomerCommandResponse
             {
-                Request = request.AsDictionary(),
+                //Request = request.AsDictionary(),
                 Message = "Successful operation!",
                 Data = new PutCustomerCommandResponseDTO
                 {

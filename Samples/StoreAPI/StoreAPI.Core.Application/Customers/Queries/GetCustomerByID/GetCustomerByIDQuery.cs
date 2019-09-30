@@ -1,9 +1,15 @@
 ﻿using MediatR;
+using ModelWrapper;
+using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Customers.Queries.GetCustomerByID
 {
-    public class GetCustomerByIDQuery : IRequest<GetCustomerByIDQueryResponse>
+    public class GetCustomerByIDQuery : WrapRequest<Customer>, IRequest<GetCustomerByIDQueryResponse>
     {
-        public int CustomerID { get; set; }
+        public GetCustomerByIDQuery()
+        {
+            ConfigKeys(x => x.CustomerID);
+            ConfigSuppressedProperties(x => x.Orders);
+        }
     }
 }

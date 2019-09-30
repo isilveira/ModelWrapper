@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -19,9 +20,9 @@ namespace ModelWrapper
         public TModel Model { get; set; }
         public IList<NewWrapProperty> AllProperties { get; set; }
         private IList<PropertyInfo> KeyProperties { get; set; }
-        private IList<PropertyInfo> SupressedProperties { get; set; }
+        internal IList<PropertyInfo> SupressedProperties { get; set; }
         private IList<PropertyInfo> SuppliedProperties { get; set; }
-        private IList<PropertyInfo> ResponseProperties { get; set; }
+        internal IList<PropertyInfo> ResponseProperties { get; set; }
 
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
@@ -39,7 +40,6 @@ namespace ModelWrapper
             ResponseProperties = new List<PropertyInfo>();
             RequestObject = new Dictionary<string, object>();
         }
-
 
         #region Access member methods
         /// <summary>
@@ -99,26 +99,102 @@ namespace ModelWrapper
                 return property.GetValue(this.Model);
         }
 
-        public Dictionary<string,object> GetRequestAsDictionary()
+        public void ConfigKeys(Expression<Func<TModel, object>> expression)
         {
-            Dictionary<string, object> requestData = new Dictionary<string, object>();
+            KeyProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+        }
+        public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
+        {
+            SupressedProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+        }
 
-            requestData.Add("name", "Ítalo Silveira");
-            requestData.Add("email", "italo.silveira@baysoft.com.br");
+        public string GetPropertyName(Expression<Func<TModel, object>> property)
+        {
+            LambdaExpression lambda = (LambdaExpression)property;
+            MemberExpression memberExpression;
 
-            //Dictionary<string, object> responseData = new Dictionary<string, object>();
+            if (lambda.Body is UnaryExpression)
+            {
+                UnaryExpression unaryExpression = (UnaryExpression)(lambda.Body);
+                memberExpression = (MemberExpression)(unaryExpression.Operand);
+            }
+            else
+            {
+                memberExpression = (MemberExpression)(lambda.Body);
+            }
 
-            //responseData.Add("customerid", "1");
-            //responseData.Add("name", "Ítalo Silveira");
-            //responseData.Add("email", "italo.silveira@baysoft.com.br");
+            return ((PropertyInfo)memberExpression.Member).Name;
+        }
 
-            RequestObject.Add("data", requestData);
-
-            //Response.Add("message", "Operation was successed!");
-            //Response.Add("request", Request);
-            //Response.Add("data", responseData);
-
+        public Dictionary<string, object> GetRequestAsDictionary()
+        {
             return RequestObject;
+        }
+
+        public TResult Project<TResult>(Func<TModel, TResult> function)
+        {
+            TResult value = function.Invoke(this.Model);
+            UpdateSuppliedProperties();
+            return value;
+        }
+
+        public void Project(Action<TModel> action)
+        {
+            action.Invoke(this.Model);
+            UpdateSuppliedProperties();
+        }
+
+        private void UpdateSuppliedProperties()
+        {
+            foreach (var property in typeof(TModel).GetProperties())
+            {
+                var propertyValue = GetPropertyValue(property.Name);
+                var propertyEmptyValue = GetPropertyValue(property.Name, true);
+                if (propertyValue != propertyEmptyValue && !SuppliedProperties.ToList().Exists(p => p.Name == property.Name))
+                {
+                    SuppliedProperties.Add(property);
+                }
+            }
+        }
+
+        public virtual void ProcessBind()
+        {
+            SetRoutePropertiesOnRequest();
+            SetResponsePropertiesOnRequest();
+        }
+
+        private void SetRoutePropertiesOnRequest()
+        {
+            var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
+
+            if (RouteProperties.Count > 0)
+            {
+                var dictionary = new Dictionary<string, object>();
+
+                RouteProperties.ForEach(property => dictionary.Add(property.Name, property.Value));
+
+                RequestObject.Add(nameof(RouteProperties), dictionary);
+            }
+        }
+
+        private void SetResponsePropertiesOnRequest()
+        {
+            foreach (var property in AllProperties.Where(x => x.Source == WrapPropertySource.FromQuery).ToList())
+            {
+                if (property.Name.ToLower().Equals(nameof(ResponseProperties).ToLower()))
+                {
+                    var responseProperty = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(property.Value.ToString().ToLower())).SingleOrDefault();
+                    if (responseProperty != null)
+                    {
+                        ResponseProperties.Add(responseProperty);
+                    }
+                }
+            }
+
+            if (ResponseProperties.Count > 0)
+            {
+                RequestObject.Add(nameof(ResponseProperties), ResponseProperties.Select(x => x.Name));
+            }
         }
     }
 }

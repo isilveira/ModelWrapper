@@ -24,14 +24,14 @@ namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
                 throw new Exception("Customer not found!");
             }
 
-            request.Patch(data);
+            //request.Patch(data);
 
             await Context.SaveChangesAsync();
 
             return new PatchCustomerCommandResponse
             {
                 Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
+                //Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
                 Data = new PatchCustomerCommandResponseDTO
                 {
                     CustomerID = data.CustomerID,

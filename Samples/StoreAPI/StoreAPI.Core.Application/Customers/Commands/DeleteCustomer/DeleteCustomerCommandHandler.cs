@@ -16,7 +16,9 @@ namespace StoreAPI.Core.Application.Customers.Commands.DeleteCustomer
         }
         public async Task<DeleteCustomerCommandResponse> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Customers.SingleOrDefaultAsync(x => x.CustomerID== request.CustomerID);
+            var id = request.Project(r => r.CustomerID);
+
+            var data = await Context.Customers.SingleOrDefaultAsync(x => x.CustomerID == id);
 
             if (data == null)
                 throw new Exception("Customer not found!");

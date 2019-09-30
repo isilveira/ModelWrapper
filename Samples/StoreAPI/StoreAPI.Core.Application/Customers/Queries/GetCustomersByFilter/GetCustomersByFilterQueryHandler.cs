@@ -21,25 +21,17 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         {
             int resultCount = 0;
             var results = await Context.Customers
-                .Filter(request)
-                .Search(request)
-                .Count(ref resultCount)
-                .OrderBy(request)
-                .Scope(request)
+                //.Filter(request)
+                //.Search(request)
+                //.Count(ref resultCount)
+                //.OrderBy(request)
+                //.Scope(request)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return new GetCustomersByFilterQueryResponse
-            {
-                Request = request,
-                ResultCount = resultCount,
-                Data = results.Select(data => new GetCustomersByFilterQueryResponseDTO
-                {
-                    CustomerID = data.CustomerID,
-                    Name = data.Name,
-                    Email = data.Email
-                }).ToList()
-            };
+            resultCount = results.Count;
+
+            return new GetCustomersByFilterQueryResponse(request, results, resultCount);
         }
     }
 }

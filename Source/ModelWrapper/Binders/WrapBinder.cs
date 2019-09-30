@@ -38,23 +38,20 @@ namespace ModelWrapper.Binders
             if (bindingContext == null) throw new ArgumentNullException(nameof(bindingContext));
 
             var model = Activator.CreateInstance(bindingContext.ModelType);
-            
-            if(bindingContext.BindingSource == BindingSource.Form)
+
+            if (bindingContext.HttpContext.Request.HasFormContentType)
             {
-                if (bindingContext.HttpContext.Request.HasFormContentType)
+                foreach (var key in bindingContext.HttpContext.Request.Form.Keys)
                 {
-                    foreach (var key in bindingContext.HttpContext.Request.Form.Keys)
-                    {
-                        var value = bindingContext.HttpContext.Request.Form[key];
+                    var value = bindingContext.HttpContext.Request.Form[key];
 
-                        var setMemberBinder = new WrapMemberBinder(key, WrapPropertySource.FromForm, true);
+                    var setMemberBinder = new WrapMemberBinder(key, WrapPropertySource.FromForm, true);
 
-                        model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { setMemberBinder, value.ToString() });
-                    }
+                    model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { setMemberBinder, value.ToString() });
                 }
             }
-            
-            if (bindingContext.BindingSource == BindingSource.Body)
+
+            if (bindingContext.HttpContext.Request.ContentLength != null)
             {
                 var body = string.Empty;
                 using (var reader = new StreamReader(bindingContext.HttpContext.Request.Body))
@@ -71,19 +68,42 @@ namespace ModelWrapper.Binders
                 }
             }
 
-            if(bindingContext.HttpContext.Request.Query.Count > 0)
+            if (bindingContext.HttpContext.Request.Query.Count > 0)
             {
-                foreach(var queryProperty in bindingContext.HttpContext.Request.Query.Keys)
+                foreach (var queryProperty in bindingContext.HttpContext.Request.Query.Keys)
                 {
                     var memberBinder = new WrapMemberBinder(queryProperty, WrapPropertySource.FromQuery, true);
                     var value = bindingContext.HttpContext.Request.Query[queryProperty];
+
+                    if(value.Count > 1)
+                    {
+                        foreach(var v in value)
+                        {
+                            model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { memberBinder, v.ToString() });
+                        }
+                    }
+                    else
+                    {
+                        model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { memberBinder, value.ToString() });
+                    }
+                }
+            }
+
+            if (bindingContext.ActionContext.RouteData.Values.Count > 0)
+            {
+                foreach (var routeProperty in bindingContext.ActionContext.RouteData.Values.ToList())
+                {
+                    var memberBinder = new WrapMemberBinder(routeProperty.Key, WrapPropertySource.FromRoute, true);
+                    var value = routeProperty.Value;
                     model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] { memberBinder, value.ToString() });
                 }
             }
 
+            model.GetType().GetMethod("ProcessBind").Invoke(model, new object[] { });
+
             bindingContext.Model = model;
 
-            if(bindingContext.Model == null)
+            if (bindingContext.Model == null)
             {
                 return Task.CompletedTask;
             }

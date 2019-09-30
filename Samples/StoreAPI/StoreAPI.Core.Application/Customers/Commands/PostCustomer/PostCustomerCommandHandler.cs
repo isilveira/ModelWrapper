@@ -16,9 +16,7 @@ namespace StoreAPI.Core.Application.Customers.Commands.PostCustomer
         }
         public async Task<PostCustomerCommandResponse> Handle(PostCustomerCommand request, CancellationToken cancellationToken)
         {
-            //var response = new PostCustomerCommandResponse();
-
-            return new PostCustomerCommandResponse(request, new Customer { CustomerID = 1, Email = "italobrian@gmail.com", Name = "Ítalo Silveira" }, "Successful operation!");
+            throw new NotImplementedException();
             //var data = request.Post();
 
             //data.RegistrationDate = DateTime.UtcNow;
