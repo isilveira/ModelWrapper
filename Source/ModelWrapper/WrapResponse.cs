@@ -10,7 +10,7 @@ namespace ModelWrapper
         where TModel : class
     {
         public WrapResponse() { }
-        public WrapResponse(WrapRequest<TModel> request, TModel data, string message = null, long? resultCount = null)
+        public WrapResponse(WrapRequest<TModel> request, object data, string message = null, long? resultCount = null)
         {
             if (!string.IsNullOrWhiteSpace(message))
             {
@@ -23,7 +23,7 @@ namespace ModelWrapper
             Add(nameof(request), request.GetRequestAsDictionary());
             Add(nameof(data), ResponseProperties(request, data));
         }
-        public WrapResponse(WrapRequest<TModel> request, IList<TModel> data, string message = null, long? resultCount = null)
+        public WrapResponse(WrapRequest<TModel> request, IList<object> data, string message = null, long? resultCount = null)
         {
             if (!string.IsNullOrWhiteSpace(message))
             {
@@ -37,7 +37,7 @@ namespace ModelWrapper
             Add(nameof(data), ResponseProperties(request, data));
         }
 
-        private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, IList<TModel> data)
+        private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, IList<object> data)
         {
             IList<Dictionary<string, object>> dictionaries = new List<Dictionary<string, object>>();
 
@@ -49,12 +49,12 @@ namespace ModelWrapper
             return dictionaries;
         }
 
-        private Dictionary<string, object> ResponseProperties(WrapRequest<TModel> request, TModel data)
+        private Dictionary<string, object> ResponseProperties(WrapRequest<TModel> request, object data)
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
-            foreach(var property in typeof(TModel).GetProperties().Where(p=>
-                !request.SupressedProperties.Any(x=>x.Name.Equals(p.Name))
+            foreach(var property in data.GetType().GetProperties().Where(p=>
+                !request.SupressedResponseProperties.Any(x=>x.Name.Equals(p.Name))
             ).ToList())
             {
                 if (request.ResponseProperties.Count > 0)
@@ -62,7 +62,7 @@ namespace ModelWrapper
                     var responseProperty = request.ResponseProperties.FirstOrDefault(rp => rp.Name.Equals(property.Name));
                     if (responseProperty != null)
                     {
-                        dictionary.Add(responseProperty.Name, responseProperty.GetValue(data));
+                        dictionary.Add(responseProperty.Name, property.GetValue(data));
                     }
                 }
                 else

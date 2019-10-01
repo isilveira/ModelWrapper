@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +19,11 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomerByID
         {
             var id = request.Project(x => x.CustomerID);
 
-            var data = await Context.Customers.AsNoTracking().SingleOrDefaultAsync(x => x.CustomerID == id);
+            var data = await Context.Customers
+                .Where(x => x.CustomerID == id)
+                .Select(x=> new { x.Name })
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {

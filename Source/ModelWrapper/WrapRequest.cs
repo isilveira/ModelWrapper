@@ -22,6 +22,7 @@ namespace ModelWrapper
         public IList<NewWrapProperty> AllProperties { get; set; }
         public IList<PropertyInfo> KeyProperties { get; set; }
         public IList<PropertyInfo> SupressedProperties { get; set; }
+        public IList<PropertyInfo> SupressedResponseProperties { get; set; }
         public IList<PropertyInfo> SuppliedProperties { get; set; }
         public IList<PropertyInfo> ResponseProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
@@ -36,6 +37,7 @@ namespace ModelWrapper
             AllProperties = new List<NewWrapProperty>();
             KeyProperties = new List<PropertyInfo>();
             SupressedProperties = new List<PropertyInfo>();
+            SupressedResponseProperties = new List<PropertyInfo>();
             SuppliedProperties = new List<PropertyInfo>();
             ResponseProperties = new List<PropertyInfo>();
             RequestObject = new Dictionary<string, object>();
@@ -106,6 +108,10 @@ namespace ModelWrapper
         public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
         {
             SupressedProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+        }
+        public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
+        {
+            SupressedResponseProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
         }
 
         public string GetPropertyName(Expression<Func<TModel, object>> property)
@@ -184,7 +190,7 @@ namespace ModelWrapper
                 if (property.Name.ToLower().Equals(nameof(ResponseProperties).ToLower()))
                 {
                     var responseProperty = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(property.Value.ToString().ToLower())).SingleOrDefault();
-                    if (responseProperty != null)
+                    if (responseProperty != null && !SupressedResponseProperties.Any(x => x.Name == responseProperty.Name))
                     {
                         ResponseProperties.Add(responseProperty);
                     }
