@@ -19,7 +19,7 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         }
         public async Task<GetCustomersByFilterQueryResponse> Handle(GetCustomersByFilterQuery request, CancellationToken cancellationToken)
         {
-            int resultCount = 0;
+            long resultCount = 0;
             var results = await Context.Customers
                 //.Filter(request)
                 //.Search(request)
@@ -31,7 +31,7 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
 
             resultCount = results.Count;
 
-            return new GetCustomersByFilterQueryResponse(request, results, resultCount);
+            return new GetCustomersByFilterQueryResponse(request, results, resultCount: resultCount);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomerByID
                 throw new Exception("Customer not found!");
             }
 
-            return new GetCustomerByIDQueryResponse(request, data);
+            return new GetCustomerByIDQueryResponse(request, data, resultCount: 1);
         }
     }
 }

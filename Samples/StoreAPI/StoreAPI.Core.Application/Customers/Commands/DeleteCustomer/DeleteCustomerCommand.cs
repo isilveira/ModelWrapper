@@ -8,7 +8,8 @@ namespace StoreAPI.Core.Application.Customers.Commands.DeleteCustomer
     {
         public DeleteCustomerCommand()
         {
-
+            ConfigKeys(x => x.CustomerID);
+            ConfigSuppressedProperties(x => x.Orders);
         }
     }
 }

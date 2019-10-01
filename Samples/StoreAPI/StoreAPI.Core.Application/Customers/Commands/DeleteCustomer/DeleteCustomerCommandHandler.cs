@@ -27,17 +27,7 @@ namespace StoreAPI.Core.Application.Customers.Commands.DeleteCustomer
 
             await Context.SaveChangesAsync();
 
-            return new DeleteCustomerCommandResponse
-            {
-                Request = request,
-                Message = "Successful operation!",
-                Data = new DeleteCustomerCommandResponseDTO
-                {
-                    CustomerID = data.CustomerID,
-                    Name = data.Name,
-                    Email = data.Email
-                }
-            };
+            return new DeleteCustomerCommandResponse(request, data, "Successful operation!");
         }
     }
 }

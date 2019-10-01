@@ -8,9 +8,9 @@ namespace StoreAPI.Core.Application.Customers.Commands.PatchCustomer
     {
         public PatchCustomerCommand()
         {
-            //KeyProperty(x => x.CustomerID);
-            //SuppressProperty(x => x.RegistrationDate);
-            //SuppressProperty(x => x.Orders);
+            ConfigKeys(x => x.CustomerID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Orders);
         }
     }
 }

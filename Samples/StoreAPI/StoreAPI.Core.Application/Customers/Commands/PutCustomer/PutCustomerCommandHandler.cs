@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -25,21 +26,11 @@ namespace StoreAPI.Core.Application.Customers.Commands.PutCustomer
                 throw new Exception("Customer not found!");
             }
 
-            //request.Put(data);
+            request.Put(data);
 
             await Context.SaveChangesAsync();
 
-            return new PutCustomerCommandResponse
-            {
-                //Request = request.AsDictionary(),
-                Message = "Successful operation!",
-                Data = new PutCustomerCommandResponseDTO
-                {
-                    CustomerID = data.CustomerID,
-                    Name = data.Name,
-                    Email = data.Email
-                }
-            };
+            return new PutCustomerCommandResponse(request, data,"Successful operation!");
         }
     }
 }

@@ -6,9 +6,8 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomerByID
 {
     public class GetCustomerByIDQueryResponse : WrapResponse<Customer>
     {
-        public GetCustomerByIDQueryResponse(
-            WrapRequest<Customer> request,
-            Customer data) : base(request, data, null, 1)
+        public GetCustomerByIDQueryResponse(WrapRequest<Customer> request, Customer data, string message = null, long? resultCount = null)
+            : base(request, data, message, resultCount)
         {
         }
     }

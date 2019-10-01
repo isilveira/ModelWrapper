@@ -8,9 +8,9 @@ namespace StoreAPI.Core.Application.Customers.Commands.PutCustomer
     {
         public PutCustomerCommand()
         {
-            //KeyProperty(x => x.CustomerID);
-            //SuppressProperty(x => x.RegistrationDate);
-            //SuppressProperty(x => x.Orders);
+            ConfigKeys(x => x.CustomerID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Orders);
         }
     }
 }

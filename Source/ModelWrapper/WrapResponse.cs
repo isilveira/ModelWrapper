@@ -59,7 +59,7 @@ namespace ModelWrapper
             {
                 if (request.ResponseProperties.Count > 0)
                 {
-                    var responseProperty = request.ResponseProperties.SingleOrDefault(rp => rp.Name.Equals(property.Name));
+                    var responseProperty = request.ResponseProperties.FirstOrDefault(rp => rp.Name.Equals(property.Name));
                     if (responseProperty != null)
                     {
                         dictionary.Add(responseProperty.Name, responseProperty.GetValue(data));
