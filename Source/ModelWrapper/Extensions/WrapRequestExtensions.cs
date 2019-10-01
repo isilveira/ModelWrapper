@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Interfaces;
+﻿using ModelWrapper.Helpers;
+using ModelWrapper.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,11 @@ namespace ModelWrapper.Extensions
             source.SetModelOnRequest(model, properties);
 
             return model;
+        }
+
+        public static IQueryable<object> Select<TModel>(this IQueryable<TModel> source, WrapRequest<TModel> request) where TModel: class
+        {
+            return source.Select(ExpressionsHelper.SelectExpression<TModel>(request.ResponseProperties));
         }
     }
 }

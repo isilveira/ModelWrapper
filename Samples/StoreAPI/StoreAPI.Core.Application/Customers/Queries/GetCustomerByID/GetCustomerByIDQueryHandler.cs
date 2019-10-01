@@ -1,8 +1,14 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
+using StoreAPI.Core.Domain.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,9 +25,11 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomerByID
         {
             var id = request.Project(x => x.CustomerID);
 
+
+
             var data = await Context.Customers
                 .Where(x => x.CustomerID == id)
-                .Select(x=> new { x.Name })
+                .Select<Customer>(request)
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 

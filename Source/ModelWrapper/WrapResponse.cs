@@ -23,38 +23,32 @@ namespace ModelWrapper
             Add(nameof(request), request.GetRequestAsDictionary());
             Add(nameof(data), ResponseProperties(request, data));
         }
-        public WrapResponse(WrapRequest<TModel> request, IList<object> data, string message = null, long? resultCount = null)
-        {
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                Add(nameof(message), message);
-            }
-            if (resultCount.HasValue)
-            {
-                Add(nameof(resultCount), resultCount);
-            }
-            Add(nameof(request), request.GetRequestAsDictionary());
-            Add(nameof(data), ResponseProperties(request, data));
-        }
 
-        private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, IList<object> data)
+        private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, object data)
         {
             IList<Dictionary<string, object>> dictionaries = new List<Dictionary<string, object>>();
 
-            foreach(var item in data)
+            if (data is ICollection<object>)
             {
-                dictionaries.Add(ResponseProperties(request, item));
+                foreach (var item in (ICollection<object>)data)
+                {
+                    dictionaries.Add(ResponseObjectProperties(request, item));
+                }
+            }
+            else
+            {
+                dictionaries.Add(ResponseObjectProperties(request, data));
             }
 
             return dictionaries;
         }
 
-        private Dictionary<string, object> ResponseProperties(WrapRequest<TModel> request, object data)
+        private Dictionary<string, object> ResponseObjectProperties(WrapRequest<TModel> request, object data)
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
-            foreach(var property in data.GetType().GetProperties().Where(p=>
-                !request.SupressedResponseProperties.Any(x=>x.Name.Equals(p.Name))
+            foreach (var property in data.GetType().GetProperties().Where(p =>
+                 !request.SupressedResponseProperties.Any(x => x.Name.Equals(p.Name))
             ).ToList())
             {
                 if (request.ResponseProperties.Count > 0)
