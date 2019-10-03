@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
 {
-    public class PatchProductCommand : Wrap<Product>, IRequest<PatchProductCommandResponse>
+    public class PatchProductCommand : WrapRequest<Product>, IRequest<PatchProductCommandResponse>
     {
         public PatchProductCommand()
         {
-            KeyProperty(x => x.ProductID);
-            SuppressProperty(x => x.RegistrationDate);
-            SuppressProperty(x => x.Category);
-            SuppressProperty(x => x.Images);
-            SuppressProperty(x => x.OrderedProducts);
+            ConfigKeys(x => x.ProductID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Category);
+            ConfigSuppressedProperties(x => x.Images);
+            ConfigSuppressedProperties(x => x.OrderedProducts);
         }
     }
 }

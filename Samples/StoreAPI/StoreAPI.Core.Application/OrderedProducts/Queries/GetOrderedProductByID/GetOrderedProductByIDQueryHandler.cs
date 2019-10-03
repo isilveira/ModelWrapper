@@ -16,27 +16,16 @@ namespace StoreAPI.Core.Application.OrderedProducts.Queries.GetOrderedProductByI
         }
         public async Task<GetOrderedProductByIDQueryResponse> Handle(GetOrderedProductByIDQuery request, CancellationToken cancellationToken)
         {
-            var data = await Context.OrderedProducts.AsNoTracking().SingleOrDefaultAsync(x => x.OrderedProductID== request.OrderedProductID);
+            var id = request.Project(x => x.OrderedProductID);
+
+            var data = await Context.OrderedProducts.AsNoTracking().SingleOrDefaultAsync(x => x.OrderedProductID == id);
 
             if (data == null)
             {
                 throw new Exception("OrderedProduct not found!");
             }
 
-            return new GetOrderedProductByIDQueryResponse
-            {
-                ResultCount = 1,
-                Request = request,
-                Data = new GetOrderedProductByIDQueryResponseDTO
-                {
-                    OrderedProductID = data.OrderedProductID,
-                    OrderID = data.OrderID,
-                    ProductID = data.ProductID,
-                    Amount = data.Amount,
-                    Value = data.Value,
-                    RegistrationDate = data.RegistrationDate
-                }
-            };
+            return new GetOrderedProductByIDQueryResponse(request, data, "Successful operation!", 1);
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using EntitySearch.Extensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
+using StoreAPI.Core.Domain.Entities;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,32 +21,19 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductsByFilter
         public async Task<GetProductsByFilterQueryResponse> Handle(GetProductsByFilterQuery request, CancellationToken cancellationToken)
         {
             int resultCount = 0;
-            var results = await Context.Products
-                .Filter(request)
-                .Search(request)
-                .Count(ref resultCount)
-                .OrderBy(request)
-                .Scope(request)
+            var data = await Context.Products
+                .Select<Product>(request)
+                //.Filter(request)
+                //.Search(request)
+                //.Count(ref resultCount)
+                //.OrderBy(request)
+                //.Scope(request)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return new GetProductsByFilterQueryResponse
-            {
-                Request = request,
-                ResultCount = resultCount,
-                Data = results.Select(data => new GetProductsByFilterQueryResponseDTO
-                {
-                    ProductID = data.ProductID,
-                    CategoryID = data.CategoryID,
-                    Name = data.Name,
-                    Description = data.Description,
-                    Specifications = data.Specifications,
-                    RegistrationDate = data.RegistrationDate,
-                    Value = data.Value,
-                    Amount = data.Amount,
-                    IsVisible = data.IsVisible
-                }).ToList()
-            };
+            resultCount = data.Count;
+
+            return new GetProductsByFilterQueryResponse(request, data, "Successful operation!", resultCount);
         }
     }
 }

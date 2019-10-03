@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -28,18 +29,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PatchImage
 
             await Context.SaveChangesAsync();
 
-            return new PatchImageCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
-                Data = new PatchImageCommandResponseDTO
-                {
-                    ImageID = data.ImageID,
-                    MimeType = data.MimeType,
-                    ProductID = data.ProductID,
-                    Url = data.Url
-                }
-            };
+            return new PatchImageCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

@@ -4,12 +4,12 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Images.Commands.PostImage
 {
-    public class PostImageCommand : Wrap<Image>, IRequest<PostImageCommandResponse>
+    public class PostImageCommand : WrapRequest<Image>, IRequest<PostImageCommandResponse>
     {
         public PostImageCommand()
         {
-            KeyProperty(x => x.ImageID);
-            SuppressProperty(x => x.Product);
+            ConfigKeys(x => x.ImageID);
+            ConfigSuppressedProperties(x => x.Product);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -28,20 +29,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PatchOrderedProduct
 
             await Context.SaveChangesAsync();
 
-            return new PatchOrderedProductCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
-                Data = new PatchOrderedProductCommandResponseDTO
-                {
-                    OrderedProductID = data.OrderedProductID,
-                    OrderID = data.OrderID,
-                    ProductID = data.ProductID,
-                    Amount = data.Amount,
-                    Value = data.Value,
-                    RegistrationDate = data.RegistrationDate
-                }
-            };
+            return new PatchOrderedProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

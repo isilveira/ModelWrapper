@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,18 +21,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 
             await Context.SaveChangesAsync();
 
-            return new PostCategoryCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
-                Data = new PostCategoryCommandResponseDTO
-                {
-                    CategoryID = data.CategoryID,
-                    RootCategoryID = data.RootCategoryID,
-                    Name = data.Name,
-                    Description = data.Description
-                }
-            };
+            return new PostCategoryCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

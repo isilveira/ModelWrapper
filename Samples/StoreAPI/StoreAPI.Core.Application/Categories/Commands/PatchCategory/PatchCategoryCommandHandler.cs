@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -29,18 +30,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
 
             await Context.SaveChangesAsync();
 
-            return new PatchCategoryCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
-                Data = new PatchCategoryCommandResponseDTO
-                {
-                    CategoryID = data.CategoryID,
-                    RootCategoryID = data.RootCategoryID,
-                    Name = data.Name,
-                    Description = data.Description
-                }
-            };
+            return new PatchCategoryCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

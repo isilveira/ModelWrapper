@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Collections.Generic;
@@ -28,18 +29,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PutImage
 
             await Context.SaveChangesAsync();
 
-            return new PutImageCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(),
-                Data = new PutImageCommandResponseDTO
-                {
-                    ImageID = data.ImageID,
-                    ProductID = data.ProductID,
-                    MimeType = data.MimeType,
-                    Url = data.Url                    
-                }
-            };
+            return new PutImageCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

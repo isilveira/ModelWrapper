@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using StoreAPI.Core.Domain.Entities;
 using System;
@@ -24,20 +25,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
 
             await Context.SaveChangesAsync();
 
-            return new PostOrderedProductCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
-                Data = new PostOrderedProductCommandResponseDTO
-                {
-                    OrderedProductID = data.OrderedProductID,
-                    OrderID = data.OrderID,
-                    ProductID = data.ProductID,
-                    Amount = data.Amount,
-                    Value = data.Value,
-                    RegistrationDate = data.RegistrationDate
-                }
-            };
+            return new PostOrderedProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using StoreAPI.Core.Domain.Entities;
 using System;
@@ -22,18 +23,7 @@ namespace StoreAPI.Core.Application.Images.Commands.PostImage
 
             await Context.SaveChangesAsync();
 
-            return new PostImageCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.AllWithoutKeys),
-                Data = new PostImageCommandResponseDTO
-                {
-                    ImageID = data.ImageID,
-                    MimeType = data.MimeType,
-                    ProductID = data.ProductID,
-                    Url = data.Url
-                }
-            };
+            return new PostImageCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

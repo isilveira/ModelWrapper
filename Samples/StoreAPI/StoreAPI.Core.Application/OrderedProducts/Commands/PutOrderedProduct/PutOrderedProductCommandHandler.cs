@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PutOrderedProduct
         public async Task<PutOrderedProductCommandResponse> Handle(PutOrderedProductCommand request, CancellationToken cancellationToken)
         {
             var id = request.Project(x => x.OrderedProductID);
+
             var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == id);
 
             if (data == null)
@@ -28,20 +30,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.PutOrderedProduct
 
             await Context.SaveChangesAsync();
 
-            return new PutOrderedProductCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(),
-                Data = new PutOrderedProductCommandResponseDTO
-                {
-                    OrderedProductID = data.OrderedProductID,
-                    OrderID = data.OrderID,
-                    ProductID = data.ProductID,
-                    Amount = data.Amount,
-                    Value = data.Value,
-                    RegistrationDate = data.RegistrationDate
-                }
-            };
+            return new PutOrderedProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

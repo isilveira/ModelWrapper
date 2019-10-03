@@ -185,15 +185,19 @@ namespace ModelWrapper
 
         private void SetResponsePropertiesOnRequest()
         {
-            foreach (var property in AllProperties.Where(x => x.Source == WrapPropertySource.FromQuery).ToList())
+            var responseProperties = AllProperties.Where(x =>
+                x.Source == WrapPropertySource.FromQuery
+                && x.Name.ToLower().Equals(nameof(ResponseProperties).ToLower())
+            ).ToList();
+
+            foreach (var property in typeof(TModel).GetProperties().Where(p=>
+                !SupressedProperties.Any(x=>x.Name==p.Name)
+                && !SupressedResponseProperties.Any(x => x.Name == p.Name)
+            ).ToList())
             {
-                if (property.Name.ToLower().Equals(nameof(ResponseProperties).ToLower()))
+                if (responseProperties.Count == 0 || responseProperties.Any(x => x.Value.ToString().ToLower().Equals(property.Name.ToLower())))
                 {
-                    var responseProperty = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(property.Value.ToString().ToLower())).SingleOrDefault();
-                    if (responseProperty != null && !SupressedResponseProperties.Any(x => x.Name == responseProperty.Name))
-                    {
-                        ResponseProperties.Add(responseProperty);
-                    }
+                    ResponseProperties.Add(property);
                 }
             }
 

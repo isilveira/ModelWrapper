@@ -17,7 +17,9 @@ namespace StoreAPI.Core.Application.Products.Commands.DeleteProduct
         }
         public async Task<DeleteProductCommandResponse> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == request.ProductID);
+            var id = request.Project(x => x.ProductID);
+
+            var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == id);
 
             if (data == null)
             {
@@ -28,23 +30,7 @@ namespace StoreAPI.Core.Application.Products.Commands.DeleteProduct
 
             await Context.SaveChangesAsync();
 
-            return new DeleteProductCommandResponse
-            {
-                Request = request,
-                Message = "Successful operation!",
-                Data = new DeleteProductCommandResponseDTO
-                {
-                    ProductID = data.ProductID,
-                    CategoryID = data.CategoryID,
-                    Name = data.Name,
-                    Description = data.Description,
-                    Specifications = data.Specifications,
-                    RegistrationDate = data.RegistrationDate,
-                    Value = data.Value,
-                    Amount = data.Amount,
-                    IsVisible = data.IsVisible
-                }
-            };
+            return new DeleteProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

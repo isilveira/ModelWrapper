@@ -1,16 +1,17 @@
-﻿using EntitySearch;
-using MediatR;
+﻿using MediatR;
+using ModelWrapper;
 using StoreAPI.Core.Domain.Entities;
-using System;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Queries.GetOrderedProductsByFilter
 {
-    public class GetOrderedProductsByFilterQuery : EntitySearch<OrderedProduct>, IRequest<GetOrderedProductsByFilterQueryResponse>
+    public class GetOrderedProductsByFilterQuery : WrapRequest<OrderedProduct>, IRequest<GetOrderedProductsByFilterQueryResponse>
     {
         public GetOrderedProductsByFilterQuery()
         {
-            SetRestrictProperty(x => x.Product);
-            SetRestrictProperty(x => x.Order);
+            ConfigKeys(x => x.OrderedProductID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Order);
+            ConfigSuppressedProperties(x => x.Product);
         }
     }
 }

@@ -16,7 +16,9 @@ namespace StoreAPI.Core.Application.Orders.Commands.DeleteOrder
         }
         public async Task<DeleteOrderCommandResponse> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID== request.OrderID);
+            var id = request.Project(x => x.OrderID);
+
+            var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == id);
 
             if (data == null)
                 throw new Exception("Customer not found!");
@@ -25,19 +27,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.DeleteOrder
 
             await Context.SaveChangesAsync();
 
-            return new DeleteOrderCommandResponse
-            {
-                Request = request,
-                Message = "Successful operation!",
-                Data = new DeleteOrderCommandResponseDTO
-                {
-                    OrderID = data.OrderID,
-                    CustomerID = data.CustomerID,
-                    RegistrationDate = data.RegistrationDate,
-                    ConfirmationDate = data.ConfirmationDate,
-                    CancellationDate = data.CancellationDate
-                }
-            };
+            return new DeleteOrderCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

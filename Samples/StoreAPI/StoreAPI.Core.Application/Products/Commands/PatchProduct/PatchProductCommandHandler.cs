@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
         public async Task<PatchProductCommandResponse> Handle(PatchProductCommand request, CancellationToken cancellationToken)
         {
             var id = request.Project(x => x.ProductID);
+
             var data = await Context.Products.SingleOrDefaultAsync(x => x.ProductID == id);
 
             if (data == null)
@@ -28,23 +30,7 @@ namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
 
             await Context.SaveChangesAsync();
 
-            return new PatchProductCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
-                Data = new PatchProductCommandResponseDTO
-                {
-                    ProductID = data.ProductID,
-                    CategoryID = data.CategoryID,
-                    Name = data.Name,
-                    Description = data.Description,
-                    Specifications = data.Specifications,
-                    RegistrationDate = data.RegistrationDate,
-                    Value = data.Value,
-                    Amount = data.Amount,
-                    IsVisible = data.IsVisible
-                }
-            };
+            return new PatchProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

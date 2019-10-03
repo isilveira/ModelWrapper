@@ -5,16 +5,16 @@ using System;
 
 namespace StoreAPI.Core.Application.Orders.Commands.PostOrder
 {
-    public class PostOrderCommand : Wrap<Order>, IRequest<PostOrderCommandResponse>
+    public class PostOrderCommand : WrapRequest<Order>, IRequest<PostOrderCommandResponse>
     {
         public PostOrderCommand()
         {
-            KeyProperty(x => x.OrderID);
-            SuppressProperty(x => x.RegistrationDate);
-            SuppressProperty(x => x.CancellationDate);
-            SuppressProperty(x => x.ConfirmationDate);
-            SuppressProperty(x => x.OrderedProducts);
-            SuppressProperty(x => x.Customer);
+            ConfigKeys(x => x.OrderID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.CancellationDate);
+            ConfigSuppressedProperties(x => x.ConfirmationDate);
+            ConfigSuppressedProperties(x => x.OrderedProducts);
+            ConfigSuppressedProperties(x => x.Customer);
         }
     }
 }

@@ -5,14 +5,14 @@ using System;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Commands.PutOrderedProduct
 {
-    public class PutOrderedProductCommand : Wrap<OrderedProduct>, IRequest<PutOrderedProductCommandResponse>
+    public class PutOrderedProductCommand : WrapRequest<OrderedProduct>, IRequest<PutOrderedProductCommandResponse>
     {
         public PutOrderedProductCommand()
         {
-            KeyProperty(x => x.OrderedProductID);
-            SuppressProperty(x => x.RegistrationDate);
-            SuppressProperty(x => x.Order);
-            SuppressProperty(x => x.Product);
+            ConfigKeys(x => x.OrderedProductID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Order);
+            ConfigSuppressedProperties(x => x.Product);
         }
     }
 }

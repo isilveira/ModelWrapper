@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Images.Commands.PutImage
 {
-    public class PutImageCommand : Wrap<Image>, IRequest<PutImageCommandResponse>
+    public class PutImageCommand : WrapRequest<Image>, IRequest<PutImageCommandResponse>
     {
         public PutImageCommand()
         {
-            KeyProperty(x => x.ImageID);
-            SuppressProperty(x => x.Product);
+            ConfigKeys(x => x.ImageID);
+            ConfigSuppressedProperties(x => x.Product);
         }
     }
 }

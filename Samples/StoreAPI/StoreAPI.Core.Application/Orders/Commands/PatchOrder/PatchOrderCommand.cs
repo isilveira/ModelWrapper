@@ -5,14 +5,14 @@ using System;
 
 namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
 {
-    public class PatchOrderCommand : Wrap<Order>, IRequest<PatchOrderCommandResponse>
+    public class PatchOrderCommand : WrapRequest<Order>, IRequest<PatchOrderCommandResponse>
     {
         public PatchOrderCommand()
         {
-            KeyProperty(x => x.OrderID);
-            SuppressProperty(x => x.RegistrationDate);
-            SuppressProperty(x => x.OrderedProducts);
-            SuppressProperty(x => x.Customer);
+            ConfigKeys(x => x.OrderID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.OrderedProducts);
+            ConfigSuppressedProperties(x => x.Customer);
         }
     }
 }

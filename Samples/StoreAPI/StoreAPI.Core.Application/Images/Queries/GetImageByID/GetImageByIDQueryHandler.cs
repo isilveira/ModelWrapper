@@ -16,25 +16,16 @@ namespace StoreAPI.Core.Application.Images.Queries.GetImageByID
         }
         public async Task<GetImageByIDQueryResponse> Handle(GetImageByIDQuery request, CancellationToken cancellationToken)
         {
-            var data = await Context.Images.AsNoTracking().SingleOrDefaultAsync(x => x.ImageID == request.ImageID);
+            var id = request.Project(x => x.ImageID);
+
+            var data = await Context.Images.AsNoTracking().SingleOrDefaultAsync(x => x.ImageID == id);
 
             if (data == null)
             {
                 throw new Exception("Image not found!");
             }
 
-            return new GetImageByIDQueryResponse
-            {
-                ResultCount = 1,
-                Request = request,
-                Data = new GetImageByIDQueryResponseDTO
-                {
-                    ImageID = data.ImageID,
-                    ProductID = data.ProductID,
-                    MimeType = data.MimeType,
-                    Url = data.Url
-                }
-            };
+            return new GetImageByIDQueryResponse(request, data, "Successful operation!", 1);
         }
     }
 }

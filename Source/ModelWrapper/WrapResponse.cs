@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelWrapper.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace ModelWrapper
 {
-    public class WrapResponse<TModel> : Dictionary<string, object>
+    public class WrapResponse<TModel> : Dictionary<string, object>, IWrapResponse<TModel>
         where TModel : class
     {
         public WrapResponse() { }

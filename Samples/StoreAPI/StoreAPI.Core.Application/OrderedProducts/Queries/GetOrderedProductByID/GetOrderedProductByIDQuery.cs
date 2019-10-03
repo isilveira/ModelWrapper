@@ -1,9 +1,17 @@
 ﻿using MediatR;
+using ModelWrapper;
+using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Queries.GetOrderedProductByID
 {
-    public class GetOrderedProductByIDQuery : IRequest<GetOrderedProductByIDQueryResponse>
+    public class GetOrderedProductByIDQuery : WrapRequest<OrderedProduct>, IRequest<GetOrderedProductByIDQueryResponse>
     {
-        public int OrderedProductID { get; set; }
+        protected GetOrderedProductByIDQuery()
+        {
+            ConfigKeys(x => x.OrderedProductID);
+            ConfigSuppressedProperties(x => x.RegistrationDate);
+            ConfigSuppressedProperties(x => x.Order);
+            ConfigSuppressedProperties(x => x.Product);
+        }
     }
 }

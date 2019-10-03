@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 
 namespace StoreAPI.Core.Application.Orders.Commands.PutOrder
@@ -17,6 +18,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PutOrder
         public async Task<PutOrderCommandResponse> Handle(PutOrderCommand request, CancellationToken cancellationToken)
         {
             var id = request.Project(x => x.OrderID);
+
             var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == id);
 
             if (data == null)
@@ -28,19 +30,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PutOrder
 
             await Context.SaveChangesAsync();
 
-            return new PutOrderCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(),
-                Data = new PutOrderCommandResponseDTO
-                {
-                    OrderID = data.OrderID,
-                    CustomerID = data.CustomerID,
-                    RegistrationDate = data.RegistrationDate,
-                    ConfirmationDate = data.ConfirmationDate,
-                    CancellationDate = data.CancellationDate
-                }
-            };
+            return new PutOrderCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

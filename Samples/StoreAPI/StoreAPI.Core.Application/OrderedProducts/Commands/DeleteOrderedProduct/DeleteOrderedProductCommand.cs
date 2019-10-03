@@ -1,9 +1,16 @@
 ﻿using MediatR;
+using ModelWrapper;
+using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Commands.DeleteOrderedProduct
 {
-    public class DeleteOrderedProductCommand : IRequest<DeleteOrderedProductCommandResponse>
+    public class DeleteOrderedProductCommand : WrapRequest<OrderedProduct>, IRequest<DeleteOrderedProductCommandResponse>
     {
-        public int OrderedProductID { get; set; }
+        protected DeleteOrderedProductCommand()
+        {
+            ConfigKeys(x => x.OrderedProductID);
+            ConfigSuppressedProperties(x => x.Order);
+            ConfigSuppressedProperties(x => x.Product);
+        }
     }
 }

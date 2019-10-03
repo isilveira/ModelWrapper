@@ -4,14 +4,14 @@ using StoreAPI.Core.Domain.Entities;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PatchCategory
 {
-    public class PatchCategoryCommand : Wrap<Category>, IRequest<PatchCategoryCommandResponse>
+    public class PatchCategoryCommand : WrapRequest<Category>, IRequest<PatchCategoryCommandResponse>
     {
         public PatchCategoryCommand()
         {
-            KeyProperty(x => x.CategoryID);
-            SuppressProperty(x => x.LeafCategories);
-            SuppressProperty(x => x.Products);
-            SuppressProperty(x => x.RootCategory);
+            ConfigKeys(x => x.CategoryID);
+            ConfigSuppressedProperties(x => x.LeafCategories);
+            ConfigSuppressedProperties(x => x.RootCategory);
+            ConfigSuppressedProperties(x => x.Products);
         }
     }
 }

@@ -16,7 +16,9 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.DeleteOrderedProduc
         }
         public async Task<DeleteOrderedProductCommandResponse> Handle(DeleteOrderedProductCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == request.OrderedProductID);
+            var id = request.Project(x => x.OrderedProductID);
+
+            var data = await Context.OrderedProducts.SingleOrDefaultAsync(x => x.OrderedProductID == id);
 
             if (data == null)
                 throw new Exception("OrderedProduct not found!");
@@ -25,20 +27,7 @@ namespace StoreAPI.Core.Application.OrderedProducts.Commands.DeleteOrderedProduc
 
             await Context.SaveChangesAsync();
 
-            return new DeleteOrderedProductCommandResponse
-            {
-                Request = request,
-                Message = "Successful operation!",
-                Data = new DeleteOrderedProductCommandResponseDTO
-                {
-                    OrderedProductID = data.OrderedProductID,
-                    OrderID = data.OrderID,
-                    ProductID = data.ProductID,
-                    Amount = data.Amount,
-                    Value = data.Value,
-                    RegistrationDate = data.RegistrationDate
-                }
-            };
+            return new DeleteOrderedProductCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

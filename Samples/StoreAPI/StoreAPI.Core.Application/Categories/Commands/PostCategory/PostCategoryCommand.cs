@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Categories.Commands.PostCategory
 {
-    public class PostCategoryCommand : Wrap<Category>, IRequest<PostCategoryCommandResponse>
+    public class PostCategoryCommand : WrapRequest<Category>, IRequest<PostCategoryCommandResponse>
     {
         public PostCategoryCommand()
         {
-            KeyProperty(x => x.CategoryID);
-            SuppressProperty(x => x.LeafCategories);
-            SuppressProperty(x => x.Products);
-            SuppressProperty(x => x.RootCategory);
+            ConfigKeys(x => x.CategoryID);
+            ConfigSuppressedProperties(x => x.LeafCategories);
+            ConfigSuppressedProperties(x => x.RootCategory);
+            ConfigSuppressedProperties(x => x.Products);
         }
     }
 }

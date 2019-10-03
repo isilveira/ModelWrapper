@@ -16,30 +16,16 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductByID
         }
         public async Task<GetProductByIDQueryResponse> Handle(GetProductByIDQuery request, CancellationToken cancellationToken)
         {
-            var data = await Context.Products.AsNoTracking().SingleOrDefaultAsync(x => x.ProductID == request.ProductID);
+            var id = request.Project(x => x.ProductID);
+
+            var data = await Context.Products.AsNoTracking().SingleOrDefaultAsync(x => x.ProductID == id);
 
             if (data == null)
             {
                 throw new Exception("Product not found!");
             }
 
-            return new GetProductByIDQueryResponse
-            {
-                ResultCount = 1,
-                Request = request,
-                Data = new GetProductByIDQueryResponseDTO
-                {
-                    ProductID = data.ProductID,
-                    CategoryID = data.CategoryID,
-                    Name = data.Name,
-                    Description = data.Description,
-                    Specifications = data.Specifications,
-                    RegistrationDate = data.RegistrationDate,
-                    Value = data.Value,
-                    Amount = data.Amount,
-                    IsVisible = data.IsVisible
-                }
-            };
+            return new GetProductByIDQueryResponse(request, data, "Successful operation!", 1);
         }
     }
 }

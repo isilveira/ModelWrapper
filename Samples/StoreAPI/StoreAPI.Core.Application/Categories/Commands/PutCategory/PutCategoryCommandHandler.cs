@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -28,18 +29,7 @@ namespace StoreAPI.Core.Application.Categories.Commands.PutCategory
 
             await Context.SaveChangesAsync();
 
-            return new PutCategoryCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(),
-                Data = new PutCategoryCommandResponseDTO
-                {
-                    CategoryID = data.CategoryID,
-                    RootCategoryID = data.RootCategoryID,
-                    Name = data.Name,
-                    Description = data.Description
-                }
-            };
+            return new PutCategoryCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

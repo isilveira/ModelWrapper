@@ -16,7 +16,9 @@ namespace StoreAPI.Core.Application.Images.Commands.DeleteImage
         }
         public async Task<DeleteImageCommandResponse> Handle(DeleteImageCommand request, CancellationToken cancellationToken)
         {
-            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == request.ImageID);
+            var id = request.Project(x => x.ImageID);
+
+            var data = await Context.Images.SingleOrDefaultAsync(x => x.ImageID == id);
 
             if (data == null)
             {
@@ -27,18 +29,7 @@ namespace StoreAPI.Core.Application.Images.Commands.DeleteImage
 
             await Context.SaveChangesAsync();
 
-            return new DeleteImageCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request,
-                Data = new DeleteImageCommandResponseDTO
-                {
-                    ImageID = data.ImageID,
-                    MimeType = data.MimeType,
-                    ProductID = data.ProductID,
-                    Url = data.Url
-                }
-            };
+            return new DeleteImageCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }

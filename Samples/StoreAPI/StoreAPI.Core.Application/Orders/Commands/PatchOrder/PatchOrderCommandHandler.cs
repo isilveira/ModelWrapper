@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
         public async Task<PatchOrderCommandResponse> Handle(PatchOrderCommand request, CancellationToken cancellationToken)
         {
             var id = request.Project(x => x.OrderID);
+
             var data = await Context.Orders.SingleOrDefaultAsync(x => x.OrderID == id);
 
             if (data == null)
@@ -28,19 +30,7 @@ namespace StoreAPI.Core.Application.Orders.Commands.PatchOrder
 
             await Context.SaveChangesAsync();
 
-            return new PatchOrderCommandResponse
-            {
-                Message = "Successful operation!",
-                Request = request.AsDictionary(ModelWrapper.EnumProperties.OnlySupplieds),
-                Data = new PatchOrderCommandResponseDTO
-                {
-                    OrderID = data.OrderID,
-                    CustomerID = data.CustomerID,
-                    RegistrationDate = data.RegistrationDate,
-                    ConfirmationDate = data.ConfirmationDate,
-                    CancellationDate = data.CancellationDate
-                }
-            };
+            return new PatchOrderCommandResponse(request, data, "Successful operation!", 1);
         }
     }
 }
