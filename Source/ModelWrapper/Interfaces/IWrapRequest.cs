@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace ModelWrapper.Interfaces
 {
@@ -9,12 +7,12 @@ namespace ModelWrapper.Interfaces
         where TModel : class
     {
         TModel Model { get; set; }
-        IList<NewWrapProperty> AllProperties { get; set; }
-        IList<PropertyInfo> KeyProperties { get; set; }
-        IList<PropertyInfo> SupressedProperties { get; set; }
-        IList<PropertyInfo> SupressedResponseProperties { get; set; }
-        IList<PropertyInfo> SuppliedProperties { get; set; }
-        IList<PropertyInfo> ResponseProperties { get; set; }
+        List<NewWrapProperty> AllProperties { get; set; }
+        List<PropertyInfo> KeyProperties { get; set; }
+        List<PropertyInfo> SupressedProperties { get; set; }
+        List<PropertyInfo> SupressedResponseProperties { get; set; }
+        List<PropertyInfo> SuppliedProperties { get; set; }
+        List<PropertyInfo> ResponseProperties { get; set; }
         Dictionary<string, object> RequestObject { get; set; }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using ModelWrapper.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Text;
 
 namespace ModelWrapper
 {
@@ -13,6 +11,8 @@ namespace ModelWrapper
         public WrapResponse() { }
         public WrapResponse(WrapRequest<TModel> request, object data, string message = null, long? resultCount = null)
         {
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"WrapResponse");
+
             if (!string.IsNullOrWhiteSpace(message))
             {
                 Add(nameof(message), message);
@@ -23,6 +23,8 @@ namespace ModelWrapper
             }
             Add(nameof(request), request.GetRequestAsDictionary());
             Add(nameof(data), ResponseProperties(request, data));
+
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapResponse");
         }
 
         private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, object data)

@@ -1,7 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
+using StoreAPI.Core.Domain.Entities;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,14 +19,21 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductByID
         }
         public async Task<GetProductByIDQueryResponse> Handle(GetProductByIDQuery request, CancellationToken cancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"RequestHandler");
             var id = request.Project(x => x.ProductID);
 
-            var data = await Context.Products.AsNoTracking().SingleOrDefaultAsync(x => x.ProductID == id);
+            var data = await Context.Products
+                .Where(x => x.ProductID == id)
+                .Select<Product>(request)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {
                 throw new Exception("Product not found!");
             }
+
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "RequestHandler");
 
             return new GetProductByIDQueryResponse(request, data, "Successful operation!", 1);
         }

@@ -6,6 +6,7 @@ using StoreAPI.Core.Application.Products.Commands.PutProduct;
 using StoreAPI.Core.Application.Products.Queries.GetProductByID;
 using StoreAPI.Core.Application.Products.Queries.GetProductsByFilter;
 using StoreAPI.Resources._Bases;
+using System;
 using System.Threading.Tasks;
 
 namespace StoreAPI.Resources
@@ -21,6 +22,7 @@ namespace StoreAPI.Resources
         [HttpGet("{productid}")]
         public async Task<ActionResult<GetProductByIDQueryResponse>> Get([FromRoute] GetProductByIDQuery request)
         {
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"Products/GET");
             return await Send(request);
         }
         [HttpPost]

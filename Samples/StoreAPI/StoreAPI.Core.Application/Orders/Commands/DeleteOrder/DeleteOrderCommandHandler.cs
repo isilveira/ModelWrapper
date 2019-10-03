@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Orders.Commands.DeleteOrder
 {

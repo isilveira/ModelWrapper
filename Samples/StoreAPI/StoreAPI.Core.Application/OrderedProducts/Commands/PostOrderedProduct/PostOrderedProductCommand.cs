@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using ModelWrapper;
 using StoreAPI.Core.Domain.Entities;
-using System;
 
 namespace StoreAPI.Core.Application.OrderedProducts.Commands.PostOrderedProduct
 {

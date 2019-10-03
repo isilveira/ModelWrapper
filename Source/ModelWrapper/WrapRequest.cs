@@ -9,22 +9,21 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace ModelWrapper
 {
-    [ModelBinder(BinderType = typeof(WrapBinder))]
+    [ModelBinder(BinderType = typeof(WrapRequestBinder))]
     public class WrapRequest<TModel> : DynamicObject, IWrapRequest<TModel>
         where TModel : class
     {
         private string ModelName { get; set; }
         public TModel Model { get; set; }
-        public IList<NewWrapProperty> AllProperties { get; set; }
-        public IList<PropertyInfo> KeyProperties { get; set; }
-        public IList<PropertyInfo> SupressedProperties { get; set; }
-        public IList<PropertyInfo> SupressedResponseProperties { get; set; }
-        public IList<PropertyInfo> SuppliedProperties { get; set; }
-        public IList<PropertyInfo> ResponseProperties { get; set; }
+        public List<NewWrapProperty> AllProperties { get; set; }
+        public List<PropertyInfo> KeyProperties { get; set; }
+        public List<PropertyInfo> SupressedProperties { get; set; }
+        public List<PropertyInfo> SupressedResponseProperties { get; set; }
+        public List<PropertyInfo> SuppliedProperties { get; set; }
+        public List<PropertyInfo> ResponseProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
         {
@@ -33,6 +32,7 @@ namespace ModelWrapper
 
         private void Initialize()
         {
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<NewWrapProperty>();
             KeyProperties = new List<PropertyInfo>();
@@ -41,6 +41,7 @@ namespace ModelWrapper
             SuppliedProperties = new List<PropertyInfo>();
             ResponseProperties = new List<PropertyInfo>();
             RequestObject = new Dictionary<string, object>();
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
         }
 
         #region Access member methods
@@ -65,7 +66,7 @@ namespace ModelWrapper
         /// <returns>bool, if succeeds true</returns>
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            var source = binder.GetType() == typeof(WrapMemberBinder) ? ((WrapMemberBinder)binder).Source : WrapPropertySource.FromBody;
+            var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
             AllProperties.Add(new NewWrapProperty { Name = binder.Name, Value = value, Source = source });
 
             SetPropertyValue(binder.Name, value);
@@ -152,7 +153,7 @@ namespace ModelWrapper
 
         private void UpdateSuppliedProperties()
         {
-            foreach (var property in typeof(TModel).GetProperties())
+            typeof(TModel).GetProperties().ToList().ForEach(property =>
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
@@ -160,26 +161,29 @@ namespace ModelWrapper
                 {
                     SuppliedProperties.Add(property);
                 }
-            }
+            });
         }
 
         public virtual void ProcessBind()
         {
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"ProcessBind");
             SetRoutePropertiesOnRequest();
             SetResponsePropertiesOnRequest();
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ProcessBind");
         }
 
         private void SetRoutePropertiesOnRequest()
         {
             var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
 
-            if (RouteProperties.Count > 0)
-            {
-                var dictionary = new Dictionary<string, object>();
-
-                RouteProperties.ForEach(property => dictionary.Add(property.Name, property.Value));
-
-                RequestObject.Add(nameof(RouteProperties), dictionary);
+            if (RouteProperties.Any())
+            {                
+                RequestObject.Add(
+                    nameof(RouteProperties),
+                    new Dictionary<string,object>(
+                        RouteProperties.Select(property => new KeyValuePair<string, object>(property.Name, property.Value)).ToList()
+                    )
+                );
             }
         }
 
@@ -190,18 +194,23 @@ namespace ModelWrapper
                 && x.Name.ToLower().Equals(nameof(ResponseProperties).ToLower())
             ).ToList();
 
-            foreach (var property in typeof(TModel).GetProperties().Where(p=>
-                !SupressedProperties.Any(x=>x.Name==p.Name)
-                && !SupressedResponseProperties.Any(x => x.Name == p.Name)
-            ).ToList())
+            if (!responseProperties.Any())
             {
-                if (responseProperties.Count == 0 || responseProperties.Any(x => x.Value.ToString().ToLower().Equals(property.Name.ToLower())))
-                {
-                    ResponseProperties.Add(property);
-                }
+                ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
+                       !SupressedProperties.Any(x => x.Name == p.Name)
+                       && !SupressedResponseProperties.Any(x => x.Name == p.Name)
+                   ).ToList());
+            }
+            else
+            {
+                ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
+                    !SupressedProperties.Any(x => x.Name == p.Name)
+                    && !SupressedResponseProperties.Any(x => x.Name == p.Name)
+                    && responseProperties.Any(x => x.Value.ToString().ToLower().Equals(p.Name.ToLower()))
+                ).ToList());
             }
 
-            if (ResponseProperties.Count > 0)
+            if (ResponseProperties.Any())
             {
                 RequestObject.Add(nameof(ResponseProperties), ResponseProperties.Select(x => x.Name));
             }

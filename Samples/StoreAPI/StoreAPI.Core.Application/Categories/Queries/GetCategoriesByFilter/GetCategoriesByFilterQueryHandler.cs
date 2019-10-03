@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using StoreAPI.Core.Domain.Entities;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

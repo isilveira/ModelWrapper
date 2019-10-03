@@ -1,5 +1,4 @@
-﻿using EntitySearch;
-using MediatR;
+﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,9 +24,9 @@ namespace StoreAPI.Middleware
 
             services.AddMediatR(assembly);
 
-            services.AddEntitySearch()
-                .SetTokenMinimumSize(3)
-                .SetSupressTokens(new string[] { "the" });
+            //services.AddEntitySearch()
+            //    .SetTokenMinimumSize(3)
+            //    .SetSupressTokens(new string[] { "the" });
 
             return services;
         }

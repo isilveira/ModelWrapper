@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using ModelWrapper.Extensions;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
-using StoreAPI.Core.Domain.Entities;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
