@@ -7,12 +7,12 @@ namespace ModelWrapper.Interfaces
         where TModel : class
     {
         TModel Model { get; set; }
-        List<NewWrapProperty> AllProperties { get; set; }
-        List<PropertyInfo> KeyProperties { get; set; }
-        List<PropertyInfo> SupressedProperties { get; set; }
-        List<PropertyInfo> SupressedResponseProperties { get; set; }
-        List<PropertyInfo> SuppliedProperties { get; set; }
-        List<PropertyInfo> ResponseProperties { get; set; }
+        List<WrapRequestProperty> AllProperties { get; set; }
+        List<string> KeyProperties { get; set; }
+        List<string> SupressedProperties { get; set; }
+        List<string> SupressedResponseProperties { get; set; }
+        List<string> SuppliedProperties { get; set; }
+        List<string> ResponseProperties { get; set; }
         Dictionary<string, object> RequestObject { get; set; }
     }
 }

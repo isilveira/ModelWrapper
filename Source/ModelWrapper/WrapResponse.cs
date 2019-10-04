@@ -51,15 +51,15 @@ namespace ModelWrapper
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
             foreach (var property in data.GetType().GetProperties().Where(p =>
-                 !request.SupressedResponseProperties.Any(x => x.Name.Equals(p.Name))
+                 !request.SupressedResponseProperties.Any(x => x.Equals(p.Name))
             ).ToList())
             {
                 if (request.ResponseProperties.Count > 0)
                 {
-                    var responseProperty = request.ResponseProperties.FirstOrDefault(rp => rp.Name.Equals(property.Name));
+                    var responseProperty = request.ResponseProperties.FirstOrDefault(rp => rp.Equals(property.Name));
                     if (responseProperty != null)
                     {
-                        dictionary.Add(responseProperty.Name, property.GetValue(data));
+                        dictionary.Add(responseProperty, property.GetValue(data));
                     }
                 }
                 else

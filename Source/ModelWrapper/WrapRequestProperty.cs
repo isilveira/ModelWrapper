@@ -7,7 +7,7 @@
         FromQuery,
         FromRoute
     }
-    public class NewWrapProperty
+    public class WrapRequestProperty
     {
         public string Name { get; set; }
         public object Value { get; set; }

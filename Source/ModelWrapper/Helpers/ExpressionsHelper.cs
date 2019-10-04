@@ -9,10 +9,12 @@ namespace ModelWrapper.Helpers
 {
     public static class ExpressionsHelper
     {
-        public static Expression<Func<TSource, object>> SelectExpression<TSource>(IList<PropertyInfo> properties)
+        public static Expression<Func<TSource, object>> SelectExpression<TSource>(IList<string> propertiesNames)
         {
             var entityType = typeof(TSource);
             var source = Expression.Parameter(entityType, "x");
+
+            var properties = typeof(TSource).GetProperties().Where(x => propertiesNames.Any(y => y == x.Name)).ToList();
 
             var newType = CreateNewType(properties);
 

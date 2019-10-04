@@ -18,12 +18,12 @@ namespace ModelWrapper
     {
         private string ModelName { get; set; }
         public TModel Model { get; set; }
-        public List<NewWrapProperty> AllProperties { get; set; }
-        public List<PropertyInfo> KeyProperties { get; set; }
-        public List<PropertyInfo> SupressedProperties { get; set; }
-        public List<PropertyInfo> SupressedResponseProperties { get; set; }
-        public List<PropertyInfo> SuppliedProperties { get; set; }
-        public List<PropertyInfo> ResponseProperties { get; set; }
+        public List<WrapRequestProperty> AllProperties { get; set; }
+        public List<string> KeyProperties { get; set; }
+        public List<string> SupressedProperties { get; set; }
+        public List<string> SupressedResponseProperties { get; set; }
+        public List<string> SuppliedProperties { get; set; }
+        public List<string> ResponseProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
         {
@@ -34,12 +34,12 @@ namespace ModelWrapper
         {
             System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
             Model = Activator.CreateInstance<TModel>();
-            AllProperties = new List<NewWrapProperty>();
-            KeyProperties = new List<PropertyInfo>();
-            SupressedProperties = new List<PropertyInfo>();
-            SupressedResponseProperties = new List<PropertyInfo>();
-            SuppliedProperties = new List<PropertyInfo>();
-            ResponseProperties = new List<PropertyInfo>();
+            AllProperties = new List<WrapRequestProperty>();
+            KeyProperties = new List<string>();
+            SupressedProperties = new List<string>();
+            SupressedResponseProperties = new List<string>();
+            SuppliedProperties = new List<string>();
+            ResponseProperties = new List<string>();
             RequestObject = new Dictionary<string, object>();
             System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
         }
@@ -67,7 +67,7 @@ namespace ModelWrapper
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
             var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
-            AllProperties.Add(new NewWrapProperty { Name = binder.Name, Value = value, Source = source });
+            AllProperties.Add(new WrapRequestProperty { Name = binder.Name, Value = value, Source = source });
 
             SetPropertyValue(binder.Name, value);
 
@@ -87,7 +87,7 @@ namespace ModelWrapper
                     propertyType = Nullable.GetUnderlyingType(propertyType);
                 }
 
-                SuppliedProperties.Add(property);
+                SuppliedProperties.Add(property.Name);
                 var newPropertyValue = (propertyValue is JToken) ? JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType) : Convert.ChangeType(propertyValue, propertyType);
                 property.SetValue(this.Model, newPropertyValue);
             }
@@ -104,15 +104,15 @@ namespace ModelWrapper
 
         public void ConfigKeys(Expression<Func<TModel, object>> expression)
         {
-            KeyProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+            KeyProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
         }
         public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
         {
-            SupressedProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+            SupressedProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
         }
         public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
         {
-            SupressedResponseProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault());
+            SupressedResponseProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
         }
 
         public string GetPropertyName(Expression<Func<TModel, object>> property)
@@ -157,16 +157,16 @@ namespace ModelWrapper
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
-                if (propertyValue != propertyEmptyValue && !SuppliedProperties.ToList().Exists(p => p.Name == property.Name))
+                if (propertyValue != propertyEmptyValue && !SuppliedProperties.ToList().Exists(p => p == property.Name))
                 {
-                    SuppliedProperties.Add(property);
+                    SuppliedProperties.Add(property.Name);
                 }
             });
         }
 
         public virtual void ProcessBind()
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"ProcessBind");
+            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ProcessBind");
             SetRoutePropertiesOnRequest();
             SetResponsePropertiesOnRequest();
             System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ProcessBind");
@@ -177,10 +177,10 @@ namespace ModelWrapper
             var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
 
             if (RouteProperties.Any())
-            {                
+            {
                 RequestObject.Add(
                     nameof(RouteProperties),
-                    new Dictionary<string,object>(
+                    new Dictionary<string, object>(
                         RouteProperties.Select(property => new KeyValuePair<string, object>(property.Name, property.Value)).ToList()
                     )
                 );
@@ -197,22 +197,22 @@ namespace ModelWrapper
             if (!responseProperties.Any())
             {
                 ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-                       !SupressedProperties.Any(x => x.Name == p.Name)
-                       && !SupressedResponseProperties.Any(x => x.Name == p.Name)
-                   ).ToList());
+                       !SupressedProperties.Any(x => x == p.Name)
+                       && !SupressedResponseProperties.Any(x => x == p.Name)
+                   ).Select(x => x.Name).ToList());
             }
             else
             {
                 ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-                    !SupressedProperties.Any(x => x.Name == p.Name)
-                    && !SupressedResponseProperties.Any(x => x.Name == p.Name)
+                    !SupressedProperties.Any(x => x == p.Name)
+                    && !SupressedResponseProperties.Any(x => x == p.Name)
                     && responseProperties.Any(x => x.Value.ToString().ToLower().Equals(p.Name.ToLower()))
-                ).ToList());
+                ).Select(x => x.Name).ToList());
             }
 
             if (ResponseProperties.Any())
             {
-                RequestObject.Add(nameof(ResponseProperties), ResponseProperties.Select(x => x.Name));
+                RequestObject.Add(nameof(ResponseProperties), ResponseProperties);
             }
         }
     }

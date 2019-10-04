@@ -29,8 +29,8 @@ namespace ModelWrapper.Extensions
 
             var properties = typeof(TModel).GetProperties().ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Name.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Name.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
 
@@ -42,8 +42,8 @@ namespace ModelWrapper.Extensions
         {
             var properties = typeof(TModel).GetProperties().ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Name.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Name.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
 
@@ -53,10 +53,10 @@ namespace ModelWrapper.Extensions
         }
         public static TModel Patch<TModel>(this IWrapRequest<TModel> source, TModel model) where TModel : class
         {
-            var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties.Any(y => y.Name == x.Name)).ToList();
+            var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties.Any(y => y == x.Name)).ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Name.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Name.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SupressedProperties.Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.KeyProperties.Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
 
