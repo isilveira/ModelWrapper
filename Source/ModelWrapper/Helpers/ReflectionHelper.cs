@@ -1,30 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 
 namespace ModelWrapper.Helpers
 {
-    public static class ExpressionsHelper
+    internal static class ReflectionHelper
     {
-        public static Expression<Func<TSource, object>> SelectExpression<TSource>(IList<string> propertiesNames)
+        internal static IList<PropertyInfo> GetPropertiesFromType(IList<PropertyInfo> searchableProperties, IList<string> queryProperties = null)
         {
-            var entityType = typeof(TSource);
-            var source = Expression.Parameter(entityType, "x");
+            searchableProperties = searchableProperties.Where(x =>
+                queryProperties == null
+                || (queryProperties != null
+                    && queryProperties.Count == 0)
+                || queryProperties.Any(y => y.ToLower() == x.Name.ToLower())
+            ).ToList();
 
-            var properties = typeof(TSource).GetProperties().Where(x => propertiesNames.Any(y => y == x.Name)).ToList();
+            if (searchableProperties == null || searchableProperties.Count == 0)
+            {
+                throw new Exception("There's no searchable property found!");
+            }
 
-            var newType = CreateNewType(properties);
-
-            var binding = properties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.Name), Expression.Property(source, p.Name))).ToList();
-            var body = Expression.MemberInit(Expression.New(newType), binding);
-            var selector = Expression.Lambda<Func<TSource, object>>(body, source);
-
-            return selector;
+            return searchableProperties;
         }
-        public static Type CreateNewType(IList<PropertyInfo> props)
+        internal static MethodInfo GetMethodFromType(Type type, string methodName, int parameters, int genericArguments, List<Type> parameterTypes = null)
+        {
+            return type.GetMethods()
+                .SingleOrDefault(method =>
+                    method.Name == methodName
+                    && method.GetParameters().Count() == parameters
+                    && method.GetGenericArguments().Count() == genericArguments
+                    && (parameterTypes == null
+                        || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
+                );
+        }
+        internal static Type CreateNewType(IList<PropertyInfo> props)
         {
             AssemblyName asmName = new AssemblyName("Wrapped");
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);

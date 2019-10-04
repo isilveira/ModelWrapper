@@ -19,13 +19,7 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductsByFilter
         public async Task<GetProductsByFilterQueryResponse> Handle(GetProductsByFilterQuery request, CancellationToken cancellationToken)
         {
             int resultCount = 0;
-            var data = await Context.Products
-                .Select<Product>(request)
-                //.Filter(request)
-                //.Search(request)
-                //.Count(ref resultCount)
-                //.OrderBy(request)
-                //.Scope(request)
+            var data = await Context.Products.FullSearch(request, ref resultCount)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 

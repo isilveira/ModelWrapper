@@ -1,6 +1,6 @@
 ﻿namespace ModelWrapper.Extensions
 {
-    public static class WrapResponseExtensions
+    public static class IWrapResponseExtensions
     {
     }
 }
