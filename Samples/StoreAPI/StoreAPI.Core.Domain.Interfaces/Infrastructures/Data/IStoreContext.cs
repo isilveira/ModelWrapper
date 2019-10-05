@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Domain.Entities;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace StoreAPI.Core.Application.Interfaces.Infrastructures.Data
 {
-    public interface IStoreContext
+    public interface IStoreContext : IDisposable
     {
         DbSet<Category> Categories { get; set; }
         DbSet<Product> Products { get; set; }

@@ -1,9 +1,11 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using StoreAPI.Core.Infrastructures.Data;
+using StoreAPI.Core.Infrastructures.Data.Seeds;
 using System;
 
 namespace StoreAPI.Middleware
@@ -29,6 +31,19 @@ namespace StoreAPI.Middleware
             //    .SetSupressTokens(new string[] { "the" });
 
             return services;
+        }
+
+        public static IApplicationBuilder Configure(this IApplicationBuilder app, IConfiguration configuration)
+        {
+            using(var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using(var context = serviceScope.ServiceProvider.GetService<IStoreContext>())
+                {
+                    context.SeedContext(configuration).Wait();
+                }
+            }
+
+            return app;
         }
     }
 }

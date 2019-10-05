@@ -36,6 +36,8 @@ namespace StoreAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Configure(Configuration);
+
             //app.UseHttpsRedirection();
 
             app.UseRouting();
