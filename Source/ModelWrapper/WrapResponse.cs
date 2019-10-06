@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Interfaces;
+﻿using ModelWrapper.Extensions;
+using ModelWrapper.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,12 +47,12 @@ namespace ModelWrapper
             return dictionaries;
         }
 
-        private Dictionary<string, object> ResponseObjectProperties(WrapRequest<TModel> request, object data)
+        private Dictionary<string, object> ResponseObjectProperties(IWrapRequest<TModel> request, object data)
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
             foreach (var property in data.GetType().GetProperties().Where(p =>
-                 !request.SupressedResponseProperties.Any(x => x.Equals(p.Name))
+                 !request.SupressedResponseProperties().Any(x => x.Equals(p.Name))
             ).ToList())
             {
                 if (request.ResponseProperties.Count > 0)

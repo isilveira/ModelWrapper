@@ -73,8 +73,6 @@ namespace ModelWrapper.Binders
                 });
             }
 
-            model.GetType().GetMethod("ProcessBind").Invoke(model, new object[] { });
-
             bindingContext.Model = model;
 
             if (bindingContext.Model == null)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModelWrapper.Binders;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,12 +17,9 @@ namespace ModelWrapper
     public class WrapRequest<TModel> : DynamicObject, IWrapRequest<TModel>
         where TModel : class
     {
-        private string ModelName { get; set; }
         public TModel Model { get; set; }
         public List<WrapRequestProperty> AllProperties { get; set; }
-        public List<string> KeyProperties { get; set; }
-        public List<string> SupressedProperties { get; set; }
-        public List<string> SupressedResponseProperties { get; set; }
+        public List<ConfigProperties> ConfigProperties { get; set; }
         public List<string> SuppliedProperties { get; set; }
         public List<string> ResponseProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
@@ -35,9 +33,7 @@ namespace ModelWrapper
             System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
-            KeyProperties = new List<string>();
-            SupressedProperties = new List<string>();
-            SupressedResponseProperties = new List<string>();
+            ConfigProperties = new List<ConfigProperties>();
             SuppliedProperties = new List<string>();
             ResponseProperties = new List<string>();
             RequestObject = new Dictionary<string, object>();
@@ -75,6 +71,44 @@ namespace ModelWrapper
         }
         #endregion
 
+
+        #region Configuration methods
+        private void SetConfigProperty(string name, string property)
+        {
+            var configProperties = ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
+
+            if (configProperties == null)
+            {
+                configProperties = new ConfigProperties { Name = name, Properties = new List<string> { property } };
+                ConfigProperties.Add(configProperties);
+            }
+            else
+            {
+                configProperties.Properties.Add(property);
+            }
+        }
+        public void ConfigKeys(Expression<Func<TModel, object>> expression)
+        {
+            SetConfigProperty(
+                "Keys",
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+            );
+        }
+        public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
+        {
+            SetConfigProperty(
+                "Suppressed",
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+            );
+        }
+        public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
+        {
+            SetConfigProperty(
+                "SuppressedResponse",
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+            );
+        } 
+        #endregion
         internal void SetPropertyValue(string propertyName, object propertyValue)
         {
             var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
@@ -101,38 +135,6 @@ namespace ModelWrapper
             else
                 return property.GetValue(this.Model);
         }
-
-        public void ConfigKeys(Expression<Func<TModel, object>> expression)
-        {
-            KeyProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
-        }
-        public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
-        {
-            SupressedProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
-        }
-        public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
-        {
-            SupressedResponseProperties.Add(typeof(TModel).GetProperties().Where(p => p.Name.Equals(GetPropertyName(expression))).SingleOrDefault().Name);
-        }
-
-        public string GetPropertyName(Expression<Func<TModel, object>> property)
-        {
-            LambdaExpression lambda = (LambdaExpression)property;
-            MemberExpression memberExpression;
-
-            if (lambda.Body is UnaryExpression)
-            {
-                UnaryExpression unaryExpression = (UnaryExpression)(lambda.Body);
-                memberExpression = (MemberExpression)(unaryExpression.Operand);
-            }
-            else
-            {
-                memberExpression = (MemberExpression)(lambda.Body);
-            }
-
-            return ((PropertyInfo)memberExpression.Member).Name;
-        }
-
         public Dictionary<string, object> GetRequestAsDictionary()
         {
             return RequestObject;
@@ -163,57 +165,49 @@ namespace ModelWrapper
                 }
             });
         }
+        
+        //private void SetRoutePropertiesOnRequest()
+        //{
+        //    var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
 
-        public virtual void ProcessBind()
-        {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ProcessBind");
-            SetRoutePropertiesOnRequest();
-            SetResponsePropertiesOnRequest();
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ProcessBind");
-        }
+        //    if (RouteProperties.Any())
+        //    {
+        //        RequestObject.Add(
+        //            nameof(RouteProperties),
+        //            new Dictionary<string, object>(
+        //                RouteProperties.Select(property => new KeyValuePair<string, object>(property.Name, property.Value)).ToList()
+        //            )
+        //        );
+        //    }
+        //}
 
-        private void SetRoutePropertiesOnRequest()
-        {
-            var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
+        //private void SetResponsePropertiesOnRequest()
+        //{
+        //    var responseProperties = AllProperties.Where(x =>
+        //        x.Source == WrapPropertySource.FromQuery
+        //        && x.Name.ToLower().Equals(nameof(ResponseProperties).ToLower())
+        //    ).ToList();
 
-            if (RouteProperties.Any())
-            {
-                RequestObject.Add(
-                    nameof(RouteProperties),
-                    new Dictionary<string, object>(
-                        RouteProperties.Select(property => new KeyValuePair<string, object>(property.Name, property.Value)).ToList()
-                    )
-                );
-            }
-        }
+        //    if (!responseProperties.Any())
+        //    {
+        //        ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
+        //               !SupressedProperties().Any(x => x == p.Name)
+        //               && !SupressedResponseProperties.Any(x => x == p.Name)
+        //           ).Select(x => x.Name).ToList());
+        //    }
+        //    else
+        //    {
+        //        ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
+        //            !SupressedProperties.Any(x => x == p.Name)
+        //            && !SupressedResponseProperties.Any(x => x == p.Name)
+        //            && responseProperties.Any(x => x.Value.ToString().ToLower().Equals(p.Name.ToLower()))
+        //        ).Select(x => x.Name).ToList());
+        //    }
 
-        private void SetResponsePropertiesOnRequest()
-        {
-            var responseProperties = AllProperties.Where(x =>
-                x.Source == WrapPropertySource.FromQuery
-                && x.Name.ToLower().Equals(nameof(ResponseProperties).ToLower())
-            ).ToList();
-
-            if (!responseProperties.Any())
-            {
-                ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-                       !SupressedProperties.Any(x => x == p.Name)
-                       && !SupressedResponseProperties.Any(x => x == p.Name)
-                   ).Select(x => x.Name).ToList());
-            }
-            else
-            {
-                ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-                    !SupressedProperties.Any(x => x == p.Name)
-                    && !SupressedResponseProperties.Any(x => x == p.Name)
-                    && responseProperties.Any(x => x.Value.ToString().ToLower().Equals(p.Name.ToLower()))
-                ).Select(x => x.Name).ToList());
-            }
-
-            if (ResponseProperties.Any())
-            {
-                RequestObject.Add(nameof(ResponseProperties), ResponseProperties);
-            }
-        }
+        //    if (ResponseProperties.Any())
+        //    {
+        //        RequestObject.Add(nameof(ResponseProperties), ResponseProperties);
+        //    }
+        //}
     }
 }

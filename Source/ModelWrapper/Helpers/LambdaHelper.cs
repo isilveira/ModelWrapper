@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace ModelWrapper.Helpers
@@ -83,7 +84,6 @@ namespace ModelWrapper.Helpers
             //return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
             throw new NotImplementedException();
         }
-
         internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IWrapRequest<TSource> request) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
@@ -96,6 +96,23 @@ namespace ModelWrapper.Helpers
             var body = Expression.MemberInit(Expression.New(newType), binding);
             
             return Expression.Lambda<Func<TSource, object>>(body, source);
+        }
+        internal static string GetPropertyName<TModel>(Expression<Func<TModel, object>> property) where TModel : class
+        {
+            LambdaExpression lambda = (LambdaExpression)property;
+            MemberExpression memberExpression;
+
+            if (lambda.Body is UnaryExpression)
+            {
+                UnaryExpression unaryExpression = (UnaryExpression)(lambda.Body);
+                memberExpression = (MemberExpression)(unaryExpression.Operand);
+            }
+            else
+            {
+                memberExpression = (MemberExpression)(lambda.Body);
+            }
+
+            return ((PropertyInfo)memberExpression.Member).Name;
         }
     }
 }
