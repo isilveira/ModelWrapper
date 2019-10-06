@@ -22,7 +22,7 @@ namespace ModelWrapper
             {
                 Add(nameof(resultCount), resultCount);
             }
-            Add(nameof(request), request.GetRequestAsDictionary());
+            Add(nameof(request), request);
             Add(nameof(data), ResponseProperties(request, data));
 
             System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapResponse");
@@ -55,9 +55,9 @@ namespace ModelWrapper
                  !request.SupressedResponseProperties().Any(x => x.Equals(p.Name))
             ).ToList())
             {
-                if (request.ResponseProperties.Count > 0)
+                if (request.ResponseProperties().Count > 0)
                 {
-                    var responseProperty = request.ResponseProperties.FirstOrDefault(rp => rp.Equals(property.Name));
+                    var responseProperty = request.ResponseProperties().FirstOrDefault(rp => rp.Equals(property.Name));
                     if (responseProperty != null)
                     {
                         dictionary.Add(responseProperty, property.GetValue(data));

@@ -20,8 +20,6 @@ namespace ModelWrapper
         public TModel Model { get; set; }
         public List<WrapRequestProperty> AllProperties { get; set; }
         public List<ConfigProperties> ConfigProperties { get; set; }
-        public List<string> SuppliedProperties { get; set; }
-        public List<string> ResponseProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
         {
@@ -30,14 +28,10 @@ namespace ModelWrapper
 
         private void Initialize()
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
             ConfigProperties = new List<ConfigProperties>();
-            SuppliedProperties = new List<string>();
-            ResponseProperties = new List<string>();
             RequestObject = new Dictionary<string, object>();
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapRequest/Initialize");
         }
 
         #region Access member methods
@@ -73,6 +67,11 @@ namespace ModelWrapper
 
 
         #region Configuration methods
+        private List<string> GetConfigProperty(string name)
+        {
+            var configProperties = ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
+            return configProperties != null ? configProperties.Properties : new List<string>();
+        }
         private void SetConfigProperty(string name, string property)
         {
             var configProperties = ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
@@ -121,12 +120,11 @@ namespace ModelWrapper
                     propertyType = Nullable.GetUnderlyingType(propertyType);
                 }
 
-                SuppliedProperties.Add(property.Name);
+                SetConfigProperty("Supplied", property.Name);
                 var newPropertyValue = (propertyValue is JToken) ? JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType) : Convert.ChangeType(propertyValue, propertyType);
                 property.SetValue(this.Model, newPropertyValue);
             }
         }
-
         internal object GetPropertyValue(string propertyName, bool empty = false)
         {
             var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
@@ -135,33 +133,26 @@ namespace ModelWrapper
             else
                 return property.GetValue(this.Model);
         }
-        public Dictionary<string, object> GetRequestAsDictionary()
-        {
-            return RequestObject;
-        }
-
         public TResult Project<TResult>(Func<TModel, TResult> function)
         {
             TResult value = function.Invoke(this.Model);
             UpdateSuppliedProperties();
             return value;
         }
-
         public void Project(Action<TModel> action)
         {
             action.Invoke(this.Model);
             UpdateSuppliedProperties();
         }
-
         private void UpdateSuppliedProperties()
         {
             typeof(TModel).GetProperties().ToList().ForEach(property =>
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
-                if (propertyValue != propertyEmptyValue && !SuppliedProperties.ToList().Exists(p => p == property.Name))
+                if (propertyValue != propertyEmptyValue && !GetConfigProperty("Supplied").ToList().Exists(p => p == property.Name))
                 {
-                    SuppliedProperties.Add(property.Name);
+                    SetConfigProperty("Supplied", property.Name);
                 }
             });
         }

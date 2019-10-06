@@ -26,6 +26,14 @@ namespace ModelWrapper.Extensions
         {
             return source.GetConfigProperties("SupressedResponse");
         }
+        internal static List<string> SuppliedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            return source.GetConfigProperties("Supplied");
+        }
+        internal static List<string> ResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            return source.GetConfigProperties("Response");
+        }
 
         internal static void SetModelOnRequest<TModel>(this IWrapRequest<TModel> source, TModel model, IList<PropertyInfo> properties) where TModel : class
         {
@@ -71,7 +79,7 @@ namespace ModelWrapper.Extensions
         }
         public static TModel Patch<TModel>(this IWrapRequest<TModel> source, TModel model) where TModel : class
         {
-            var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties.Any(y => y == x.Name)).ToList();
+            var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties().Any(y => y == x.Name)).ToList();
 
             properties = properties.Where(p => !source.SupressedProperties().Any(x => x.Equals(p.Name))).ToList();
             properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();

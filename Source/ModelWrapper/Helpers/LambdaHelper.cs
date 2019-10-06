@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Interfaces;
+﻿using ModelWrapper.Extensions;
+using ModelWrapper.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace ModelWrapper.Helpers
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var properties = typeof(TSource).GetProperties().Where(x => request.ResponseProperties.Any(y => y == x.Name)).ToList();
+            var properties = typeof(TSource).GetProperties().Where(x => request.ResponseProperties().Any(y => y == x.Name)).ToList();
 
             var newType = ReflectionHelper.CreateNewType(properties);
 
