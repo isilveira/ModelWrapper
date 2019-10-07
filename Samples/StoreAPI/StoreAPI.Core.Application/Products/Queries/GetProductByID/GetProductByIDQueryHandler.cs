@@ -19,7 +19,6 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductByID
         }
         public async Task<GetProductByIDQueryResponse> Handle(GetProductByIDQuery request, CancellationToken cancellationToken)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"RequestHandler");
             var id = request.Project(x => x.ProductID);
 
             var data = await Context.Products
@@ -28,12 +27,7 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductByID
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 
-            if (data == null)
-            {
-                throw new Exception("Product not found!");
-            }
-
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "RequestHandler");
+            if (data == null) throw new Exception("Product not found!");
 
             return new GetProductByIDQueryResponse(request, data, "Successful operation!", 1);
         }

@@ -22,7 +22,6 @@ namespace StoreAPI.Resources
         [HttpGet("{productid}")]
         public async Task<ActionResult<GetProductByIDQueryResponse>> Get(GetProductByIDQuery request)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"Products/GET");
             return await Send(request);
         }
         [HttpPost]
