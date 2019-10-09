@@ -1,6 +1,8 @@
 ﻿using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
+using ModelWrapper.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,7 +21,18 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<object> Select<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
-            return source.Select(LambdaHelper.GenerateSelectExpression(request));
+            List<string> requestProperties = new List<string>();
+            
+            request.AllProperties.Where(x =>
+                x.Name.ToLower().Equals(Constants.CONST_RESPONSE_PROPERTIES.ToLower())
+            ).ToList().ForEach(x =>
+                requestProperties.Add(x.Value.ToString())
+            );
+
+            return source.Select(LambdaHelper.GenerateSelectExpression<TSource>(
+                requestProperties,
+                request.GetConfigProperties(Constants.CONST_SUPPRESSED_RESPONSE).ToList()
+            ));
         }
         public static IQueryable<TSource> Filter<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {

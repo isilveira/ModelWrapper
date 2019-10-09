@@ -85,17 +85,20 @@ namespace ModelWrapper.Helpers
             //return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
             throw new NotImplementedException();
         }
-        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IWrapRequest<TSource> request) where TSource : class
+        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IList<string> selectProperties, IList<string> suppressedProperties) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var properties = typeof(TSource).GetProperties().Where(x => request.ResponseProperties().Any(y => y == x.Name)).ToList();
+            var properties = typeof(TSource).GetProperties().Where(x =>
+                (selectProperties.Count == 0 || selectProperties.Any(y => y.ToLower().Equals(x.Name.ToLower())))
+                && !suppressedProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
+            ).ToList();
 
             var newType = ReflectionHelper.CreateNewType(properties);
 
             var binding = properties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.Name), Expression.Property(source, p.Name))).ToList();
             var body = Expression.MemberInit(Expression.New(newType), binding);
-            
+
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
         internal static string GetPropertyName<TModel>(Expression<Func<TModel, object>> property) where TModel : class

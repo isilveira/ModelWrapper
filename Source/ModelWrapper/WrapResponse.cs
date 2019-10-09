@@ -1,5 +1,6 @@
 ﻿using ModelWrapper.Extensions;
 using ModelWrapper.Interfaces;
+using ModelWrapper.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,6 @@ namespace ModelWrapper
         public WrapResponse() { }
         public WrapResponse(WrapRequest<TModel> request, object data, string message = null, long? resultCount = null)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"WrapResponse");
-
             if (!string.IsNullOrWhiteSpace(message))
             {
                 Add(nameof(message), message);
@@ -22,10 +21,8 @@ namespace ModelWrapper
             {
                 Add(nameof(resultCount), resultCount);
             }
-            Add(nameof(request), request);
+            Add(nameof(request), request.RequestObject);
             Add(nameof(data), ResponseProperties(request, data));
-
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "WrapResponse");
         }
 
         private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, object data)
@@ -52,21 +49,10 @@ namespace ModelWrapper
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
             foreach (var property in data.GetType().GetProperties().Where(p =>
-                 !request.SupressedResponseProperties().Any(x => x.Equals(p.Name))
+                 !request.SuppressedResponseProperties().Any(x => x.Equals(p.Name))
             ).ToList())
             {
-                if (request.ResponseProperties().Count > 0)
-                {
-                    var responseProperty = request.ResponseProperties().FirstOrDefault(rp => rp.Equals(property.Name));
-                    if (responseProperty != null)
-                    {
-                        dictionary.Add(responseProperty, property.GetValue(data));
-                    }
-                }
-                else
-                {
-                    dictionary.Add(property.Name, property.GetValue(data));
-                }
+                dictionary.Add(property.Name, property.GetValue(data));
             }
 
             return dictionary;

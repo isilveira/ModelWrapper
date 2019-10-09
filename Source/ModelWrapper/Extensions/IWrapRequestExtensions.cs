@@ -1,4 +1,5 @@
 ﻿using ModelWrapper.Interfaces;
+using ModelWrapper.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,19 +17,19 @@ namespace ModelWrapper.Extensions
         }
         internal static List<string> KeyProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties("Keys");
+            return source.GetConfigProperties(Constants.CONST_KEYS);
         }
-        internal static List<string> SupressedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        internal static List<string> SuppressedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties("Supressed");
+            return source.GetConfigProperties(Constants.CONST_SUPRESSED);
         }
-        internal static List<string> SupressedResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        internal static List<string> SuppressedResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties("SupressedResponse");
+            return source.GetConfigProperties(Constants.CONST_SUPPRESSED_RESPONSE);
         }
         internal static List<string> SuppliedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties("Supplied");
+            return source.GetConfigProperties(Constants.CONST_SUPPLIED);
         }
         internal static List<string> ResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
@@ -55,7 +56,7 @@ namespace ModelWrapper.Extensions
 
             var properties = typeof(TModel).GetProperties().ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties().Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
             properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
@@ -68,7 +69,7 @@ namespace ModelWrapper.Extensions
         {
             var properties = typeof(TModel).GetProperties().ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties().Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
             properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
@@ -81,7 +82,7 @@ namespace ModelWrapper.Extensions
         {
             var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties().Any(y => y == x.Name)).ToList();
 
-            properties = properties.Where(p => !source.SupressedProperties().Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
             properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));

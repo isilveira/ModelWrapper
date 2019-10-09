@@ -2,6 +2,7 @@
 using ModelWrapper.Binders;
 using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
+using ModelWrapper.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -89,21 +90,21 @@ namespace ModelWrapper
         public void ConfigKeys(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
-                "Keys",
+                Constants.CONST_KEYS,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
             );
         }
         public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
-                "Suppressed",
+                Constants.CONST_SUPRESSED,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
             );
         }
         public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
-                "SuppressedResponse",
+                Constants.CONST_SUPPRESSED_RESPONSE,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
             );
         } 
@@ -120,7 +121,7 @@ namespace ModelWrapper
                     propertyType = Nullable.GetUnderlyingType(propertyType);
                 }
 
-                SetConfigProperty("Supplied", property.Name);
+                SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 var newPropertyValue = (propertyValue is JToken) ? JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType) : Convert.ChangeType(propertyValue, propertyType);
                 property.SetValue(this.Model, newPropertyValue);
             }
@@ -150,55 +151,11 @@ namespace ModelWrapper
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
-                if (propertyValue != propertyEmptyValue && !GetConfigProperty("Supplied").ToList().Exists(p => p == property.Name))
+                if (propertyValue != propertyEmptyValue && !GetConfigProperty(Constants.CONST_SUPPLIED).ToList().Exists(p => p == property.Name))
                 {
-                    SetConfigProperty("Supplied", property.Name);
+                    SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 }
             });
         }
-        
-        //private void SetRoutePropertiesOnRequest()
-        //{
-        //    var RouteProperties = AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute).ToList();
-
-        //    if (RouteProperties.Any())
-        //    {
-        //        RequestObject.Add(
-        //            nameof(RouteProperties),
-        //            new Dictionary<string, object>(
-        //                RouteProperties.Select(property => new KeyValuePair<string, object>(property.Name, property.Value)).ToList()
-        //            )
-        //        );
-        //    }
-        //}
-
-        //private void SetResponsePropertiesOnRequest()
-        //{
-        //    var responseProperties = AllProperties.Where(x =>
-        //        x.Source == WrapPropertySource.FromQuery
-        //        && x.Name.ToLower().Equals(nameof(ResponseProperties).ToLower())
-        //    ).ToList();
-
-        //    if (!responseProperties.Any())
-        //    {
-        //        ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-        //               !SupressedProperties().Any(x => x == p.Name)
-        //               && !SupressedResponseProperties.Any(x => x == p.Name)
-        //           ).Select(x => x.Name).ToList());
-        //    }
-        //    else
-        //    {
-        //        ResponseProperties.AddRange(typeof(TModel).GetProperties().Where(p =>
-        //            !SupressedProperties.Any(x => x == p.Name)
-        //            && !SupressedResponseProperties.Any(x => x == p.Name)
-        //            && responseProperties.Any(x => x.Value.ToString().ToLower().Equals(p.Name.ToLower()))
-        //        ).Select(x => x.Name).ToList());
-        //    }
-
-        //    if (ResponseProperties.Any())
-        //    {
-        //        RequestObject.Add(nameof(ResponseProperties), ResponseProperties);
-        //    }
-        //}
     }
 }
