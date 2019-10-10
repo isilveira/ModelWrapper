@@ -23,7 +23,7 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductByID
 
             var data = await Context.Products
                 .Where(x => x.ProductID == id)
-                .Select<Product>(request)
+                .Select(request)
                 .AsNoTracking()
                 .SingleOrDefaultAsync();
 

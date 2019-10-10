@@ -73,5 +73,34 @@ namespace ModelWrapper.Helpers
                 return Activator.CreateInstance(typeTo);
             }
         }
+
+        internal static TReturn TryChangeType<TReturn>(string value, ref bool changed)
+        {
+            Type typeTo = typeof(TReturn);
+            try
+            {
+                if (Nullable.GetUnderlyingType(typeTo) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(value) && value == "null")
+                    {
+                        changed = true;
+                        return Activator.CreateInstance<TReturn>();
+                    }
+                    else
+                    {
+                        typeTo = Nullable.GetUnderlyingType(typeTo);
+                    }
+                }
+
+                object convertedObject = Convert.ChangeType(value, typeTo);
+                changed = true;
+                return (TReturn)convertedObject;
+            }
+            catch (Exception ex)
+            {
+                changed = false;
+                return Activator.CreateInstance<TReturn>();
+            }
+        }
     }
 }

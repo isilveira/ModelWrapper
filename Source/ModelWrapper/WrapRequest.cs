@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModelWrapper.Binders;
+using ModelWrapper.Extensions;
 using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
@@ -20,7 +21,7 @@ namespace ModelWrapper
     {
         public TModel Model { get; set; }
         public List<WrapRequestProperty> AllProperties { get; set; }
-        public List<ConfigProperties> ConfigProperties { get; set; }
+        public Dictionary<string, List<string>> ConfigProperties { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
         {
@@ -31,7 +32,7 @@ namespace ModelWrapper
         {
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
-            ConfigProperties = new List<ConfigProperties>();
+            ConfigProperties = new Dictionary<string, List<string>>();
             RequestObject = new Dictionary<string, object>();
         }
 
@@ -68,23 +69,17 @@ namespace ModelWrapper
 
 
         #region Configuration methods
-        private List<string> GetConfigProperty(string name)
-        {
-            var configProperties = ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
-            return configProperties != null ? configProperties.Properties : new List<string>();
-        }
         private void SetConfigProperty(string name, string property)
         {
-            var configProperties = ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
+            var configProperties = ConfigProperties.Where(x => x.Key == name).SingleOrDefault();
 
-            if (configProperties == null)
+            if (configProperties.IsDefault())
             {
-                configProperties = new ConfigProperties { Name = name, Properties = new List<string> { property } };
-                ConfigProperties.Add(configProperties);
+                ConfigProperties.Add(name, new List<string>{ property });
             }
             else
             {
-                configProperties.Properties.Add(property);
+                configProperties.Value.Add(property);
             }
         }
         public void ConfigKeys(Expression<Func<TModel, object>> expression)
@@ -151,7 +146,7 @@ namespace ModelWrapper
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
-                if (propertyValue != propertyEmptyValue && !GetConfigProperty(Constants.CONST_SUPPLIED).ToList().Exists(p => p == property.Name))
+                if (propertyValue != propertyEmptyValue && !ConfigProperties.GetValue(Constants.CONST_SUPPLIED).ToList().Exists(p => p == property.Name))
                 {
                     SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 }

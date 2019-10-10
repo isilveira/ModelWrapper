@@ -6,12 +6,16 @@ namespace ModelWrapper
     public class Configuration
     {
         private static Configuration Instance { get; set; }
+        public int DefaultPageNumber { get; internal set; }
+        public int DefaultPageSize { get; internal set; }
         public int? TokenMinimumSize { get; internal set; }
         public int? TokenMaximumSize { get; internal set; }
         public IList<char> SupressCharacters { get; internal set; }
         public IList<string> SupressTokens { get; internal set; }
         public Configuration()
         {
+            DefaultPageNumber = 0;
+            DefaultPageSize = 10;
             TokenMinimumSize = 3;
             SupressCharacters = new List<char> { };
             SupressTokens = new List<string> { };
@@ -23,6 +27,14 @@ namespace ModelWrapper
                 Instance = new Configuration();
 
             return Instance;
+        }
+        internal int GetDefaultPageSize()
+        {
+            return DefaultPageSize;
+        }
+        internal int GetDefaultPageNumber()
+        {
+            return DefaultPageNumber;
         }
 
         internal IList<string> ValidateToken(IList<string> tokens)

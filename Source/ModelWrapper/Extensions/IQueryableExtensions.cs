@@ -104,7 +104,12 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<TModel> Scope<TModel>(this IQueryable<TModel> source, IWrapRequest<TModel> request) where TModel : class
         {
-            return source;//.Skip(request.PageNumber * request.PageSize).Take(request.PageSize);
+            var paginationProperties = request.PaginationProperties();
+
+            int pageNumber = paginationProperties.GetValue(Constants.CONST_PAGINATION_NUMBER);
+            int pageSize = paginationProperties.GetValue(Constants.CONST_PAGINATION_SIZE);
+
+            return source.Skip(pageNumber * pageSize).Take(pageSize);
         }
     }
 }

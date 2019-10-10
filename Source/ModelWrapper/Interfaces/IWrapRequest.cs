@@ -8,7 +8,7 @@ namespace ModelWrapper.Interfaces
     {
         TModel Model { get; set; }
         List<WrapRequestProperty> AllProperties { get; set; }
-        List<ConfigProperties> ConfigProperties { get; set; }
+        Dictionary<string, List<string>> ConfigProperties { get; set; }
         Dictionary<string, object> RequestObject { get; set; }
     }
 }

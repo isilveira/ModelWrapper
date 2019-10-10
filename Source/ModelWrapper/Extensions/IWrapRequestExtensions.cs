@@ -11,26 +11,21 @@ namespace ModelWrapper.Extensions
 {
     public static class IWrapRequestExtensions
     {
-        internal static List<string> GetConfigProperties<TModel>(this IWrapRequest<TModel> source, string name) where TModel : class
-        {
-            var configProperties = source.ConfigProperties.Where(x => x.Name == name).SingleOrDefault();
-            return configProperties != null ? configProperties.Properties : new List<string>();
-        }
         internal static List<string> KeyProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties(Constants.CONST_KEYS);
+            return source.ConfigProperties.GetValue(Constants.CONST_KEYS);
         }
         internal static List<string> SuppressedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties(Constants.CONST_SUPRESSED);
+            return source.ConfigProperties.GetValue(Constants.CONST_SUPRESSED);
         }
         internal static List<string> SuppressedResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties(Constants.CONST_SUPPRESSED_RESPONSE);
+            return source.ConfigProperties.GetValue(Constants.CONST_SUPPRESSED_RESPONSE);
         }
         internal static List<string> SuppliedProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
-            return source.GetConfigProperties(Constants.CONST_SUPPLIED);
+            return source.ConfigProperties.GetValue(Constants.CONST_SUPPLIED);
         }
         internal static List<PropertyInfo> ResponseProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
@@ -44,7 +39,7 @@ namespace ModelWrapper.Extensions
 
             List<PropertyInfo> properties = typeof(TModel).GetProperties().Where(x =>
                 (requestProperties.Count == 0 || requestProperties.Any(y => y.ToLower().Equals(x.Name.ToLower())))
-                && !source.GetConfigProperties(Constants.CONST_SUPPRESSED_RESPONSE).ToList().Any(y => y.ToLower().Equals(x.Name.ToLower()))
+                && !source.SuppressedResponseProperties().ToList().Any(y => y.ToLower().Equals(x.Name.ToLower()))
             ).ToList();
 
             source.RequestObject.Add(Constants.CONST_RESPONSE_PROPERTIES, properties.Select(x => x.Name));
@@ -82,6 +77,48 @@ namespace ModelWrapper.Extensions
             }
 
             return filterProperties;
+        }
+        internal static Dictionary<string, int> PaginationProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            Dictionary<string, int> paginationProperties = new Dictionary<string, int>();
+
+            #region GET PAGE SIZE VALUE
+            var pageSizeProperty = source.AllProperties.Where(x => x.Name.ToLower().Equals(Constants.CONST_PAGINATION_SIZE.ToLower()) && x.Source == WrapPropertySource.FromQuery).FirstOrDefault();
+            if (pageSizeProperty != null)
+            {
+                bool changed = false;
+                int typedValue = CriteriaHelper.TryChangeType<int>(pageSizeProperty.Value.ToString(), ref changed);
+                if (changed)
+                {
+                    paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue != default(int) ? typedValue : Configuration.GetConfiguration().DefaultPageSize);
+                }
+            }
+            else
+            {
+                paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, Configuration.GetConfiguration().DefaultPageSize);
+            }
+            #endregion
+
+            #region GET PAGE NUMBER VALUE
+            var pageNumberProperty = source.AllProperties.Where(x => x.Name.ToLower().Equals(Constants.CONST_PAGINATION_NUMBER.ToLower()) && x.Source == WrapPropertySource.FromQuery).FirstOrDefault();
+            if (pageNumberProperty != null)
+            {
+                bool changed = false;
+                int typedValue = CriteriaHelper.TryChangeType<int>(pageNumberProperty.Value.ToString(), ref changed);
+                if (changed)
+                {
+                    paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, typedValue != default(int) ? typedValue : Configuration.GetConfiguration().DefaultPageNumber);
+                }
+            }
+            else
+            {
+                paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, Configuration.GetConfiguration().DefaultPageNumber);
+            } 
+            #endregion
+
+            source.RequestObject.Add(Constants.CONST_PAGINATION, paginationProperties);
+
+            return paginationProperties;
         }
         internal static void SetModelOnRequest<TModel>(this IWrapRequest<TModel> source, TModel model, IList<PropertyInfo> properties) where TModel : class
         {

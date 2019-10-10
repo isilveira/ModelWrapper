@@ -23,8 +23,6 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductsByFilter
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            resultCount = data.Count;
-
             return new GetProductsByFilterQueryResponse(request, data, "Successful operation!", resultCount);
         }
     }
