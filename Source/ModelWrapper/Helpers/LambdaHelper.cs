@@ -11,33 +11,32 @@ namespace ModelWrapper.Helpers
 {
     internal static class LambdaHelper
     {
-        private static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(IWrapRequest<TSource> filter) where TSource : class
+        internal static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(Dictionary<string,object> filters) where TSource : class
         {
-            //List<Expression> expressions = new List<Expression>();
+            List<Expression> expressions = new List<Expression>();
 
-            //var xExp = Expression.Parameter(typeof(TSource), "x");
+            var xExp = Expression.Parameter(typeof(TSource), "x");
 
-            //foreach (var filterProperty in filter.FilterProperties)
-            //{
-            //    var propertyParts = filterProperty.Key.Split("_");
-            //    var property = typeof(TSource).GetProperty(propertyParts[0]);
+            foreach (var filterProperty in filters)
+            {
+                var propertyParts = filterProperty.Key.Split("_");
+                var property = typeof(TSource).GetProperty(propertyParts[0]);
 
-            //    Expression memberExp = Expression.MakeMemberAccess(xExp, property);
+                Expression memberExp = Expression.MakeMemberAccess(xExp, property);
 
-            //    if (propertyParts.Count() == 1)
-            //    {
-            //        expressions.Add(ExpressionsHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property));
-            //    }
-            //    else
-            //    {
-            //        expressions.Add(ExpressionsHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property, propertyParts[1]));
-            //    }
-            //}
+                if (propertyParts.Count() == 1)
+                {
+                    expressions.Add(ExpressionHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property));
+                }
+                else
+                {
+                    expressions.Add(ExpressionHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property, propertyParts[1]));
+                }
+            }
 
-            //Expression orExp = ExpressionsHelper.GenerateAndExpressions(expressions);
+            Expression orExp = ExpressionHelper.GenerateAndExpressions(expressions);
 
-            //return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
-            throw new NotImplementedException();
+            return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
         private static Expression<Func<TSource, bool>> GenerateSearchCriteriaExpression<TSource>(IList<string> tokens, IWrapRequest<TSource> filter)
             where TSource : class
@@ -85,18 +84,13 @@ namespace ModelWrapper.Helpers
             //return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
             throw new NotImplementedException();
         }
-        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IList<string> selectProperties, IList<string> suppressedProperties) where TSource : class
+        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IList<PropertyInfo> selectProperties) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var properties = typeof(TSource).GetProperties().Where(x =>
-                (selectProperties.Count == 0 || selectProperties.Any(y => y.ToLower().Equals(x.Name.ToLower())))
-                && !suppressedProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
-            ).ToList();
+            var newType = ReflectionHelper.CreateNewType(selectProperties.ToList());
 
-            var newType = ReflectionHelper.CreateNewType(properties);
-
-            var binding = properties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.Name), Expression.Property(source, p.Name))).ToList();
+            var binding = selectProperties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.Name), Expression.Property(source, p.Name))).ToList();
             var body = Expression.MemberInit(Expression.New(newType), binding);
 
             return Expression.Lambda<Func<TSource, object>>(body, source);

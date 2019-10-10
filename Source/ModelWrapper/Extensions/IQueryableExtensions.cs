@@ -21,30 +21,21 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<object> Select<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
-            List<string> requestProperties = new List<string>();
-            
-            request.AllProperties.Where(x =>
-                x.Name.ToLower().Equals(Constants.CONST_RESPONSE_PROPERTIES.ToLower())
-            ).ToList().ForEach(x =>
-                requestProperties.Add(x.Value.ToString())
-            );
-
-            return source.Select(LambdaHelper.GenerateSelectExpression<TSource>(
-                requestProperties,
-                request.GetConfigProperties(Constants.CONST_SUPPRESSED_RESPONSE).ToList()
-            ));
+            return source.Select(LambdaHelper.GenerateSelectExpression<TSource>(request.ResponseProperties()));
         }
         public static IQueryable<TSource> Filter<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
-            //if (request.FilterProperties == null || request.FilterProperties.Count == 0)
-            //{
-            //    return source;
-            //}
+            var filterProperties = request.FilterProperties();
+            if (filterProperties == null || filterProperties.Count == 0)
+            {
+                return source;
+            }
 
-            //var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression(request);
+            request.RequestObject.Add(Constants.CONST_FILTER_PROPERTIES, filterProperties);
 
-            //return source.Where(criteriaExp);
-            return source;
+            var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression<TSource>(filterProperties);
+
+            return source.Where(criteriaExp);
         }
         public static IQueryable<TSource> Search<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
