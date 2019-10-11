@@ -83,7 +83,10 @@ namespace ModelWrapper.Extensions
             Dictionary<string, int> paginationProperties = new Dictionary<string, int>();
 
             #region GET PAGE SIZE VALUE
-            var pageSizeProperty = source.AllProperties.Where(x => x.Name.ToLower().Equals(Constants.CONST_PAGINATION_SIZE.ToLower()) && x.Source == WrapPropertySource.FromQuery).FirstOrDefault();
+            var pageSizeProperty = source.AllProperties.Where(x =>
+                x.Name.ToLower().Equals(Constants.CONST_PAGINATION_SIZE.ToLower())
+                && x.Source == WrapPropertySource.FromQuery
+            ).FirstOrDefault();
             if (pageSizeProperty != null)
             {
                 bool changed = false;
@@ -113,12 +116,56 @@ namespace ModelWrapper.Extensions
             else
             {
                 paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, Configuration.GetConfiguration().DefaultPageNumber);
-            } 
+            }
             #endregion
 
             source.RequestObject.Add(Constants.CONST_PAGINATION, paginationProperties);
 
             return paginationProperties;
+        }
+        internal static Dictionary<string, string> OrdinationProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            var ordinationProperties = new Dictionary<string, string>();
+
+            #region GET ORDER PROPERTY
+            var orderProperty = source.AllProperties.Where(x =>
+                    x.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDER.ToLower())
+                    && x.Source == WrapPropertySource.FromQuery
+                ).FirstOrDefault();
+            if (orderProperty != null
+                && (orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower())
+                || orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_DESCENDING.ToLower())))
+            {
+                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, orderProperty.Value.ToString());
+            }
+            else
+            {
+                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, Constants.CONST_ORDENATION_ORDER_ASCENDING);
+            }
+            #endregion
+
+            #region GET ORDERBY PROPERTY
+            var orderByProperty = source.AllProperties.Where(x =>
+                    x.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDERBY.ToLower())
+                    && x.Source == WrapPropertySource.FromQuery
+                ).FirstOrDefault();
+            if (orderByProperty != null && typeof(TModel).GetProperties().Any(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())))
+            {
+                var property = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())).SingleOrDefault();
+                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, property.Name);
+            }
+            else
+            {
+                if (source.KeyProperties().Any())
+                {
+                    ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, source.KeyProperties().FirstOrDefault());
+                }
+            } 
+            #endregion
+
+            source.RequestObject.Add(Constants.CONST_ORDENATION, ordinationProperties);
+
+            return ordinationProperties;
         }
         internal static void SetModelOnRequest<TModel>(this IWrapRequest<TModel> source, TModel model, IList<PropertyInfo> properties) where TModel : class
         {

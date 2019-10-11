@@ -66,41 +66,35 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<TSource> OrderBy<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
-            //if (source == null)
-            //{
-            //    throw new ArgumentNullException("source");
-            //}
+            var ordinationProperties = request.OrdinationProperties();
 
-            //if (request == null)
-            //{
-            //    throw new ArgumentNullException(nameof(request));
-            //}
+            string order = ordinationProperties.GetValue(Constants.CONST_ORDENATION_ORDER);
+            string orderBy = ordinationProperties.GetValue(Constants.CONST_ORDENATION_ORDERBY);
 
-            //if (string.IsNullOrWhiteSpace(request.OrderBy))
-            //{
-            //    var someProperty = typeof(TSource).GetProperties().FirstOrDefault();
-            //    if (someProperty == null)
-            //    {
-            //        throw new ArgumentNullException(nameof(request.OrderBy));
-            //    }
-            //    request.OrderBy = someProperty.Name;
-            //}
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
 
-            //Type type = typeof(TSource);
-            //Expression lambda = ExpressionHelper.GenereteLambdaExpression<TSource>(ref type, request.OrderBy);
-            //MethodInfo orderMethod;
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
 
-            //if (request.Order == Order.ASCENDING)
-            //{
-            //    orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderBy", 2, 2);
-            //}
-            //else
-            //{
-            //    orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderByDescending", 2, 2);
-            //}
+            Type type = typeof(TSource);
+            Expression lambda = ExpressionHelper.GenereteLambdaExpression<TSource>(ref type, orderBy);
+            MethodInfo orderMethod;
 
-            //return (IQueryable<TSource>)orderMethod.MakeGenericMethod(typeof(TSource), type).Invoke(null, new object[] { source, lambda });
-            return source;
+            if (order.ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()))
+            {
+                orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderBy", 2, 2);
+            }
+            else
+            {
+                orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderByDescending", 2, 2);
+            }
+
+            return (IQueryable<TSource>)orderMethod.MakeGenericMethod(typeof(TSource), type).Invoke(null, new object[] { source, lambda });
         }
         public static IQueryable<TModel> Scope<TModel>(this IQueryable<TModel> source, IWrapRequest<TModel> request) where TModel : class
         {
