@@ -167,6 +167,86 @@ namespace ModelWrapper.Extensions
 
             return ordinationProperties;
         }
+        internal static Dictionary<string, object> QueryProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            var queryProperties = new Dictionary<string, object>();
+
+            #region GET QUERY PROPERTY
+            var queryProperty = source.AllProperties.Where(x =>
+                        x.Name.ToLower().Equals(Constants.CONST_QUERY.ToLower())
+                        && x.Source == WrapPropertySource.FromQuery
+                    ).FirstOrDefault();
+            if (queryProperty != null)
+            {
+                bool changed = false;
+                string typedValue = CriteriaHelper.TryChangeType<string>(queryProperty.Value.ToString(), ref changed);
+                if (changed)
+                {
+                    queryProperties.Add(Constants.CONST_QUERY, typedValue);
+                }
+                else
+                {
+                    queryProperties.Add(Constants.CONST_QUERY, string.Empty);
+                }
+            }
+            else
+            {
+                queryProperties.Add(Constants.CONST_QUERY, string.Empty);
+            } 
+            #endregion
+
+            #region GET QUERY STRICT PROPERTY
+            var queryStrictProperty = source.AllProperties.Where(x =>
+                        x.Name.ToLower().Equals(Constants.CONST_QUERY_STRICT.ToLower())
+                        && x.Source == WrapPropertySource.FromQuery
+                    ).FirstOrDefault();
+            if (queryStrictProperty != null)
+            {
+                bool changed = false;
+                bool typedValue = CriteriaHelper.TryChangeType<bool>(queryStrictProperty.Value.ToString(), ref changed);
+                if (changed)
+                {
+                    queryProperties.Add(Constants.CONST_QUERY_STRICT, typedValue);
+                }
+                else
+                {
+                    queryProperties.Add(Constants.CONST_QUERY_STRICT, false);
+                }
+            }
+            else
+            {
+                queryProperties.Add(Constants.CONST_QUERY_STRICT, false);
+            } 
+            #endregion
+
+            #region GET QUERY PHRASE PROPERTY
+            var queryPhraseProperty = source.AllProperties.Where(x =>
+                        x.Name.ToLower().Equals(Constants.CONST_QUERY_PHRASE.ToLower())
+                        && x.Source == WrapPropertySource.FromQuery
+                    ).FirstOrDefault();
+            if (queryPhraseProperty != null)
+            {
+                bool changed = false;
+                bool typedValue = CriteriaHelper.TryChangeType<bool>(queryPhraseProperty.Value.ToString(), ref changed);
+                if (changed)
+                {
+                    queryProperties.Add(Constants.CONST_QUERY_PHRASE, typedValue);
+                }
+                else
+                {
+                    queryProperties.Add(Constants.CONST_QUERY_PHRASE, false);
+                }
+            }
+            else
+            {
+                queryProperties.Add(Constants.CONST_QUERY_PHRASE, false);
+            } 
+            #endregion
+
+            source.RequestObject.Add(Constants.CONST_QUERY_PROPERTIES, queryProperties);
+
+            return queryProperties;
+        }
         internal static void SetModelOnRequest<TModel>(this IWrapRequest<TModel> source, TModel model, IList<PropertyInfo> properties) where TModel : class
         {
             if (properties.Count > 0)

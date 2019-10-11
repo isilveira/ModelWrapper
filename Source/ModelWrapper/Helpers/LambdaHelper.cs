@@ -41,6 +41,11 @@ namespace ModelWrapper.Helpers
         private static Expression<Func<TSource, bool>> GenerateSearchCriteriaExpression<TSource>(IList<string> tokens, IWrapRequest<TSource> filter)
             where TSource : class
         {
+            //typeof(TModel).GetProperties().Where(x =>
+            //!source.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
+            //).ToList()
+
+
             //List<Expression> orExpressions = new List<Expression>();
 
             //var xExp = Expression.Parameter(typeof(TSource), "x");

@@ -19,7 +19,7 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         {
             long resultCount = 0;
             var results = await Context.Customers
-                .Select<Customer>(request)
+                .Select(request)
                 //.Filter(request)
                 //.Search(request)
                 //.Count(ref resultCount)

@@ -39,15 +39,20 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<TSource> Search<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
-            //if (string.IsNullOrWhiteSpace(request.Query))
-            //    return source;
+            var queryProperties = request.QueryProperties();
 
-            //var queryTokens = TokenHelper.GetTokens(request.Query, request.QueryPhrase);
+            var query = queryProperties.GetValue(Constants.CONST_QUERY).ToString();
+            var queryStrict = (bool)queryProperties.GetValue(Constants.CONST_QUERY_STRICT);
+            var queryPhrase = (bool)queryProperties.GetValue(Constants.CONST_QUERY_PHRASE);
+            if (string.IsNullOrWhiteSpace(query))
+                return source;
 
-            //request.Query = string.Join("+", queryTokens.ToArray());
+            var queryTokens = TokenHelper.GetTokens(query, queryPhrase);
 
-            //if (queryTokens.Count == 0)
-            //    return source;
+            query = string.Join("+", queryTokens.ToArray());
+
+            if (queryTokens.Count == 0)
+                return source;
 
             //var criteriaExp = LambdaHelper.GenerateSearchCriteriaExpression(queryTokens, request);
 

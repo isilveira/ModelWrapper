@@ -14,9 +14,9 @@ namespace ModelWrapper.Extensions
         {
             TValue value = default(TValue);
 
-            source.TryGetValue(key, out value);
+            var success = source.TryGetValue(key, out value);
 
-            return value;
+            return success ? value : Activator.CreateInstance<TValue>();
         }
     }
 }

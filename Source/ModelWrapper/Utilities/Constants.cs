@@ -20,5 +20,9 @@ namespace ModelWrapper.Utilities
         internal static string CONST_ORDENATION_ORDERBY             => "OrderBy";
         internal static string CONST_ORDENATION_ORDER_ASCENDING     => "Ascending";
         internal static string CONST_ORDENATION_ORDER_DESCENDING    => "Descending";
+        internal static string CONST_QUERY                          => "Query";
+        internal static string CONST_QUERY_PROPERTIES               => "QueryProperties";
+        internal static string CONST_QUERY_STRICT                   => "QueryStrict";
+        internal static string CONST_QUERY_PHRASE                   => "QueryPhrase";
     }
 }
