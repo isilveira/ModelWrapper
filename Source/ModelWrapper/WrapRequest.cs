@@ -22,6 +22,7 @@ namespace ModelWrapper
         public TModel Model { get; set; }
         public List<WrapRequestProperty> AllProperties { get; set; }
         public Dictionary<string, List<string>> ConfigProperties { get; set; }
+        public Dictionary<string, object> ConfigValues { get; set; }
         public Dictionary<string, object> RequestObject { get; set; }
         protected WrapRequest()
         {
@@ -33,6 +34,7 @@ namespace ModelWrapper
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
             ConfigProperties = new Dictionary<string, List<string>>();
+            ConfigValues = new Dictionary<string, object>();
             RequestObject = new Dictionary<string, object>();
         }
 
@@ -82,25 +84,60 @@ namespace ModelWrapper
                 configProperties.Value.Add(property);
             }
         }
+        private void SetConfigValues(string name, object value)
+        {
+            var configValues = ConfigValues.Where(x => x.Key == name).SingleOrDefault();
+
+            if (configValues.IsDefault())
+            {
+                ConfigValues.Add(name, value);
+            }
+            else
+            {
+                ConfigValues.Remove(name);
+                ConfigValues.Add(name, value);
+            }
+        }
         public void ConfigKeys(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
                 Constants.CONST_KEYS,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+            );
+        }
+        public void ConfigDefaultReturnedCollectionSize(int defaultReturnCollectionSize)
+        {
+            SetConfigValues(
+                Constants.CONST_DEFAULT_COLLECTION_SIZE,
+                defaultReturnCollectionSize
+            );
+        }
+        public void ConfigMaxReturnedCollectionSize(int maxReturnCollectionSize)
+        {
+            SetConfigValues(
+                Constants.CONST_MAX_COLLECTION_SIZE,
+                maxReturnCollectionSize
+            );
+        }
+        public void ConfigMinReturnedCollectionSize(int minReturnCollectionSize)
+        {
+            SetConfigValues(
+                Constants.CONST_MIN_COLLECTION_SIZE,
+                minReturnCollectionSize
             );
         }
         public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
                 Constants.CONST_SUPRESSED,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
         public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
         {
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         } 
         #endregion
@@ -151,6 +188,18 @@ namespace ModelWrapper
                     SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 }
             });
+        }
+
+        public void BindComplete()
+        {
+            var routeProperties = new Dictionary<string, object>();
+            
+            foreach(var routeProperty in AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute))
+            {
+                routeProperties.Add(routeProperty.Name.ToCamelCase(), routeProperty.Value);
+            }
+
+            RequestObject.Add(Constants.CONST_ROUTE, routeProperties);
         }
     }
 }

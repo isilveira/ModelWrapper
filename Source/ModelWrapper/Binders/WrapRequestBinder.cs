@@ -12,7 +12,6 @@ namespace ModelWrapper.Binders
     {
         public Task BindModelAsync(ModelBindingContext bindingContext)
         {
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"),"ModelBinder");
             if (bindingContext == null) throw new ArgumentNullException(nameof(bindingContext));
 
             var model = Activator.CreateInstance(bindingContext.ModelType);
@@ -73,6 +72,8 @@ namespace ModelWrapper.Binders
                 });
             }
 
+            model.GetType().GetMethod("BindComplete").Invoke(model, new object[] { });
+
             bindingContext.Model = model;
 
             if (bindingContext.Model == null)
@@ -81,7 +82,7 @@ namespace ModelWrapper.Binders
             }
 
             bindingContext.Result = ModelBindingResult.Success(bindingContext.Model);
-            System.Diagnostics.Debug.WriteLine(DateTime.Now.ToString("yyyyMMdd-HH:mm:ss.fff"), "ModelBinder");
+
             return Task.CompletedTask;
         }
     }

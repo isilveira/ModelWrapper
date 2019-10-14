@@ -52,7 +52,7 @@ namespace ModelWrapper
                  !request.SuppressedResponseProperties().Any(x => x.Equals(p.Name))
             ).ToList())
             {
-                dictionary.Add(property.Name, property.GetValue(data));
+                dictionary.Add(property.Name.ToCamelCase(), property.GetValue(data));
             }
 
             return dictionary;

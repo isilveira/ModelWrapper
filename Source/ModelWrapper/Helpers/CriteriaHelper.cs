@@ -102,5 +102,12 @@ namespace ModelWrapper.Helpers
                 return Activator.CreateInstance<TReturn>();
             }
         }
+        internal static IList<Type> GetNonQueryableTypes()
+        {
+            return new List<Type>
+            {
+                typeof(bool),
+            };
+        }
     }
 }

@@ -6,19 +6,21 @@ namespace ModelWrapper
     public class Configuration
     {
         private static Configuration Instance { get; set; }
-        public int DefaultPageNumber { get; internal set; }
-        public int DefaultPageSize { get; internal set; }
-        public int? TokenMinimumSize { get; internal set; }
-        public int? TokenMaximumSize { get; internal set; }
-        public IList<char> SupressCharacters { get; internal set; }
-        public IList<string> SupressTokens { get; internal set; }
+        public int MinimumReturnedCollectionSize { get; internal set; }
+        public int MaximumReturnedCollectionSize { get; internal set; }
+        public int DefaultReturnedCollectionSize { get; internal set; }
+        public int? QueryTokenMinimumSize { get; internal set; }
+        public int? QueryTokenMaximumSize { get; internal set; }
+        public IList<char> SuppressedCharacters { get; internal set; }
+        public IList<string> SuppressedTokens { get; internal set; }
         public Configuration()
         {
-            DefaultPageNumber = 0;
-            DefaultPageSize = 10;
-            TokenMinimumSize = 3;
-            SupressCharacters = new List<char> { };
-            SupressTokens = new List<string> { };
+            MinimumReturnedCollectionSize = 10;
+            MaximumReturnedCollectionSize = 1000;
+            DefaultReturnedCollectionSize = 50;
+            QueryTokenMinimumSize = 3;
+            SuppressedCharacters = new List<char> { };
+            SuppressedTokens = new List<string> { };
         }
 
         public static Configuration GetConfiguration()
@@ -28,14 +30,6 @@ namespace ModelWrapper
 
             return Instance;
         }
-        internal int GetDefaultPageSize()
-        {
-            return DefaultPageSize;
-        }
-        internal int GetDefaultPageNumber()
-        {
-            return DefaultPageNumber;
-        }
 
         internal IList<string> ValidateToken(IList<string> tokens)
         {
@@ -43,28 +37,28 @@ namespace ModelWrapper
                 return tokens;
 
             return tokens.Where(token =>
-                (!TokenMinimumSize.HasValue || token.Length >= TokenMinimumSize)
-                && (!TokenMaximumSize.HasValue || token.Length <= TokenMaximumSize)
+                (!QueryTokenMinimumSize.HasValue || token.Length >= QueryTokenMinimumSize)
+                && (!QueryTokenMaximumSize.HasValue || token.Length <= QueryTokenMaximumSize)
             ).ToList();
         }
         internal string ValidateSupressCharacters(string query)
         {
-            if (SupressCharacters == null || SupressCharacters.Count == 0)
+            if (SuppressedCharacters == null || SuppressedCharacters.Count == 0)
                 return query;
 
-            SupressCharacters.ToList().ForEach(character => query = query.Replace(character, ' '));
+            SuppressedCharacters.ToList().ForEach(character => query = query.Replace(character, ' '));
 
             return query;
         }
         internal IList<string> ValidateSupressTokens(IList<string> tokens)
         {
-            if (SupressTokens == null || SupressTokens.Count == 0)
+            if (SuppressedTokens == null || SuppressedTokens.Count == 0)
                 return tokens;
 
             if (tokens == null || tokens.Count == 0)
                 return tokens;
 
-            SupressTokens.ToList().ForEach(token => tokens.Remove(token));
+            SuppressedTokens.ToList().ForEach(token => tokens.Remove(token));
 
             return tokens;
         }

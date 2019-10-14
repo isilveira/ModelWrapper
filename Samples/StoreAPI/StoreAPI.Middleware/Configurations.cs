@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ModelWrapper.Middleware;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using StoreAPI.Core.Infrastructures.Data;
 using StoreAPI.Core.Infrastructures.Data.Seeds;
@@ -26,9 +27,12 @@ namespace StoreAPI.Middleware
 
             services.AddMediatR(assembly);
 
-            //services.AddEntitySearch()
-            //    .SetTokenMinimumSize(3)
-            //    .SetSupressTokens(new string[] { "the" });
+            services.AddModelWrapper()
+                .AddDefaultReturnedCollectionSize(10)
+                .AddMinimumReturnedCollectionSize(1)
+                .AddMaximumReturnedCollectionSize(100)
+                .AddQueryTokenMinimumSize(3)
+                .AddSuppressedTokens(new string[] { "the" });
 
             return services;
         }

@@ -42,7 +42,7 @@ namespace ModelWrapper.Extensions
                 && !source.SuppressedResponseProperties().ToList().Any(y => y.ToLower().Equals(x.Name.ToLower()))
             ).ToList();
 
-            source.RequestObject.Add(Constants.CONST_RESPONSE_PROPERTIES, properties.Select(x => x.Name));
+            source.RequestObject.Add(Constants.CONST_RESPONSE_PROPERTIES, properties.Select(x => x.Name.ToCamelCase()));
 
             return properties;
         }
@@ -56,7 +56,7 @@ namespace ModelWrapper.Extensions
             {
                 foreach (var criteria in CriteriaHelper.GetPropertyTypeCriteria(property.PropertyType))
                 {
-                    var criteriaName = $"{property.Name}{criteria}";
+                    var criteriaName = $"{property.Name.ToCamelCase()}{criteria}";
                     var listObjects = new List<object>();
                     foreach (var value in source.AllProperties.Where(x =>
                         x.Name.ToLower().Equals(criteriaName.ToLower())
@@ -78,6 +78,27 @@ namespace ModelWrapper.Extensions
 
             return filterProperties;
         }
+        internal static int DefaultReturnedCollectionSize<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            object size = null;
+            source.ConfigValues.TryGetValue(Constants.CONST_DEFAULT_COLLECTION_SIZE, out size);
+
+            return size == null ? Configuration.GetConfiguration().DefaultReturnedCollectionSize : Convert.ToInt32(size);
+        }
+        internal static int MaxReturnedCollectionSize<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            object configMax = null;
+            source.ConfigValues.TryGetValue(Constants.CONST_MAX_COLLECTION_SIZE, out configMax);
+
+            return configMax == null ? Configuration.GetConfiguration().MaximumReturnedCollectionSize: Convert.ToInt32(configMax);
+        }
+        internal static int MinReturnedCollectionSize<TModel>(this IWrapRequest<TModel> source) where TModel : class
+        {
+            object configMin = null;
+            source.ConfigValues.TryGetValue(Constants.CONST_MIN_COLLECTION_SIZE, out configMin);
+
+            return configMin == null ? Configuration.GetConfiguration().MinimumReturnedCollectionSize : Convert.ToInt32(configMin);
+        }
         internal static Dictionary<string, int> PaginationProperties<TModel>(this IWrapRequest<TModel> source) where TModel : class
         {
             Dictionary<string, int> paginationProperties = new Dictionary<string, int>();
@@ -93,12 +114,14 @@ namespace ModelWrapper.Extensions
                 int typedValue = CriteriaHelper.TryChangeType<int>(pageSizeProperty.Value.ToString(), ref changed);
                 if (changed)
                 {
-                    paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue != default(int) ? typedValue : Configuration.GetConfiguration().DefaultPageSize);
+                    typedValue = typedValue > source.MaxReturnedCollectionSize() ? source.MaxReturnedCollectionSize() : typedValue;
+                    typedValue = typedValue < source.MinReturnedCollectionSize() ? source.MinReturnedCollectionSize() : typedValue;
+                    paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue);
                 }
             }
             else
             {
-                paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, Configuration.GetConfiguration().DefaultPageSize);
+                paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, source.DefaultReturnedCollectionSize());
             }
             #endregion
 
@@ -110,12 +133,12 @@ namespace ModelWrapper.Extensions
                 int typedValue = CriteriaHelper.TryChangeType<int>(pageNumberProperty.Value.ToString(), ref changed);
                 if (changed)
                 {
-                    paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, typedValue != default(int) ? typedValue : Configuration.GetConfiguration().DefaultPageNumber);
+                    paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, typedValue != default(int) ? typedValue : 0);
                 }
             }
             else
             {
-                paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, Configuration.GetConfiguration().DefaultPageNumber);
+                paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, 0);
             }
             #endregion
 
@@ -258,7 +281,7 @@ namespace ModelWrapper.Extensions
                     dictionary.Add(property.Name, property.GetValue(model));
                 });
 
-                source.RequestObject.Add("Model", dictionary);
+                source.RequestObject.Add(Constants.CONST_MODEL, dictionary);
             }
         }
         public static TModel Post<TModel>(this IWrapRequest<TModel> source) where TModel : class

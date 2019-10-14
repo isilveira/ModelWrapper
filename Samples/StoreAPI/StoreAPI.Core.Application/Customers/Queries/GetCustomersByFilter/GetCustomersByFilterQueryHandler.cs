@@ -19,16 +19,9 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         {
             long resultCount = 0;
             var results = await Context.Customers
-                .Select(request)
-                //.Filter(request)
-                //.Search(request)
-                //.Count(ref resultCount)
-                //.OrderBy(request)
-                //.Scope(request)
+                .FullSearch(request, ref resultCount)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
-
-            resultCount = results.Count;
 
             return new GetCustomersByFilterQueryResponse(request, results, resultCount: resultCount);
         }

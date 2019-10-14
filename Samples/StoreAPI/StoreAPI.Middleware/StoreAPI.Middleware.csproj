@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\ModelWrapper\ModelWrapper.csproj" />
     <ProjectReference Include="..\StoreAPI.Core.Domain.Interfaces\StoreAPI.Core.Domain.Interfaces.csproj" />
     <ProjectReference Include="..\StoreAPI.Core.Infrastructures.Data\StoreAPI.Core.Infrastructures.Data.csproj" />
   </ItemGroup>

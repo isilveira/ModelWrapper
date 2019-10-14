@@ -20,7 +20,7 @@ namespace ModelWrapper.Helpers
             foreach (var filterProperty in filters)
             {
                 var propertyParts = filterProperty.Key.Split("_");
-                var property = typeof(TSource).GetProperty(propertyParts[0]);
+                var property = typeof(TSource).GetProperties().Where(x=>x.Name.ToLower().Equals(propertyParts[0].ToLower())).SingleOrDefault();
 
                 Expression memberExp = Expression.MakeMemberAccess(xExp, property);
 
@@ -50,6 +50,7 @@ namespace ModelWrapper.Helpers
 
             foreach (var propertyInfo in typeof(TSource).GetProperties().Where(x =>
                  searchableProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
+                 && !CriteriaHelper.GetNonQueryableTypes().Any(type=> type == x.PropertyType)
             ).ToList())
             {
                 Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);

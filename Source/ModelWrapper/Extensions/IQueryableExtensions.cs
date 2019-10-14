@@ -23,7 +23,13 @@ namespace ModelWrapper.Extensions
         }
         public static IQueryable<object> FullSearch<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request, ref long resultCount) where TSource : class
         {
-            return source.Filter(request).Search(request).Count(ref resultCount).OrderBy(request).Scope(request).Select(request);
+            return source
+                .Filter(request)
+                .Search(request)
+                .Count(ref resultCount)
+                .OrderBy(request)
+                .Scope(request)
+                .Select(request);
         }
         public static IQueryable<object> Select<TSource>(this IQueryable<TSource> source, IWrapRequest<TSource> request) where TSource : class
         {
@@ -37,7 +43,7 @@ namespace ModelWrapper.Extensions
                 return source;
             }
 
-            request.RequestObject.Add(Constants.CONST_FILTER_PROPERTIES, filterProperties);
+            request.RequestObject.Add(Constants.CONST_FILTER_PROPERTIES.ToCamelCase(), filterProperties);
 
             var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression<TSource>(filterProperties);
 
@@ -65,9 +71,7 @@ namespace ModelWrapper.Extensions
             searchableProperties = typeof(TSource).GetProperties().Where(x =>
                  !request.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
             ).Select(x => x.Name).ToList();
-
-            //searchableProperties.Add("IsVisible");
-
+            
             var criteriaExp = LambdaHelper.GenerateSearchCriteriaExpression<TSource>(searchableProperties, queryTokens, queryStrict);
 
             return source.Where(criteriaExp);
