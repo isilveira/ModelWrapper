@@ -38,56 +38,55 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
-        private static Expression<Func<TSource, bool>> GenerateSearchCriteriaExpression<TSource>(IList<string> tokens, IWrapRequest<TSource> filter)
+        internal static Expression<Func<TSource, bool>> GenerateSearchCriteriaExpression<TSource>(
+            IList<string> searchableProperties,
+            IList<string> tokens,
+            bool queryStrict)
             where TSource : class
         {
-            //typeof(TModel).GetProperties().Where(x =>
-            //!source.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
-            //).ToList()
+            List<Expression> orExpressions = new List<Expression>();
 
+            var xExp = Expression.Parameter(typeof(TSource), "x");
 
-            //List<Expression> orExpressions = new List<Expression>();
+            foreach (var propertyInfo in typeof(TSource).GetProperties().Where(x =>
+                 searchableProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
+            ).ToList())
+            {
+                Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
+                Expression memberHasValue = null;
+                if (memberExp.Type != typeof(string))
+                {
+                    if (Nullable.GetUnderlyingType(memberExp.Type) != null)
+                    {
+                        memberHasValue = Expression.MakeMemberAccess(memberExp, memberExp.Type.GetProperty("HasValue"));
+                        memberHasValue = queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+                    }
+                    else if (memberExp.Type.IsClass)
+                    {
+                        memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
+                        memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+                    }
+                    memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
+                }
+                else
+                {
+                    memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
+                    memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+                }
 
-            //var xExp = Expression.Parameter(typeof(TSource), "x");
+                memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
+                List<Expression> andExpressions = new List<Expression>();
 
-            //foreach (var propertyInfo in ReflectionHelper.GetPropertiesFromType(filter.GetSearchableProperties(typeof(TSource).GetProperties()), filter.QueryProperties))
-            //{
-            //    Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
-            //    Expression memberHasValue = null;
-            //    if (memberExp.Type != typeof(string))
-            //    {
-            //        if (Nullable.GetUnderlyingType(memberExp.Type) != null)
-            //        {
-            //            memberHasValue = Expression.MakeMemberAccess(memberExp, memberExp.Type.GetProperty("HasValue"));
-            //            memberHasValue = filter.QueryStrict ? memberHasValue : Expression.Not(memberHasValue);
-            //        }
-            //        else if (memberExp.Type.IsClass)
-            //        {
-            //            memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
-            //            memberHasValue = !filter.QueryStrict ? memberHasValue : Expression.Not(memberHasValue);
-            //        }
-            //        memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
-            //    }
-            //    else
-            //    {
-            //        memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
-            //        memberHasValue = !filter.QueryStrict ? memberHasValue : Expression.Not(memberHasValue);
-            //    }
+                foreach (var token in tokens)
+                {
+                    andExpressions.Add(ExpressionHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
+                }
+                orExpressions.Add(queryStrict ? ExpressionHelper.GenerateAndExpressions(andExpressions) : ExpressionHelper.GenerateOrExpression(andExpressions));
+            }
 
-            //    memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
-            //    List<Expression> andExpressions = new List<Expression>();
+            Expression orExp = ExpressionHelper.GenerateOrExpression(orExpressions);
 
-            //    foreach (var token in tokens)
-            //    {
-            //        andExpressions.Add(ExpressionsHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
-            //    }
-            //    orExpressions.Add(filter.QueryStrict ? ExpressionsHelper.GenerateAndExpressions(andExpressions) : ExpressionsHelper.GenerateOrExpression(andExpressions));
-            //}
-
-            //Expression orExp = ExpressionsHelper.GenerateOrExpression(orExpressions);
-
-            //return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
-            throw new NotImplementedException();
+            return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
         internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IList<PropertyInfo> selectProperties) where TSource : class
         {
