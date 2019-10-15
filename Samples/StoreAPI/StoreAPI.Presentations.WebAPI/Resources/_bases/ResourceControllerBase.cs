@@ -22,7 +22,7 @@ namespace StoreAPI.Resources._Bases
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
     }

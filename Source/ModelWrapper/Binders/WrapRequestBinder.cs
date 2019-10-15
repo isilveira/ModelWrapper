@@ -10,7 +10,7 @@ namespace ModelWrapper.Binders
 {
     public class WrapRequestBinder : IModelBinder
     {
-        public Task BindModelAsync(ModelBindingContext bindingContext)
+        public async Task BindModelAsync(ModelBindingContext bindingContext)
         {
             if (bindingContext == null) throw new ArgumentNullException(nameof(bindingContext));
 
@@ -32,7 +32,7 @@ namespace ModelWrapper.Binders
                 var body = string.Empty;
                 using (var reader = new StreamReader(bindingContext.HttpContext.Request.Body))
                 {
-                    body = reader.ReadToEnd();
+                    body = await reader.ReadToEndAsync();
                 }
 
                 if (!string.IsNullOrWhiteSpace(body))
@@ -76,14 +76,7 @@ namespace ModelWrapper.Binders
 
             bindingContext.Model = model;
 
-            if (bindingContext.Model == null)
-            {
-                return Task.CompletedTask;
-            }
-
             bindingContext.Result = ModelBindingResult.Success(bindingContext.Model);
-
-            return Task.CompletedTask;
         }
     }
 }
