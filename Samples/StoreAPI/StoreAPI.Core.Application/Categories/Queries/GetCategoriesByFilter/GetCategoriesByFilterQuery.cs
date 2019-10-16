@@ -12,10 +12,9 @@ namespace StoreAPI.Core.Application.Categories.Queries.GetCategoriesByFilter
             ConfigSuppressedProperties(x => x.LeafCategories);
             ConfigSuppressedProperties(x => x.RootCategory);
             ConfigSuppressedProperties(x => x.Products);
-            //OrderBy = "CategoryID";
-            //SetRestrictProperty(x => x.LeafCategories);
-            //SetRestrictProperty(x => x.RootCategory);
-            //SetRestrictProperty(x => x.Products);
+            ConfigSuppressedResponseProperties(x => x.LeafCategories);
+            ConfigSuppressedResponseProperties(x => x.RootCategory);
+            ConfigSuppressedResponseProperties(x => x.Products);
         }
     }
 }

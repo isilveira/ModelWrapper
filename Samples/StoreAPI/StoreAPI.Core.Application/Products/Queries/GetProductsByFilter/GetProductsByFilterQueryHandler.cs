@@ -1,9 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ModelWrapper.Extensions;
+using ModelWrapper.Extensions.FullSearch;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
-using StoreAPI.Core.Domain.Entities;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +19,7 @@ namespace StoreAPI.Core.Application.Products.Queries.GetProductsByFilter
         {
             long resultCount = 0;
             var data = await Context.Products
-                .FullSearch(request, ref resultCount)
+                .FullSearch(request, out resultCount)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 

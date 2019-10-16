@@ -10,6 +10,7 @@ namespace StoreAPI.Core.Application.Images.Queries.GetImagesByFilter
         {
             ConfigKeys(x => x.ImageID);
             ConfigSuppressedProperties(x => x.Product);
+            ConfigSuppressedResponseProperties(x => x.Product);
         }
     }
 }

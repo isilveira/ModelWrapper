@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ModelWrapper.Extensions.Select;
 
 namespace StoreAPI.Core.Application.Categories.Queries.GetCategoryByID
 {
@@ -18,7 +20,11 @@ namespace StoreAPI.Core.Application.Categories.Queries.GetCategoryByID
         {
             var id = request.Project(x => x.CategoryID);
 
-            var data = await Context.Categories.AsNoTracking().SingleOrDefaultAsync(x => x.CategoryID == id);
+            var data = await Context.Categories
+                .Where(x => x.CategoryID == id)
+                .Select(request)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {

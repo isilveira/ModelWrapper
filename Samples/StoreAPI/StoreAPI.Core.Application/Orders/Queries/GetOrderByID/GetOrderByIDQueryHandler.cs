@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ModelWrapper.Extensions.Select;
 
 namespace StoreAPI.Core.Application.Orders.Queries.GetOrderByID
 {
@@ -18,7 +20,11 @@ namespace StoreAPI.Core.Application.Orders.Queries.GetOrderByID
         {
             var id = request.Project(x => x.OrderID);
 
-            var data = await Context.Orders.AsNoTracking().SingleOrDefaultAsync(x => x.OrderID == id);
+            var data = await Context.Orders
+                .Where(x => x.OrderID == id)
+                .Select(request)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {

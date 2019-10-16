@@ -12,6 +12,8 @@ namespace StoreAPI.Core.Application.Orders.Queries.GetOrderByID
             ConfigSuppressedProperties(x => x.RegistrationDate);
             ConfigSuppressedProperties(x => x.OrderedProducts);
             ConfigSuppressedProperties(x => x.Customer);
+            ConfigSuppressedResponseProperties(x => x.OrderedProducts);
+            ConfigSuppressedResponseProperties(x => x.Customer);
         }
     }
 }

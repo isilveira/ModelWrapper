@@ -159,7 +159,8 @@ namespace ModelWrapper.Extensions
                 && (orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower())
                 || orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_DESCENDING.ToLower())))
             {
-                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, orderProperty.Value.ToString());
+                var value = orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()) ? Constants.CONST_ORDENATION_ORDER_ASCENDING : Constants.CONST_ORDENATION_ORDER_DESCENDING;
+                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, value);
             }
             else
             {
@@ -175,7 +176,7 @@ namespace ModelWrapper.Extensions
             if (orderByProperty != null && typeof(TModel).GetProperties().Any(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())))
             {
                 var property = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())).SingleOrDefault();
-                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, property.Name);
+                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, property.Name.ToCamelCase());
             }
             else
             {

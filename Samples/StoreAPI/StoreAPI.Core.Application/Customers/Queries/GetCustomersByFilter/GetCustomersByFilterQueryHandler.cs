@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ModelWrapper.Extensions;
+using ModelWrapper.Extensions.FullSearch;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
-using StoreAPI.Core.Domain.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,8 +17,9 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         public async Task<GetCustomersByFilterQueryResponse> Handle(GetCustomersByFilterQuery request, CancellationToken cancellationToken)
         {
             long resultCount = 0;
+
             var results = await Context.Customers
-                .FullSearch(request, ref resultCount)
+                .FullSearch(request, out resultCount)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 

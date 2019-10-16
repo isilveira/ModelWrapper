@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions.Select;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +20,11 @@ namespace StoreAPI.Core.Application.OrderedProducts.Queries.GetOrderedProductByI
         {
             var id = request.Project(x => x.OrderedProductID);
 
-            var data = await Context.OrderedProducts.AsNoTracking().SingleOrDefaultAsync(x => x.OrderedProductID == id);
+            var data = await Context.OrderedProducts
+                .Where(x => x.OrderedProductID == id)
+                .Select(request)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {

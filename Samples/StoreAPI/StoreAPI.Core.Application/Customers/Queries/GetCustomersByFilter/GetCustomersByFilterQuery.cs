@@ -10,6 +10,7 @@ namespace StoreAPI.Core.Application.Customers.Queries.GetCustomersByFilter
         {
             ConfigKeys(x => x.CustomerID);
             ConfigSuppressedProperties(x => x.Orders);
+            ConfigSuppressedResponseProperties(x => x.Orders);
         }
     }
 }

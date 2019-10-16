@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ModelWrapper.Extensions.Select;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,7 +20,11 @@ namespace StoreAPI.Core.Application.Images.Queries.GetImageByID
         {
             var id = request.Project(x => x.ImageID);
 
-            var data = await Context.Images.AsNoTracking().SingleOrDefaultAsync(x => x.ImageID == id);
+            var data = await Context.Images
+                .Where(x => x.ImageID == id)
+                .Select(request)
+                .AsNoTracking()
+                .SingleOrDefaultAsync();
 
             if (data == null)
             {
