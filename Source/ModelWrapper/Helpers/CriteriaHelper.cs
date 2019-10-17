@@ -7,7 +7,9 @@ namespace ModelWrapper.Helpers
 {
     internal static class CriteriaHelper
     {
-        internal static List<string> GetPropertyTypeCriteria(Type propertyType)
+        internal static List<string> GetPropertyTypeCriteria(
+            Type propertyType
+        )
         {
             List<string> comparationTypes = new List<string>();
 
@@ -45,8 +47,11 @@ namespace ModelWrapper.Helpers
 
             return comparationTypes.Distinct().ToList();
         }
-
-        internal static object TryChangeType(string value, Type typeTo, ref bool changed)
+        internal static object TryChangeType(
+            string value,
+            Type typeTo,
+            out bool changed
+        )
         {
             try
             {
@@ -73,8 +78,10 @@ namespace ModelWrapper.Helpers
                 return Activator.CreateInstance(typeTo);
             }
         }
-
-        internal static TReturn TryChangeType<TReturn>(string value, ref bool changed)
+        internal static TReturn TryChangeType<TReturn>(
+            string value,
+            out bool changed
+        )
         {
             Type typeTo = typeof(TReturn);
             try

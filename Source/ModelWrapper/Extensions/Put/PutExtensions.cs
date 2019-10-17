@@ -1,14 +1,14 @@
 ﻿using ModelWrapper.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ModelWrapper.Extensions.Put
 {
     public static class PutExtensions
     {
-        public static TModel Put<TModel>(this IWrapRequest<TModel> request, TModel model) where TModel : class
+        public static TModel Put<TModel>(
+            this IWrapRequest<TModel> request,
+            TModel model
+        ) where TModel : class
         {
             var properties = typeof(TModel).GetProperties().ToList();
 

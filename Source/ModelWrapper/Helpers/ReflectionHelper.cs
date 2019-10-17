@@ -9,7 +9,10 @@ namespace ModelWrapper.Helpers
 {
     internal static class ReflectionHelper
     {
-        internal static IList<PropertyInfo> GetPropertiesFromType(IList<PropertyInfo> searchableProperties, IList<string> queryProperties = null)
+        internal static IList<PropertyInfo> GetPropertiesFromType(
+            IList<PropertyInfo> searchableProperties,
+            IList<string> queryProperties = null
+        )
         {
             searchableProperties = searchableProperties.Where(x =>
                 queryProperties == null
@@ -25,7 +28,13 @@ namespace ModelWrapper.Helpers
 
             return searchableProperties;
         }
-        internal static MethodInfo GetMethodFromType(Type type, string methodName, int parameters, int genericArguments, List<Type> parameterTypes = null)
+        internal static MethodInfo GetMethodFromType(
+            Type type,
+            string methodName,
+            int parameters,
+            int genericArguments,
+            List<Type> parameterTypes = null
+        )
         {
             return type.GetMethods()
                 .SingleOrDefault(method =>
@@ -36,7 +45,9 @@ namespace ModelWrapper.Helpers
                         || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
                 );
         }
-        internal static Type CreateNewType(IList<PropertyInfo> props)
+        internal static Type CreateNewType(
+            IList<PropertyInfo> props
+        )
         {
             AssemblyName asmName = new AssemblyName("Wrapped");
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);

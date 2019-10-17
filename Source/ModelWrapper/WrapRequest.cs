@@ -28,7 +28,6 @@ namespace ModelWrapper
         {
             Initialize();
         }
-
         private void Initialize()
         {
             Model = Activator.CreateInstance<TModel>();
@@ -37,7 +36,6 @@ namespace ModelWrapper
             ConfigValues = new Dictionary<string, object>();
             RequestObject = new Dictionary<string, object>();
         }
-
         #region Access member methods
         /// <summary>
         /// Mothod that overrides the access member get
@@ -45,7 +43,10 @@ namespace ModelWrapper
         /// <param name="binder">GetMemberBinder object</param>
         /// <param name="result">Value that will be returned</param>
         /// <returns>bool, if succeeds true</returns>
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        public override bool TryGetMember(
+            GetMemberBinder binder,
+            out object result
+        )
         {
             result = GetPropertyValue(binder.Name);
 
@@ -58,7 +59,10 @@ namespace ModelWrapper
         /// <param name="binder">SetMemberBinder object</param>
         /// <param name="value">Value that will be set</param>
         /// <returns>bool, if succeeds true</returns>
-        public override bool TrySetMember(SetMemberBinder binder, object value)
+        public override bool TrySetMember(
+            SetMemberBinder binder,
+            object value
+        )
         {
             var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
             AllProperties.Add(new WrapRequestProperty { Name = binder.Name, Value = value, Source = source });
@@ -68,10 +72,11 @@ namespace ModelWrapper
             return true;
         }
         #endregion
-
-
         #region Configuration methods
-        private void SetConfigProperty(string name, string property)
+        private void SetConfigProperty(
+            string name,
+            string property
+        )
         {
             var configProperties = ConfigProperties.Where(x => x.Key == name).SingleOrDefault();
 
@@ -84,7 +89,10 @@ namespace ModelWrapper
                 configProperties.Value.Add(property);
             }
         }
-        private void SetConfigValues(string name, object value)
+        private void SetConfigValues(
+            string name,
+            object value
+        )
         {
             var configValues = ConfigValues.Where(x => x.Key == name).SingleOrDefault();
 
@@ -98,42 +106,54 @@ namespace ModelWrapper
                 ConfigValues.Add(name, value);
             }
         }
-        public void ConfigKeys(Expression<Func<TModel, object>> expression)
+        public void ConfigKeys(
+            Expression<Func<TModel, object>> expression
+        )
         {
             SetConfigProperty(
                 Constants.CONST_KEYS,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
-        public void ConfigDefaultReturnedCollectionSize(int defaultReturnCollectionSize)
+        public void ConfigDefaultReturnedCollectionSize(
+            int defaultReturnCollectionSize
+        )
         {
             SetConfigValues(
                 Constants.CONST_DEFAULT_COLLECTION_SIZE,
                 defaultReturnCollectionSize
             );
         }
-        public void ConfigMaxReturnedCollectionSize(int maxReturnCollectionSize)
+        public void ConfigMaxReturnedCollectionSize(
+            int maxReturnCollectionSize
+        )
         {
             SetConfigValues(
                 Constants.CONST_MAX_COLLECTION_SIZE,
                 maxReturnCollectionSize
             );
         }
-        public void ConfigMinReturnedCollectionSize(int minReturnCollectionSize)
+        public void ConfigMinReturnedCollectionSize(
+            int minReturnCollectionSize
+        )
         {
             SetConfigValues(
                 Constants.CONST_MIN_COLLECTION_SIZE,
                 minReturnCollectionSize
             );
         }
-        public void ConfigSuppressedProperties(Expression<Func<TModel, object>> expression)
+        public void ConfigSuppressedProperties(
+            Expression<Func<TModel, object>> expression
+        )
         {
             SetConfigProperty(
                 Constants.CONST_SUPRESSED,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
-        public void ConfigSuppressedResponseProperties(Expression<Func<TModel, object>> expression)
+        public void ConfigSuppressedResponseProperties(
+            Expression<Func<TModel, object>> expression
+        )
         {
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
@@ -141,7 +161,10 @@ namespace ModelWrapper
             );
         } 
         #endregion
-        internal void SetPropertyValue(string propertyName, object propertyValue)
+        internal void SetPropertyValue(
+            string propertyName,
+            object propertyValue
+        )
         {
             var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
 
@@ -158,7 +181,10 @@ namespace ModelWrapper
                 property.SetValue(this.Model, newPropertyValue);
             }
         }
-        internal object GetPropertyValue(string propertyName, bool empty = false)
+        internal object GetPropertyValue(
+            string propertyName,
+            bool empty = false
+        )
         {
             var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
             if (empty)
@@ -166,13 +192,17 @@ namespace ModelWrapper
             else
                 return property.GetValue(this.Model);
         }
-        public TResult Project<TResult>(Func<TModel, TResult> function)
+        public TResult Project<TResult>(
+            Func<TModel, TResult> function
+        )
         {
             TResult value = function.Invoke(this.Model);
             UpdateSuppliedProperties();
             return value;
         }
-        public void Project(Action<TModel> action)
+        public void Project(
+            Action<TModel> action
+        )
         {
             action.Invoke(this.Model);
             UpdateSuppliedProperties();
@@ -189,7 +219,6 @@ namespace ModelWrapper
                 }
             });
         }
-
         public void BindComplete()
         {
             var routeProperties = new Dictionary<string, object>();

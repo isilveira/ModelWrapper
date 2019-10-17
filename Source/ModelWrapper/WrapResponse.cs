@@ -11,7 +11,12 @@ namespace ModelWrapper
         where TModel : class
     {
         public WrapResponse() { }
-        public WrapResponse(WrapRequest<TModel> request, object data, string message = null, long? resultCount = null)
+        public WrapResponse(
+            WrapRequest<TModel> request,
+            object data,
+            string message = null,
+            long? resultCount = null
+        )
         {
             if (!string.IsNullOrWhiteSpace(message))
             {
@@ -24,8 +29,10 @@ namespace ModelWrapper
             Add(nameof(request), request.RequestObject);
             Add(nameof(data), ResponseProperties(request, data));
         }
-
-        private IList<Dictionary<string, object>> ResponseProperties(WrapRequest<TModel> request, object data)
+        private IList<Dictionary<string, object>> ResponseProperties(
+            WrapRequest<TModel> request,
+            object data
+        )
         {
             IList<Dictionary<string, object>> dictionaries = new List<Dictionary<string, object>>();
 
@@ -43,8 +50,10 @@ namespace ModelWrapper
 
             return dictionaries;
         }
-
-        private Dictionary<string, object> ResponseObjectProperties(IWrapRequest<TModel> request, object data)
+        private Dictionary<string, object> ResponseObjectProperties(
+            IWrapRequest<TModel> request,
+            object data
+        )
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
 

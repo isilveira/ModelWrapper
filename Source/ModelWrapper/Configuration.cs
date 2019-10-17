@@ -31,7 +31,9 @@ namespace ModelWrapper
             return Instance;
         }
 
-        internal IList<string> ValidateToken(IList<string> tokens)
+        internal IList<string> ValidateToken(
+            IList<string> tokens
+        )
         {
             if (tokens == null || tokens.Count == 0)
                 return tokens;
@@ -41,7 +43,9 @@ namespace ModelWrapper
                 && (!QueryTokenMaximumSize.HasValue || token.Length <= QueryTokenMaximumSize)
             ).ToList();
         }
-        internal string ValidateSupressCharacters(string query)
+        internal string ValidateSupressCharacters(
+            string query
+        )
         {
             if (SuppressedCharacters == null || SuppressedCharacters.Count == 0)
                 return query;
@@ -50,7 +54,9 @@ namespace ModelWrapper
 
             return query;
         }
-        internal IList<string> ValidateSupressTokens(IList<string> tokens)
+        internal IList<string> ValidateSupressTokens(
+            IList<string> tokens
+        )
         {
             if (SuppressedTokens == null || SuppressedTokens.Count == 0)
                 return tokens;

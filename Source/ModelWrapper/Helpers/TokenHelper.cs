@@ -5,7 +5,10 @@ namespace ModelWrapper.Helpers
 {
     internal class TokenHelper
     {
-        internal static IList<string> GetTokens(string query, bool queryPhrase)
+        internal static IList<string> GetTokens(
+            string query,
+            bool queryPhrase
+        )
         {
             query = query.ToLower();
 

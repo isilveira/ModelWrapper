@@ -9,7 +9,12 @@ namespace ModelWrapper.Helpers
 {
     public static class ExpressionHelper
     {
-        internal static Expression GenerateFilterComparationExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property, string comparation = null)
+        internal static Expression GenerateFilterComparationExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property,
+            string comparation = null
+        )
         {
             if (string.IsNullOrWhiteSpace(comparation))
             {
@@ -61,7 +66,11 @@ namespace ModelWrapper.Helpers
             }
             return Expression.Empty();
         }
-        internal static Expression GenerateFilterStrictExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterStrictExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value != null && filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -77,7 +86,11 @@ namespace ModelWrapper.Helpers
                 return Expression.Equal(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterContainsExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterContainsExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -93,7 +106,11 @@ namespace ModelWrapper.Helpers
                 return GenerateStringContainsExpression(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterStartsWithExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterStartsWithExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -109,7 +126,11 @@ namespace ModelWrapper.Helpers
                 return GenerateStringStartsWithExpression(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterEndsWithExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterEndsWithExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -125,7 +146,11 @@ namespace ModelWrapper.Helpers
                 return GenerateStringEndsWithExpression(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterGreaterThanExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterGreaterThanExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -141,7 +166,11 @@ namespace ModelWrapper.Helpers
                 return Expression.GreaterThan(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterGreaterEqualExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterGreaterEqualExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -157,7 +186,11 @@ namespace ModelWrapper.Helpers
                 return Expression.GreaterThanOrEqual(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterSmallerThanExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterSmallerThanExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -173,7 +206,11 @@ namespace ModelWrapper.Helpers
                 return Expression.LessThan(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateFilterSmallerEqualExpression(Expression memberExp, KeyValuePair<string, object> filterProperty, PropertyInfo property)
+        internal static Expression GenerateFilterSmallerEqualExpression(
+            Expression memberExp,
+            KeyValuePair<string, object> filterProperty,
+            PropertyInfo property
+        )
         {
             if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -189,19 +226,30 @@ namespace ModelWrapper.Helpers
                 return Expression.LessThanOrEqual(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
         }
-        internal static Expression GenerateStringContainsExpression(Expression memberExp, ConstantExpression tokenExp)
+        internal static Expression GenerateStringContainsExpression(
+            Expression memberExp,
+            ConstantExpression tokenExp
+        )
         {
             return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "Contains", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
-        internal static Expression GenerateStringStartsWithExpression(Expression memberExp, ConstantExpression tokenExp)
+        internal static Expression GenerateStringStartsWithExpression(
+            Expression memberExp,
+            ConstantExpression tokenExp
+        )
         {
             return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "StartsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
-        internal static Expression GenerateStringEndsWithExpression(Expression memberExp, ConstantExpression tokenExp)
+        internal static Expression GenerateStringEndsWithExpression(
+            Expression memberExp,
+            ConstantExpression tokenExp
+        )
         {
             return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "EndsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
-        internal static Expression GenerateAndExpressions(List<Expression> expressions)
+        internal static Expression GenerateAndExpressions(
+            List<Expression> expressions
+        )
         {
             Expression andExp = Expression.Empty();
             if (expressions.Count == 1)
@@ -219,7 +267,9 @@ namespace ModelWrapper.Helpers
             }
             return andExp;
         }
-        internal static Expression GenerateOrExpression(List<Expression> expressions)
+        internal static Expression GenerateOrExpression(
+            List<Expression> expressions
+        )
         {
             Expression orExp = Expression.Empty();
             if (expressions.Count == 1)
@@ -237,7 +287,10 @@ namespace ModelWrapper.Helpers
             }
             return orExp;
         }
-        internal static Expression GenereteLambdaExpression<T>(ref Type type, string propertyName)
+        internal static Expression GenereteLambdaExpression<T>(
+            ref Type type,
+            string propertyName
+        )
         {
             ParameterExpression arg = Expression.Parameter(type, "x");
             List<string> listProperties = propertyName.Split('.').ToList();

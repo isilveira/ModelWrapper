@@ -11,7 +11,9 @@ namespace ModelWrapper.Helpers
 {
     internal static class LambdaHelper
     {
-        internal static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(Dictionary<string,object> filters) where TSource : class
+        internal static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(
+            Dictionary<string,object> filters
+        ) where TSource : class
         {
             List<Expression> expressions = new List<Expression>();
 
@@ -89,7 +91,9 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
-        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(IList<PropertyInfo> selectProperties) where TSource : class
+        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
+            IList<PropertyInfo> selectProperties
+        ) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
@@ -100,7 +104,9 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
-        internal static string GetPropertyName<TModel>(Expression<Func<TModel, object>> property) where TModel : class
+        internal static string GetPropertyName<TModel>(
+            Expression<Func<TModel, object>> property
+        ) where TModel : class
         {
             LambdaExpression lambda = (LambdaExpression)property;
             MemberExpression memberExpression;
