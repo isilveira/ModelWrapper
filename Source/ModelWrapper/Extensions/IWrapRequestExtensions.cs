@@ -285,46 +285,5 @@ namespace ModelWrapper.Extensions
                 source.RequestObject.Add(Constants.CONST_MODEL, dictionary);
             }
         }
-        public static TModel Post<TModel>(this IWrapRequest<TModel> source) where TModel : class
-        {
-            var model = Activator.CreateInstance<TModel>();
-
-            var properties = typeof(TModel).GetProperties().ToList();
-
-            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
-
-            properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
-
-            source.SetModelOnRequest(model, properties);
-
-            return model;
-        }
-        public static TModel Put<TModel>(this IWrapRequest<TModel> source, TModel model) where TModel : class
-        {
-            var properties = typeof(TModel).GetProperties().ToList();
-
-            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
-
-            properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
-
-            source.SetModelOnRequest(model, properties);
-
-            return model;
-        }
-        public static TModel Patch<TModel>(this IWrapRequest<TModel> source, TModel model) where TModel : class
-        {
-            var properties = typeof(TModel).GetProperties().Where(x => source.SuppliedProperties().Any(y => y == x.Name)).ToList();
-
-            properties = properties.Where(p => !source.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !source.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
-
-            properties.ForEach(property => property.SetValue(model, property.GetValue(source.Model)));
-
-            source.SetModelOnRequest(model, properties);
-
-            return model;
-        }
     }
 }

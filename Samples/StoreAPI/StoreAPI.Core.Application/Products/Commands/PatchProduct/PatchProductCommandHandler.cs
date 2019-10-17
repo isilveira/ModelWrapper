@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ModelWrapper.Extensions;
+using ModelWrapper.Extensions.Patch;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using ModelWrapper.Extensions;
+using ModelWrapper.Extensions.Post;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
