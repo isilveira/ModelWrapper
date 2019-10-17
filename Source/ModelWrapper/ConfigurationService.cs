@@ -3,9 +3,12 @@ using System.Linq;
 
 namespace ModelWrapper
 {
-    public class Configuration
+    /// <summary>
+    /// Class for configuration services
+    /// </summary>
+    public class ConfigurationService
     {
-        private static Configuration Instance { get; set; }
+        private static ConfigurationService Instance { get; set; }
         public int MinimumReturnedCollectionSize { get; internal set; }
         public int MaximumReturnedCollectionSize { get; internal set; }
         public int DefaultReturnedCollectionSize { get; internal set; }
@@ -13,7 +16,7 @@ namespace ModelWrapper
         public int? QueryTokenMaximumSize { get; internal set; }
         public IList<char> SuppressedCharacters { get; internal set; }
         public IList<string> SuppressedTokens { get; internal set; }
-        public Configuration()
+        public ConfigurationService()
         {
             MinimumReturnedCollectionSize = 10;
             MaximumReturnedCollectionSize = 1000;
@@ -23,10 +26,10 @@ namespace ModelWrapper
             SuppressedTokens = new List<string> { };
         }
 
-        public static Configuration GetConfiguration()
+        public static ConfigurationService GetConfiguration()
         {
             if (Instance == null)
-                Instance = new Configuration();
+                Instance = new ConfigurationService();
 
             return Instance;
         }

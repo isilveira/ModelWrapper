@@ -4,6 +4,9 @@ using System.Text;
 
 namespace ModelWrapper
 {
+    /// <summary>
+    /// Class that represents configuration properties
+    /// </summary>
     public class ConfigProperties
     {
         public string Name { get; set; }

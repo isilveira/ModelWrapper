@@ -16,7 +16,7 @@ namespace ModelWrapper.Extensions.Pagination
             object size = null;
             source.ConfigValues.TryGetValue(Constants.CONST_DEFAULT_COLLECTION_SIZE, out size);
 
-            return size == null ? Configuration.GetConfiguration().DefaultReturnedCollectionSize : Convert.ToInt32(size);
+            return size == null ? ConfigurationService.GetConfiguration().DefaultReturnedCollectionSize : Convert.ToInt32(size);
         }
         internal static int MaxReturnedCollectionSize<TModel>(
             this IWrapRequest<TModel> source
@@ -25,7 +25,7 @@ namespace ModelWrapper.Extensions.Pagination
             object configMax = null;
             source.ConfigValues.TryGetValue(Constants.CONST_MAX_COLLECTION_SIZE, out configMax);
 
-            return configMax == null ? Configuration.GetConfiguration().MaximumReturnedCollectionSize : Convert.ToInt32(configMax);
+            return configMax == null ? ConfigurationService.GetConfiguration().MaximumReturnedCollectionSize : Convert.ToInt32(configMax);
         }
         internal static int MinReturnedCollectionSize<TModel>(
             this IWrapRequest<TModel> source
@@ -34,7 +34,7 @@ namespace ModelWrapper.Extensions.Pagination
             object configMin = null;
             source.ConfigValues.TryGetValue(Constants.CONST_MIN_COLLECTION_SIZE, out configMin);
 
-            return configMin == null ? Configuration.GetConfiguration().MinimumReturnedCollectionSize : Convert.ToInt32(configMin);
+            return configMin == null ? ConfigurationService.GetConfiguration().MinimumReturnedCollectionSize : Convert.ToInt32(configMin);
         }
         internal static Dictionary<string, int> PaginationProperties<TModel>(
             this IWrapRequest<TModel> source

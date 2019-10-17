@@ -11,9 +11,9 @@ namespace ModelWrapper.Middleware
             this IServiceCollection services
         )
         {
-            Configuration.GetConfiguration();
+            ConfigurationService.GetConfiguration();
 
-            services.AddSingleton<Configuration>();
+            services.AddSingleton<ConfigurationService>();
 
             return services;
         }
@@ -22,7 +22,7 @@ namespace ModelWrapper.Middleware
             int? minimumSize
         )
         {
-            Configuration.GetConfiguration().QueryTokenMinimumSize = minimumSize;
+            ConfigurationService.GetConfiguration().QueryTokenMinimumSize = minimumSize;
 
             return services;
         }
@@ -31,7 +31,7 @@ namespace ModelWrapper.Middleware
             int? maximumSize
         )
         {
-            Configuration.GetConfiguration().QueryTokenMaximumSize = maximumSize;
+            ConfigurationService.GetConfiguration().QueryTokenMaximumSize = maximumSize;
 
             return services;
         }
@@ -41,7 +41,7 @@ namespace ModelWrapper.Middleware
             int defaultReturnedCollectionSize
         )
         {
-            Configuration.GetConfiguration().DefaultReturnedCollectionSize = defaultReturnedCollectionSize;
+            ConfigurationService.GetConfiguration().DefaultReturnedCollectionSize = defaultReturnedCollectionSize;
 
             return services;
         }
@@ -51,7 +51,7 @@ namespace ModelWrapper.Middleware
             int maximumReturnedCollectionSize
         )
         {
-            Configuration.GetConfiguration().MaximumReturnedCollectionSize = maximumReturnedCollectionSize;
+            ConfigurationService.GetConfiguration().MaximumReturnedCollectionSize = maximumReturnedCollectionSize;
 
             return services;
         }
@@ -61,7 +61,7 @@ namespace ModelWrapper.Middleware
             int minimumReturnedCollectionSize
         )
         {
-            Configuration.GetConfiguration().MinimumReturnedCollectionSize = minimumReturnedCollectionSize;
+            ConfigurationService.GetConfiguration().MinimumReturnedCollectionSize = minimumReturnedCollectionSize;
 
             return services;
         }
@@ -70,7 +70,7 @@ namespace ModelWrapper.Middleware
             IList<char> suppressedCharacters = null
         )
         {
-            Configuration.GetConfiguration().SuppressedCharacters = suppressedCharacters;
+            ConfigurationService.GetConfiguration().SuppressedCharacters = suppressedCharacters;
 
             return services;
         }
@@ -79,7 +79,7 @@ namespace ModelWrapper.Middleware
             IList<string> suppressedTokens = null
         )
         {
-            Configuration.GetConfiguration().SuppressedTokens = suppressedTokens;
+            ConfigurationService.GetConfiguration().SuppressedTokens = suppressedTokens;
 
             return services;
         }

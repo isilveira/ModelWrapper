@@ -12,13 +12,13 @@ namespace ModelWrapper.Helpers
         {
             query = query.ToLower();
 
-            query = Configuration.GetConfiguration().ValidateSupressCharacters(query);
+            query = ConfigurationService.GetConfiguration().ValidateSupressCharacters(query);
 
             IList<string> tokens = queryPhrase ? new List<string> { query } : query.Split(" ").ToList();
 
-            tokens = Configuration.GetConfiguration().ValidateToken(tokens);
+            tokens = ConfigurationService.GetConfiguration().ValidateToken(tokens);
 
-            tokens = Configuration.GetConfiguration().ValidateSupressTokens(tokens);
+            tokens = ConfigurationService.GetConfiguration().ValidateSupressTokens(tokens);
 
             return tokens;
         }
