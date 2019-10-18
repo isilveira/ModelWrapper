@@ -16,7 +16,7 @@ namespace ModelWrapper.Helpers
 
             IList<string> tokens = queryPhrase ? new List<string> { query } : query.Split(" ").ToList();
 
-            tokens = ConfigurationService.GetConfiguration().ValidateToken(tokens);
+            tokens = ConfigurationService.GetConfiguration().ValidateTerms(tokens);
 
             tokens = ConfigurationService.GetConfiguration().ValidateSupressTokens(tokens);
 

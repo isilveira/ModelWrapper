@@ -31,8 +31,8 @@ namespace StoreAPI.Middleware
                 .AddDefaultReturnedCollectionSize(10)
                 .AddMinimumReturnedCollectionSize(1)
                 .AddMaximumReturnedCollectionSize(100)
-                .AddQueryTokenMinimumSize(3)
-                .AddSuppressedTokens(new string[] { "the" });
+                .AddQueryTermsMinimumSize(3)
+                .AddSuppressedTerms(new string[] { "the" });
 
             return services;
         }

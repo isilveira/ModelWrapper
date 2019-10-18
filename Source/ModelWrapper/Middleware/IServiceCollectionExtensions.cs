@@ -1,12 +1,18 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ModelWrapper.Middleware
 {
+    /// <summary>
+    /// Class that extends IServiceCollection
+    /// </summary>
     public static class IServiceCollectionExtensions
     {
+        /// <summary>
+        /// Method that adds ModelWrapper configuration into services as singleton
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <returns>Instance of IServiceCollection</returns>
         public static IServiceCollection AddModelWrapper(
             this IServiceCollection services
         )
@@ -17,25 +23,42 @@ namespace ModelWrapper.Middleware
 
             return services;
         }
-        public static IServiceCollection AddQueryTokenMinimumSize(
+        /// <summary>
+        /// Method that configures the minimum size for query terms
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="minimumSize">Minimum size</param>
+        /// <returns>Instance of IServiceCollection</returns>
+        public static IServiceCollection AddQueryTermsMinimumSize(
             this IServiceCollection services,
             int? minimumSize
         )
         {
-            ConfigurationService.GetConfiguration().QueryTokenMinimumSize = minimumSize;
+            ConfigurationService.GetConfiguration().QueryTermsMinimumSize = minimumSize;
 
             return services;
         }
-        public static IServiceCollection AddQueryTokenMaximumSize(
+        /// <summary>
+        /// Method that configures the maximum size for query terms
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="maximumSize">Maximum size</param>
+        /// <returns>Instance of IServiceCollection</returns>
+        public static IServiceCollection AddQueryTermsMaximumSize(
             this IServiceCollection services,
             int? maximumSize
         )
         {
-            ConfigurationService.GetConfiguration().QueryTokenMaximumSize = maximumSize;
+            ConfigurationService.GetConfiguration().QueryTermsMaximumSize = maximumSize;
 
             return services;
         }
-
+        /// <summary>
+        /// Method that configures the default size for returned collections
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="defaultReturnedCollectionSize">Default size for returned collections</param>
+        /// <returns>Instance of IServiceCollection</returns>
         public static IServiceCollection AddDefaultReturnedCollectionSize(
             this IServiceCollection services,
             int defaultReturnedCollectionSize
@@ -45,7 +68,12 @@ namespace ModelWrapper.Middleware
 
             return services;
         }
-
+        /// <summary>
+        /// Method that configures the maximum size for returned collections
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="maximumReturnedCollectionSize">Maximum size for returned collections</param>
+        /// <returns>Instance of IServiceCollection</returns>
         public static IServiceCollection AddMaximumReturnedCollectionSize(
             this IServiceCollection services,
             int maximumReturnedCollectionSize
@@ -55,7 +83,12 @@ namespace ModelWrapper.Middleware
 
             return services;
         }
-
+        /// <summary>
+        /// Method that configures the minimum size for returned collections
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="minimumReturnedCollectionSize">Minimum size for returned collections</param>
+        /// <returns>Instance of IServiceCollection</returns>
         public static IServiceCollection AddMinimumReturnedCollectionSize(
             this IServiceCollection services,
             int minimumReturnedCollectionSize
@@ -65,6 +98,12 @@ namespace ModelWrapper.Middleware
 
             return services;
         }
+        /// <summary>
+        /// Method that configures a list of characters that will be ignored on quered strings
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="suppressedCharacters">List of characters to suppress</param>
+        /// <returns>Instance of IServiceCollection</returns>
         public static IServiceCollection AddSuppressedCharacters(
             this IServiceCollection services,
             IList<char> suppressedCharacters = null
@@ -74,12 +113,18 @@ namespace ModelWrapper.Middleware
 
             return services;
         }
-        public static IServiceCollection AddSuppressedTokens(
+        /// <summary>
+        /// Method that configures a list of terms that will be ignored on quered strings 
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="suppressedTerms"></param>
+        /// <returns>Instance of IServiceCollection</returns>
+        public static IServiceCollection AddSuppressedTerms(
             this IServiceCollection services,
-            IList<string> suppressedTokens = null
+            IList<string> suppressedTerms = null
         )
         {
-            ConfigurationService.GetConfiguration().SuppressedTokens = suppressedTokens;
+            ConfigurationService.GetConfiguration().SuppressedTerms = suppressedTerms;
 
             return services;
         }
