@@ -8,8 +8,17 @@ using System.Reflection;
 
 namespace ModelWrapper.Extensions.Ordination
 {
+    /// <summary>
+    /// Class that extends ordination functionality into ModelWrapper
+    /// </summary>
     public static class OrdinationExtensions
     {
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get ordination properties from request
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Dictionary<string, string> OrdinationProperties<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
@@ -57,6 +66,13 @@ namespace ModelWrapper.Extensions.Ordination
 
             return ordinationProperties;
         }
+        /// <summary>
+        /// Method that extends IQueryable<T> allowing to order query with request properties
+        /// </summary>
+        /// <typeparam name="TSource">Generic type of the entity</typeparam>
+        /// <param name="source">Self IQueryable<T> instance</param>
+        /// <param name="request">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns IQueryable instance with with the configuration for a ordination</returns>
         public static IQueryable<TSource> OrderBy<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request

@@ -57,7 +57,7 @@ namespace ModelWrapper.Extensions.Filter
         /// <typeparam name="TSource">Generic type of the entity</typeparam>
         /// <param name="source">Self IQueryable<T> instance</param>
         /// <param name="request">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns IQueryable instance with filters</returns>
+        /// <returns>Returns IQueryable instance with with the configuration for a filter</returns>
         public static IQueryable<TSource> Filter<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request

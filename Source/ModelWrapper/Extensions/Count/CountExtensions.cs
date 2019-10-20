@@ -10,7 +10,7 @@ namespace ModelWrapper.Extensions.Count
         /// <summary>
         /// Method that extends IQuerable<T> add count functionality
         /// </summary>
-        /// <typeparam name="TSource">Generic type entity</typeparam>
+        /// <typeparam name="TSource">Generic type of the entity</typeparam>
         /// <param name="source">IQueryable source</param>
         /// <param name="count">Count of entities</param>
         /// <returns>IQueryable<T></returns>
@@ -26,7 +26,7 @@ namespace ModelWrapper.Extensions.Count
         /// <summary>
         /// Method that extends IQuerable<T> add count functionality
         /// </summary>
-        /// <typeparam name="TSource">Generic type entity</typeparam>
+        /// <typeparam name="TSource">Generic type of the entity</typeparam>
         /// <param name="source">IQueryable source</param>
         /// <param name="count">Count of entities</param>
         /// <returns>IQueryable<T></returns>
