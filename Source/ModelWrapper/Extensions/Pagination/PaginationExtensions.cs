@@ -7,8 +7,17 @@ using System.Linq;
 
 namespace ModelWrapper.Extensions.Pagination
 {
+    /// <summary>
+    /// Class that extends pagination functionality into ModelWrapper
+    /// </summary>
     public static class PaginationExtensions
     {
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get DefaultReturnedCollectionSize property
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns the default return collection size</returns>
         internal static int DefaultReturnedCollectionSize<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
@@ -18,7 +27,13 @@ namespace ModelWrapper.Extensions.Pagination
 
             return size == null ? ConfigurationService.GetConfiguration().DefaultReturnedCollectionSize : Convert.ToInt32(size);
         }
-        internal static int MaxReturnedCollectionSize<TModel>(
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get MaximumReturnedCollectionSize property
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns the maximum return collection size</returns>
+        internal static int MaximumReturnedCollectionSize<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
@@ -27,7 +42,13 @@ namespace ModelWrapper.Extensions.Pagination
 
             return configMax == null ? ConfigurationService.GetConfiguration().MaximumReturnedCollectionSize : Convert.ToInt32(configMax);
         }
-        internal static int MinReturnedCollectionSize<TModel>(
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get MinimumReturnedCollectionSize property
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns the minimum return collection size</returns>
+        internal static int MinimumReturnedCollectionSize<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
@@ -36,6 +57,12 @@ namespace ModelWrapper.Extensions.Pagination
 
             return configMin == null ? ConfigurationService.GetConfiguration().MinimumReturnedCollectionSize : Convert.ToInt32(configMin);
         }
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get pagination properties from request
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Dictionary<string, int> PaginationProperties<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
@@ -53,7 +80,7 @@ namespace ModelWrapper.Extensions.Pagination
                 int typedValue = CriteriaHelper.TryChangeType<int>(pageSizeProperty.Value.ToString(), out changed);
                 if (changed)
                 {
-                    typedValue = typedValue > source.MaxReturnedCollectionSize() ? source.MaxReturnedCollectionSize() : typedValue;
+                    typedValue = typedValue > source.MaximumReturnedCollectionSize() ? source.MaximumReturnedCollectionSize() : typedValue;
                     typedValue = typedValue < source.MinReturnedCollectionSize() ? source.MinReturnedCollectionSize() : typedValue;
                     paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue);
                 }
@@ -85,6 +112,13 @@ namespace ModelWrapper.Extensions.Pagination
 
             return paginationProperties;
         }
+        /// <summary>
+        /// Method that extends IQueryable<T> allowing to paginate query with request properties
+        /// </summary>
+        /// <typeparam name="TSource">Generic type of the entity</typeparam>
+        /// <param name="source">Self IQueryable<T> instance</param>
+        /// <param name="request">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns IQueryable instance with with the configuration for pagination</returns>
         public static IQueryable<TSource> Page<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request

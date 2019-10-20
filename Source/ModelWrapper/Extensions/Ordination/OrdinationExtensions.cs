@@ -72,7 +72,7 @@ namespace ModelWrapper.Extensions.Ordination
         /// <typeparam name="TSource">Generic type of the entity</typeparam>
         /// <param name="source">Self IQueryable<T> instance</param>
         /// <param name="request">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns IQueryable instance with with the configuration for a ordination</returns>
+        /// <returns>Returns IQueryable instance with with the configuration for ordination</returns>
         public static IQueryable<TSource> OrderBy<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request

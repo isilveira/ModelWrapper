@@ -43,7 +43,7 @@ namespace ModelWrapper.Extensions.FullSearch
         /// <param name="source">Self IQueryable<T> instance</param>
         /// <param name="request">Self IWrapRequest<T> instance</param>
         /// <param name="count">Count of entities</param>
-        /// <returns>Returns IQueryable instance with with the configuration for a full search</returns>
+        /// <returns>Returns IQueryable instance with with the configuration for full search</returns>
         public static IQueryable<object> FullSearch<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request,
