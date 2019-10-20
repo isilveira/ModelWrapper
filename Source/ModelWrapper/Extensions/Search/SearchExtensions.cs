@@ -6,8 +6,17 @@ using System.Linq;
 
 namespace ModelWrapper.Extensions.Search
 {
+    /// <summary>
+    /// Class that extends search functionality into ModelWrapper
+    /// </summary>
     public static class SearchExtensions
     {
+        /// <summary>
+        /// Method that extends IWrapRequest<T> allowing to get query properties from request
+        /// </summary>
+        /// <typeparam name="TModel">Generic type of the entity</typeparam>
+        /// <param name="source">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Dictionary<string, object> QueryProperties<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
@@ -90,6 +99,13 @@ namespace ModelWrapper.Extensions.Search
 
             return queryProperties;
         }
+        /// <summary>
+        /// Method that extends IQueryable<T> allowing to search query with request properties
+        /// </summary>
+        /// <typeparam name="TSource">Generic type of the entity</typeparam>
+        /// <param name="source">Self IQueryable<T> instance</param>
+        /// <param name="request">Self IWrapRequest<T> instance</param>
+        /// <returns>Returns IQueryable instance with with the configuration for search</returns>
         public static IQueryable<TSource> Search<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request
