@@ -8,8 +8,16 @@ using System.Threading.Tasks;
 
 namespace ModelWrapper.Binders
 {
+    /// <summary>
+    /// Class that binds the http request into a WrapRequest object
+    /// </summary>
     public class WrapRequestBinder : IModelBinder
     {
+        /// <summary>
+        /// Async method that proceed bind of wraprequest
+        /// </summary>
+        /// <param name="bindingContext"></param>
+        /// <returns></returns>
         public async Task BindModelAsync(
             ModelBindingContext bindingContext
         )

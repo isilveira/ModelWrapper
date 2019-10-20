@@ -5,10 +5,24 @@ using System.Linq;
 
 namespace ModelWrapper
 {
+    /// <summary>
+    /// Class that wrap the response
+    /// </summary>
+    /// <typeparam name="TModel">Model type</typeparam>
     public class WrapResponse<TModel> : Dictionary<string, object>, IWrapResponse<TModel>
         where TModel : class
     {
+        /// <summary>
+        /// Class empty constructor
+        /// </summary>
         public WrapResponse() { }
+        /// <summary>
+        /// Class constructor
+        /// </summary>
+        /// <param name="request">WrapRequest object</param>
+        /// <param name="data">Response data</param>
+        /// <param name="message">Response message</param>
+        /// <param name="resultCount">Count of data returned</param>
         public WrapResponse(
             WrapRequest<TModel> request,
             object data,
@@ -27,6 +41,12 @@ namespace ModelWrapper
             Add(nameof(request), request.RequestObject);
             Add(nameof(data), ResponseProperties(request, data));
         }
+        /// <summary>
+        /// Method that handles the responsed data
+        /// </summary>
+        /// <param name="request">WrapRequest object</param>
+        /// <param name="data">Response data</param>
+        /// <returns>List of dictionaries where data is returned</returns>
         private IList<Dictionary<string, object>> ResponseProperties(
             WrapRequest<TModel> request,
             object data
@@ -48,6 +68,12 @@ namespace ModelWrapper
 
             return dictionaries;
         }
+        /// <summary>
+        /// Method that handles the responsed data
+        /// </summary>
+        /// <param name="request">WrapRequest object</param>
+        /// <param name="data">Response data</param>
+        /// <returns>Dictionary where data is returned</returns>
         private Dictionary<string, object> ResponseObjectProperties(
             IWrapRequest<TModel> request,
             object data

@@ -1,5 +1,8 @@
 ﻿namespace ModelWrapper
 {
+    /// <summary>
+    /// Data Source Enumerator
+    /// </summary>
     public enum WrapPropertySource
     {
         FromBody,
@@ -7,6 +10,9 @@
         FromQuery,
         FromRoute
     }
+    /// <summary>
+    /// Class representing data arriving at the endpoint
+    /// </summary>
     public class WrapRequestProperty
     {
         public string Name { get; set; }
