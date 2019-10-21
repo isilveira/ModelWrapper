@@ -9,8 +9,17 @@ using System.Text;
 
 namespace ModelWrapper.Helpers
 {
+    /// <summary>
+    /// Class that implements helpful methods for lambda expressions
+    /// </summary>
     internal static class LambdaHelper
     {
+        /// <summary>
+        /// Method that generates a lambda expression for filter criteria
+        /// </summary>
+        /// <typeparam name="TSource">Expression type attribute</typeparam>
+        /// <param name="filters">Dictionary of filters</param>
+        /// <returns>Lambda expression for the filters</returns>
         internal static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(
             Dictionary<string,object> filters
         ) where TSource : class
@@ -40,9 +49,17 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
+        /// <summary>
+        /// Method that generates a lambda expression for search criteria
+        /// </summary>
+        /// <typeparam name="TSource">Expression type attribute</typeparam>
+        /// <param name="searchableProperties">List of searchable properties</param>
+        /// <param name="terms">List of terms to search</param>
+        /// <param name="queryStrict">parameter that indicates when all terms should be contained in the property</param>
+        /// <returns>Lambda expression for the search</returns>
         internal static Expression<Func<TSource, bool>> GenerateSearchCriteriaExpression<TSource>(
             IList<string> searchableProperties,
-            IList<string> tokens,
+            IList<string> terms,
             bool queryStrict)
             where TSource : class
         {
@@ -80,7 +97,7 @@ namespace ModelWrapper.Helpers
                 memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
                 List<Expression> andExpressions = new List<Expression>();
 
-                foreach (var token in tokens)
+                foreach (var token in terms)
                 {
                     andExpressions.Add(ExpressionHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
                 }
@@ -91,6 +108,12 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
+        /// <summary>
+        /// Method that generates a lambda expression for select return
+        /// </summary>
+        /// <typeparam name="TSource">Expression type attribute</typeparam>
+        /// <param name="selectProperties">List of properties that must be returned</param>
+        /// <returns>Lambda expression for the select</returns>
         internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
             IList<PropertyInfo> selectProperties
         ) where TSource : class
@@ -104,6 +127,12 @@ namespace ModelWrapper.Helpers
 
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
+        /// <summary>
+        /// Method that return a list of 
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="property"></param>
+        /// <returns></returns>
         internal static string GetPropertyName<TModel>(
             Expression<Func<TModel, object>> property
         ) where TModel : class
