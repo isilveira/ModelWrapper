@@ -5,8 +5,16 @@ using System.Text;
 
 namespace ModelWrapper.Helpers
 {
+    /// <summary>
+    /// Class that implements helpful methods for criteria
+    /// </summary>
     internal static class CriteriaHelper
     {
+        /// <summary>
+        /// Method that gets possible criterias for some given type
+        /// </summary>
+        /// <param name="propertyType">type</param>
+        /// <returns>List of valid criterias</returns>
         internal static List<string> GetPropertyTypeCriteria(
             Type propertyType
         )
@@ -47,6 +55,13 @@ namespace ModelWrapper.Helpers
 
             return comparationTypes.Distinct().ToList();
         }
+        /// <summary>
+        /// Method that try to convert string into a type object
+        /// </summary>
+        /// <param name="value">String value</param>
+        /// <param name="typeTo">Type to convert</param>
+        /// <param name="changed">Boolean that indicate if change has succeed</param>
+        /// <returns>object conveted</returns>
         internal static object TryChangeType(
             string value,
             Type typeTo,
@@ -78,6 +93,13 @@ namespace ModelWrapper.Helpers
                 return Activator.CreateInstance(typeTo);
             }
         }
+        /// <summary>
+        /// Method that try to convert string into a type object
+        /// </summary>
+        /// <typeparam name="TReturn">Type to convert</typeparam>
+        /// <param name="value">String value</param>
+        /// <param name="changed">Boolean that indicate if change has succeed</param>
+        /// <returns>object conveted</returns>
         internal static TReturn TryChangeType<TReturn>(
             string value,
             out bool changed
@@ -109,6 +131,10 @@ namespace ModelWrapper.Helpers
                 return Activator.CreateInstance<TReturn>();
             }
         }
+        /// <summary>
+        /// Method that returns a list of types that can't be converted
+        /// </summary>
+        /// <returns>List of types that can't be converted</returns>
         internal static IList<Type> GetNonQueryableTypes()
         {
             return new List<Type>
