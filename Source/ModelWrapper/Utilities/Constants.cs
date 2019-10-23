@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ModelWrapper.Utilities
+﻿namespace ModelWrapper.Utilities
 {
+    /// <summary>
+    /// Static class for constants
+    /// </summary>
     public static class Constants
     {
         internal static string CONST_DEFAULT_COLLECTION_SIZE        => "DEFAULT_COLLECTION_SIZE";

@@ -15,8 +15,17 @@
     /// </summary>
     public class WrapRequestProperty
     {
+        /// <summary>
+        /// Property name
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Property value
+        /// </summary>
         public object Value { get; set; }
+        /// <summary>
+        /// Property source
+        /// </summary>
         public WrapPropertySource Source { get; set; }
     }
 }
