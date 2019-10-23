@@ -7,9 +7,18 @@ using System.Text;
 
 namespace ModelWrapper.Helpers
 {
+    /// <summary>
+    /// Class that implements helpful methods for reflection handling
+    /// </summary>
     internal static class ReflectionHelper
     {
-        internal static IList<PropertyInfo> GetPropertiesFromType(
+        /// <summary>
+        /// Method that filter properties from list
+        /// </summary>
+        /// <param name="searchableProperties">List of properties</param>
+        /// <param name="queryProperties">Properties names to find</param>
+        /// <returns>List of properties found</returns>
+        internal static IList<PropertyInfo> GetFilterPropertiesFromList(
             IList<PropertyInfo> searchableProperties,
             IList<string> queryProperties = null
         )
@@ -28,6 +37,15 @@ namespace ModelWrapper.Helpers
 
             return searchableProperties;
         }
+        /// <summary>
+        /// Method that find a method from a given type
+        /// </summary>
+        /// <param name="type">Type were method must be found</param>
+        /// <param name="methodName">Name of the method</param>
+        /// <param name="parameters">Number of parameters</param>
+        /// <param name="genericArguments">Number of arguments</param>
+        /// <param name="parameterTypes">List of parameter types</param>
+        /// <returns>Method found</returns>
         internal static MethodInfo GetMethodFromType(
             Type type,
             string methodName,
@@ -45,14 +63,25 @@ namespace ModelWrapper.Helpers
                         || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
                 );
         }
+        /// <summary>
+        /// Method that creates a runtime type
+        /// </summary>
+        /// <param name="props">Properties for the new type</param>
+        /// <param name="assemblyName">Assembly name</param>
+        /// <param name="moduleName">Module name</param>
+        /// <param name="typeName">Type name</param>
+        /// <returns>Runtime new type</returns>
         internal static Type CreateNewType(
-            IList<PropertyInfo> props
+            IList<PropertyInfo> props,
+            string assemblyName = "ModelWrapper",
+            string moduleName = "DynamicTypes",
+            string typeName = "SelectWrap"
         )
         {
-            AssemblyName asmName = new AssemblyName("Wrapped");
+            AssemblyName asmName = new AssemblyName(assemblyName);
             AssemblyBuilder dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.Run);
-            ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule("Wrapped");
-            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("Wrapped", TypeAttributes.Public);
+            ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule(moduleName);
+            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType(typeName, TypeAttributes.Public);
 
             foreach (var p in props)
             {

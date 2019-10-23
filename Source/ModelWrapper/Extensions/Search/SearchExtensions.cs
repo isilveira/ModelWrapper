@@ -119,7 +119,7 @@ namespace ModelWrapper.Extensions.Search
             if (string.IsNullOrWhiteSpace(query))
                 return source;
 
-            var queryTokens = TokenHelper.GetTokens(query, queryPhrase);
+            var queryTokens = TermHelper.GetTerms(query, queryPhrase);
 
             query = string.Join("+", queryTokens.ToArray());
 

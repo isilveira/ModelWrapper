@@ -34,11 +34,11 @@ namespace ModelWrapper.Helpers
 
                 if (propertyParts.Count() == 1)
                 {
-                    expressions.Add(ExpressionHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property));
+                    expressions.Add(ExpressionHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property));
                 }
                 else
                 {
-                    expressions.Add(ExpressionHelper.GenerateFilterComparationExpression(memberExp, filterProperty, property, propertyParts[1]));
+                    expressions.Add(ExpressionHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property, propertyParts[1]));
                 }
             }
 
@@ -125,11 +125,11 @@ namespace ModelWrapper.Helpers
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
         /// <summary>
-        /// Method that return a list of 
+        /// Method that gets a property name for a given lambda expression
         /// </summary>
-        /// <typeparam name="TModel"></typeparam>
-        /// <param name="property"></param>
-        /// <returns></returns>
+        /// <typeparam name="TModel">Expression type attribute</typeparam>
+        /// <param name="property">Property lambda expression</param>
+        /// <returns>Name of the property</returns>
         internal static string GetPropertyName<TModel>(
             Expression<Func<TModel, object>> property
         ) where TModel : class
@@ -148,6 +148,32 @@ namespace ModelWrapper.Helpers
             }
 
             return ((PropertyInfo)memberExpression.Member).Name;
+        }
+        /// <summary>
+        /// Method that generates a lambda expression for property name
+        /// </summary>
+        /// <typeparam name="T">Generic type parameter</typeparam>
+        /// <param name="type">type of the property</param>
+        /// <param name="propertyName">Property name</param>
+        /// <returns>Lambda expression for the property</returns>
+        internal static Expression GenereteLambdaExpression<T>(
+            ref Type type,
+            string propertyName
+        )
+        {
+            ParameterExpression arg = Expression.Parameter(type, "x");
+            List<string> listProperties = propertyName.Split('.').ToList();
+
+            Expression expr = arg;
+            foreach (string item in listProperties)
+            {
+                PropertyInfo np = type.GetProperties().SingleOrDefault(x => x.Name.ToLower() == item.ToLower());
+                expr = Expression.MakeMemberAccess(expr, np);
+                type = np.PropertyType;
+            }
+
+            Type delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
+            return Expression.Lambda(delegateType, expr, arg);
         }
     }
 }

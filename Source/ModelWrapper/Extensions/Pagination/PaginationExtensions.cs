@@ -81,7 +81,7 @@ namespace ModelWrapper.Extensions.Pagination
                 if (changed)
                 {
                     typedValue = typedValue > source.MaximumReturnedCollectionSize() ? source.MaximumReturnedCollectionSize() : typedValue;
-                    typedValue = typedValue < source.MinReturnedCollectionSize() ? source.MinReturnedCollectionSize() : typedValue;
+                    typedValue = typedValue < source.MinimumReturnedCollectionSize() ? source.MinimumReturnedCollectionSize() : typedValue;
                     paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue);
                 }
             }

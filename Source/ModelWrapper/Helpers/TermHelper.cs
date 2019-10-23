@@ -3,9 +3,18 @@ using System.Linq;
 
 namespace ModelWrapper.Helpers
 {
-    internal class TokenHelper
+    /// <summary>
+    /// Class that implements helpful methods for term handling
+    /// </summary>
+    internal class TermHelper
     {
-        internal static IList<string> GetTokens(
+        /// <summary>
+        /// Method that breaks a query string into terms, validating and suppressing as configured.
+        /// </summary>
+        /// <param name="query">String were terms will be extracted</param>
+        /// <param name="queryPhrase">Indication if string must be broken in terms</param>
+        /// <returns>List of valid terms</returns>
+        internal static IList<string> GetTerms(
             string query,
             bool queryPhrase
         )

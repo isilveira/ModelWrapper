@@ -94,7 +94,7 @@ namespace ModelWrapper.Extensions.Ordination
             }
 
             Type type = typeof(TSource);
-            var lambda = ExpressionHelper.GenereteLambdaExpression<TSource>(ref type, orderBy);
+            var lambda = LambdaHelper.GenereteLambdaExpression<TSource>(ref type, orderBy);
             MethodInfo orderMethod;
 
             if (order.ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()))
