@@ -14,19 +14,44 @@ using System.Linq.Expressions;
 
 namespace ModelWrapper
 {
+    /// <summary>
+    /// Class that encapsulates the request
+    /// </summary>
+    /// <typeparam name="TModel">Generic type of the endpoint</typeparam>
     [ModelBinder(BinderType = typeof(WrapRequestBinder))]
     public class WrapRequest<TModel> : DynamicObject, IWrapRequest<TModel>
         where TModel : class
     {
+        /// <summary>
+        /// Instance of the Model
+        /// </summary>
         public TModel Model { get; set; }
+        /// <summary>
+        /// List of properties received on request
+        /// </summary>
         public List<WrapRequestProperty> AllProperties { get; set; }
+        /// <summary>
+        /// List of configurations for the request
+        /// </summary>
         public Dictionary<string, List<string>> ConfigProperties { get; set; }
+        /// <summary>
+        /// List of configuration values
+        /// </summary>
         public Dictionary<string, object> ConfigValues { get; set; }
+        /// <summary>
+        /// Representation of the request object
+        /// </summary>
         public Dictionary<string, object> RequestObject { get; set; }
+        /// <summary>
+        /// Class protected constructor
+        /// </summary>
         protected WrapRequest()
         {
             Initialize();
         }
+        /// <summary>
+        /// Method that instantiates the properties
+        /// </summary>
         private void Initialize()
         {
             Model = Activator.CreateInstance<TModel>();
@@ -72,6 +97,11 @@ namespace ModelWrapper
         }
         #endregion
         #region Configuration methods
+        /// <summary>
+        /// Method that sets configuration properties into ConfigProperties list
+        /// </summary>
+        /// <param name="name">Configuration name</param>
+        /// <param name="property">Property name</param>
         private void SetConfigProperty(
             string name,
             string property
@@ -88,6 +118,11 @@ namespace ModelWrapper
                 configProperties.Value.Add(property);
             }
         }
+        /// <summary>
+        /// Method that stes configuration values into ConfigValues List
+        /// </summary>
+        /// <param name="name">Configuration name</param>
+        /// <param name="value">Value</param>
         private void SetConfigValues(
             string name,
             object value
@@ -105,6 +140,10 @@ namespace ModelWrapper
                 ConfigValues.Add(name, value);
             }
         }
+        /// <summary>
+        /// Method that sets configuration keys into ConfigKeys list
+        /// </summary>
+        /// <param name="expression">Lambda expression for the key</param>
         public void ConfigKeys(
             Expression<Func<TModel, object>> expression
         )
@@ -114,33 +153,49 @@ namespace ModelWrapper
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
-        public void ConfigDefaultReturnedCollectionSize(
-            int defaultReturnCollectionSize
+        /// <summary>
+        /// Method that sets the default return size of collections
+        /// </summary>
+        /// <param name="defaultReturnSizeOfCollections">Default return size of collections</param>
+        public void ConfigDefaultReturnSizeOfCollections(
+            int defaultReturnSizeOfCollections
         )
         {
             SetConfigValues(
                 Constants.CONST_DEFAULT_COLLECTION_SIZE,
-                defaultReturnCollectionSize
+                defaultReturnSizeOfCollections
             );
         }
-        public void ConfigMaxReturnedCollectionSize(
-            int maxReturnCollectionSize
+        /// <summary>
+        /// Method that sets the maximum return size of collections
+        /// </summary>
+        /// <param name="maximumReturnSizeOfCollections">Maximum return size of collections</param>
+        public void ConfigMaxReturnSizeOfCollections(
+            int maximumReturnSizeOfCollections
         )
         {
             SetConfigValues(
                 Constants.CONST_MAX_COLLECTION_SIZE,
-                maxReturnCollectionSize
+                maximumReturnSizeOfCollections
             );
         }
-        public void ConfigMinReturnedCollectionSize(
-            int minReturnCollectionSize
+        /// <summary>
+        /// Method that sets the minimum return size of collections
+        /// </summary>
+        /// <param name="minimumReturnSizeOfCollection">Minimum return size of collections</param>
+        public void ConfigMinimumReturnSizeOfCollection(
+            int minimumReturnSizeOfCollection
         )
         {
             SetConfigValues(
                 Constants.CONST_MIN_COLLECTION_SIZE,
-                minReturnCollectionSize
+                minimumReturnSizeOfCollection
             );
         }
+        /// <summary>
+        /// Method that configures suppressed properties
+        /// </summary>
+        /// <param name="expression">Property lambda expression</param>
         public void ConfigSuppressedProperties(
             Expression<Func<TModel, object>> expression
         )
@@ -150,6 +205,10 @@ namespace ModelWrapper
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
+        /// <summary>
+        /// Method that configures suppressed response properties
+        /// </summary>
+        /// <param name="expression">Property lambda expression</param>
         public void ConfigSuppressedResponseProperties(
             Expression<Func<TModel, object>> expression
         )
@@ -158,8 +217,14 @@ namespace ModelWrapper
                 Constants.CONST_SUPPRESSED_RESPONSE,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
-        } 
+        }
         #endregion
+        #region Internal Property Access
+        /// <summary>
+        /// Method that sets a property value into model object
+        /// </summary>
+        /// <param name="propertyName">Property name</param>
+        /// <param name="propertyValue">Property value</param>
         internal void SetPropertyValue(
             string propertyName,
             object propertyValue
@@ -180,6 +245,12 @@ namespace ModelWrapper
                 property.SetValue(this.Model, newPropertyValue);
             }
         }
+        /// <summary>
+        /// Method that gets a property value from model object
+        /// </summary>
+        /// <param name="propertyName">Property name</param>
+        /// <param name="empty">Indication if property value must be empty</param>
+        /// <returns>Property value</returns>
         internal object GetPropertyValue(
             string propertyName,
             bool empty = false
@@ -191,6 +262,14 @@ namespace ModelWrapper
             else
                 return property.GetValue(this.Model);
         }
+        #endregion
+        #region Model projection methods
+        /// <summary>
+        /// Method that projects values or functions of the model object
+        /// </summary>
+        /// <typeparam name="TResult">Projection result type</typeparam>
+        /// <param name="function">Lambda expression for the function</param>
+        /// <returns>Projection result</returns>
         public TResult Project<TResult>(
             Func<TModel, TResult> function
         )
@@ -199,6 +278,10 @@ namespace ModelWrapper
             UpdateSuppliedProperties();
             return value;
         }
+        /// <summary>
+        /// Method that projects an action on the model object
+        /// </summary>
+        /// <param name="action">Lambda expression for the action</param>
         public void Project(
             Action<TModel> action
         )
@@ -218,6 +301,10 @@ namespace ModelWrapper
                 }
             });
         }
+        #endregion
+        /// <summary>
+        /// Method that sets route values into request object. Invoked at the end of the bind.
+        /// </summary>
         public void BindComplete()
         {
             var routeProperties = new Dictionary<string, object>();
