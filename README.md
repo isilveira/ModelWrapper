@@ -1,41 +1,16 @@
 # ModelWrapper - Current version 1.1.0
 
-Model wrapper - Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.
+>**ModelWrapper** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
 ____
+
+*Purpose*
+----
+>...
+    
 *Usage*
+----
+>...
 
-Model class:
-```
-public class PatchCustomerCommand : Wrap<Customer>, IRequest<PatchCustomerCommandResponse>
-{
-    public PatchCustomerCommand()
-    {
-        KeyProperty(x => x.CustomerID);
-        SuppressProperty(x => x.RegistrationDate);
-        SuppressProperty(x => x.Orders);
-    }
-}
-```
-Methods:
-
-```
-int categoryID = 12;
-model.Project(x=>x.CategoryID = categoryID); //Sets the value into the internal object;
-```
-
-```
-int categoryID = model.Project(x=>x.CategoryID); //Gets the value of the internal object;
-```
-
-```
-Customer entity = model.Post(); //return a new instance of the entity.
-```
-```
-model.Patch(entity); //Update the supplied properties on entity.
-```
-```
-model.Put(entity); //Update all properties of the entity.
-```
 ____
 *GitHub*
 ----
