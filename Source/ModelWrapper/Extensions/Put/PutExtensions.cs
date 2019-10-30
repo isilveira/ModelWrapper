@@ -23,8 +23,8 @@ namespace ModelWrapper.Extensions.Put
         {
             var properties = typeof(TModel).GetProperties().ToList();
 
-            properties = properties.Where(p => !request.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !request.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !request.SuppressedProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
+            properties = properties.Where(p => !request.KeyProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(request.Model)));
 

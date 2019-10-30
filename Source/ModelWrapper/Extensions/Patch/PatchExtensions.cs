@@ -20,10 +20,10 @@ namespace ModelWrapper.Extensions.Patch
             TModel model
         ) where TModel : class
         {
-            var properties = typeof(TModel).GetProperties().Where(x => request.SuppliedProperties().Any(y => y == x.Name)).ToList();
+            var properties = typeof(TModel).GetProperties().Where(x => request.SuppliedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))).ToList();
 
-            properties = properties.Where(p => !request.SuppressedProperties().Any(x => x.Equals(p.Name))).ToList();
-            properties = properties.Where(p => !request.KeyProperties().Any(x => x.Equals(p.Name))).ToList();
+            properties = properties.Where(p => !request.SuppressedProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
+            properties = properties.Where(p => !request.KeyProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
 
             properties.ForEach(property => property.SetValue(model, property.GetValue(request.Model)));
 
