@@ -295,7 +295,9 @@ namespace ModelWrapper
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
-                if (propertyValue != propertyEmptyValue && !ConfigProperties.GetValue(Constants.CONST_SUPPLIED).ToList().Exists(p => p == property.Name))
+                if (((propertyValue != null && !propertyValue.Equals(propertyEmptyValue))
+                        || (propertyValue == null && propertyValue != propertyEmptyValue)
+                    ) && !ConfigProperties.GetValue(Constants.CONST_SUPPLIED).ToList().Exists(p => p == property.Name))
                 {
                     SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 }

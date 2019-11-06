@@ -1,6 +1,7 @@
 ﻿using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -52,6 +53,17 @@ namespace ModelWrapper.Extensions.Select
         ) where TSource : class
         {
             return source.Select(LambdaHelper.GenerateSelectExpression<TSource>(request.ResponseProperties()));
+        }
+
+        public static object  Select<TSource>(this TSource source, IWrapRequest<TSource> request) where TSource : class
+        {
+            var newType = ReflectionHelper.CreateNewType(request.ResponseProperties());
+
+            var newInstance = Activator.CreateInstance(newType);
+
+            ReflectionHelper.Copy(source, newInstance);
+
+            return newInstance;
         }
     }
 }

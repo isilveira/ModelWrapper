@@ -9,10 +9,16 @@ namespace StoreAPI.Core.Application.Products.Commands.PatchProduct
         public PatchProductCommand()
         {
             ConfigKeys(x => x.ProductID);
+
             ConfigSuppressedProperties(x => x.RegistrationDate);
             ConfigSuppressedProperties(x => x.Category);
             ConfigSuppressedProperties(x => x.Images);
             ConfigSuppressedProperties(x => x.OrderedProducts);
+
+            ConfigSuppressedResponseProperties(x => x.RegistrationDate);
+            ConfigSuppressedResponseProperties(x => x.Category);
+            ConfigSuppressedResponseProperties(x => x.Images);
+            ConfigSuppressedResponseProperties(x => x.OrderedProducts);
         }
     }
 }

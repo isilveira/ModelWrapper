@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using ModelWrapper.Extensions.Post;
+using ModelWrapper.Extensions.Select;
 using StoreAPI.Core.Application.Interfaces.Infrastructures.Data;
 using System;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace StoreAPI.Core.Application.Products.Commands.PostProduct
 
             await Context.SaveChangesAsync();
 
-            return new PostProductCommandResponse(request, data, "Successful operation!", 1);
+            return new PostProductCommandResponse(request, data.Select(request), "Successful operation!", 1);
         }
     }
 }

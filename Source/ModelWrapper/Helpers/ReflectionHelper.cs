@@ -116,5 +116,20 @@ namespace ModelWrapper.Helpers
             }
             return dynamicAnonymousType.CreateType();
         }
+
+        internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)
+        {
+            foreach(var property in from.GetType().GetProperties())
+            {
+                var toProperty = to.GetType().GetProperty(property.Name);
+
+                if (toProperty != null)
+                {
+                    toProperty.SetValue(to, property.GetValue(from)); 
+                }
+            }
+
+            return to;
+        }
     }
 }
