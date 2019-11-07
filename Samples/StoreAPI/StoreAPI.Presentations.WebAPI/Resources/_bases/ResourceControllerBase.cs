@@ -25,5 +25,10 @@ namespace StoreAPI.Resources._Bases
                 return BadRequest(ex.Message);
             }
         }
+
+        public async Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await Mediator.Send(request, cancellationToken);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using ModelWrapper.Extensions;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,9 +11,14 @@ namespace ModelWrapper
     /// Class that wrap the response
     /// </summary>
     /// <typeparam name="TModel">Model type</typeparam>
-    public class WrapResponse<TModel> : Dictionary<string, object>, IWrapResponse<TModel>
+    public class WrapResponse<TModel>: IWrapResponse<TModel>
         where TModel : class
     {
+        public long ResultCount { get; set; }
+        public string Message { get; set; }
+        public object Request { get; set; }
+        public object Data { get; set; }
+
         /// <summary>
         /// Class empty constructor
         /// </summary>
@@ -26,69 +33,49 @@ namespace ModelWrapper
         public WrapResponse(
             WrapRequest<TModel> request,
             object data,
-            string message = null,
+            string message = "Successful operation!",
             long? resultCount = null
         )
         {
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                Add(nameof(message), message);
-            }
-            if (resultCount.HasValue)
-            {
-                Add(nameof(resultCount), resultCount);
-            }
-            Add(nameof(request), request.RequestObject);
-            Add(nameof(data), ResponseProperties(request, data));
+            Message = message;
+            ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : 1;
+            Request = request.RequestObject;
+            Data = data;
         }
-        /// <summary>
-        /// Method that handles the responsed data
-        /// </summary>
-        /// <param name="request">WrapRequest object</param>
-        /// <param name="data">Response data</param>
-        /// <returns>List of dictionaries where data is returned</returns>
-        private IList<Dictionary<string, object>> ResponseProperties(
-            WrapRequest<TModel> request,
-            object data
-        )
+
+        public TModel GetModel()
         {
-            IList<Dictionary<string, object>> dictionaries = new List<Dictionary<string, object>>();
-
-            if (data is ICollection<object>)
+            if (ResultCount > 1)
             {
-                foreach (var item in (ICollection<object>)data)
-                {
-                    dictionaries.Add(ResponseObjectProperties(request, item));
-                }
-            }
-            else
-            {
-                dictionaries.Add(ResponseObjectProperties(request, data));
+                throw new Exception("Data is a collection!");
             }
 
-            return dictionaries;
+            var model = Activator.CreateInstance<TModel>();
+
+            ReflectionHelper.Copy(Data, model);
+
+            return model;
         }
-        /// <summary>
-        /// Method that handles the responsed data
-        /// </summary>
-        /// <param name="request">WrapRequest object</param>
-        /// <param name="data">Response data</param>
-        /// <returns>Dictionary where data is returned</returns>
-        private Dictionary<string, object> ResponseObjectProperties(
-            IWrapRequest<TModel> request,
-            object data
-        )
-        {
-            Dictionary<string, object> dictionary = new Dictionary<string, object>();
 
-            foreach (var property in data.GetType().GetProperties().Where(p =>
-                 !request.SuppressedResponseProperties().Any(x => x.Equals(p.Name))
-            ).ToList())
+        public IList<TModel> GetModels()
+        {
+            if (ResultCount == 1)
             {
-                dictionary.Add(property.Name.ToCamelCase(), property.GetValue(data));
+                throw new Exception("Data is not a collection!");
             }
 
-            return dictionary;
+            var models = new List<TModel>();
+
+            foreach(var data in ((ICollection<object>)Data))
+            {
+                var model = Activator.CreateInstance<TModel>();
+
+                ReflectionHelper.Copy(data, model);
+
+                models.Add(model);
+            }
+
+            return models;
         }
     }
 }
