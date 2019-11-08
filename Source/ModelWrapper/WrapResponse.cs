@@ -14,6 +14,7 @@ namespace ModelWrapper
     public class WrapResponse<TModel>: IWrapResponse<TModel>
         where TModel : class
     {
+        private IWrapRequest<TModel> OriginalRequest{ get; set; }
         public long ResultCount { get; set; }
         public string Message { get; set; }
         public object Request { get; set; }
@@ -37,6 +38,7 @@ namespace ModelWrapper
             long? resultCount = null
         )
         {
+            OriginalRequest = request;
             Message = message;
             ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : 1;
             Request = request.RequestObject;
@@ -45,7 +47,7 @@ namespace ModelWrapper
 
         public TModel GetModel()
         {
-            if (ResultCount > 1)
+            if (Data is ICollection<object>)
             {
                 throw new Exception("Data is a collection!");
             }
@@ -59,7 +61,7 @@ namespace ModelWrapper
 
         public IList<TModel> GetModels()
         {
-            if (ResultCount == 1)
+            if (!(Data is ICollection<object>))
             {
                 throw new Exception("Data is not a collection!");
             }

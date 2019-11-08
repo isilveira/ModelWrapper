@@ -1,0 +1,43 @@
+﻿@model Store.Core.Application.Products.Queries.GetProductsByFilter.GetProductsByFilterQueryResponse
+@{
+    ViewData["Title"] = "Products";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Products</h1>
+@using (Html.BeginForm(FormMethod.Get))
+{
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" name="query" placeholder="Search..." aria-label="Search..." aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Find</button>
+        </div>
+    </div>
+}
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Amount</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.GetModels())
+        {
+            <tr>
+                <td>@item.ProductID</td>
+                <td>@item.Name</td>
+                <td>@item.Amount</td>
+                <td>@item.Value</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td class="text-right" colspan="4">@(Model.ResultCount) registers found.</td>
+        </tr>
+    </tfoot>
+</table>

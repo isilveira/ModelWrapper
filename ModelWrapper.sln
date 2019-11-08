@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelWrapper", "Source\Mode
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B3D240FA-5747-4FDA-A134-A739DB9DA3F8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StoreAPI", "StoreAPI", "{B39353F2-1EE0-4588-A5D3-BFB5E4BCB656}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store", "Store", "{B39353F2-1EE0-4588-A5D3-BFB5E4BCB656}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{5B3F985D-FD20-45B7-8F9E-BC5C593DEF35}"
 EndProject
@@ -17,17 +17,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Middleware", "Middleware", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentations", "Presentations", "{5B9CF2E6-F5F9-473B-B8F1-D13ABC95658D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Core.Application", "Samples\StoreAPI\StoreAPI.Core.Application\StoreAPI.Core.Application.csproj", "{ADEC04E9-2E98-4F72-9D10-764A9B068F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Application", "Samples\Store\Store.Core.Application\Store.Core.Application.csproj", "{ADEC04E9-2E98-4F72-9D10-764A9B068F14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Core.Domain.Entities", "Samples\StoreAPI\StoreAPI.Core.Domain.Entities\StoreAPI.Core.Domain.Entities.csproj", "{DB3E507E-E862-4C58-B419-0933E732624E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Entities", "Samples\Store\Store.Core.Domain.Entities\Store.Core.Domain.Entities.csproj", "{DB3E507E-E862-4C58-B419-0933E732624E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Core.Domain.Interfaces", "Samples\StoreAPI\StoreAPI.Core.Domain.Interfaces\StoreAPI.Core.Domain.Interfaces.csproj", "{A9616785-4B1C-4A08-8800-079A66BFECDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Interfaces", "Samples\Store\Store.Core.Domain.Interfaces\Store.Core.Domain.Interfaces.csproj", "{A9616785-4B1C-4A08-8800-079A66BFECDC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Core.Infrastructures.Data", "Samples\StoreAPI\StoreAPI.Core.Infrastructures.Data\StoreAPI.Core.Infrastructures.Data.csproj", "{CA90A226-694D-47D5-9189-810BB34E86F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Infrastructures.Data", "Samples\Store\Store.Core.Infrastructures.Data\Store.Core.Infrastructures.Data.csproj", "{CA90A226-694D-47D5-9189-810BB34E86F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Middleware", "Samples\StoreAPI\StoreAPI.Middleware\StoreAPI.Middleware.csproj", "{14205F2F-14F7-4F81-8FF6-20BD522FC638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Middleware", "Samples\Store\Store.Middleware\Store.Middleware.csproj", "{14205F2F-14F7-4F81-8FF6-20BD522FC638}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreAPI.Presentations.WebAPI", "Samples\StoreAPI\StoreAPI.Presentations.WebAPI\StoreAPI.Presentations.WebAPI.csproj", "{2E0FEDF2-37AE-4727-A98D-E39762CD862A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Presentations.StoreAPI", "Samples\Store\Store.Presentations.WebAPI\Store.Presentations.StoreAPI.csproj", "{2E0FEDF2-37AE-4727-A98D-E39762CD862A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Presentations.StoreAPP", "Samples\Store\Store.Presentations.StoreAPP\Store.Presentations.StoreAPP.csproj", "{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{2E0FEDF2-37AE-4727-A98D-E39762CD862A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E0FEDF2-37AE-4727-A98D-E39762CD862A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E0FEDF2-37AE-4727-A98D-E39762CD862A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,6 +85,7 @@ Global
 		{CA90A226-694D-47D5-9189-810BB34E86F1} = {5B3F985D-FD20-45B7-8F9E-BC5C593DEF35}
 		{14205F2F-14F7-4F81-8FF6-20BD522FC638} = {436B5B74-7FD8-4B4B-B9D2-2E9A6DB1E292}
 		{2E0FEDF2-37AE-4727-A98D-E39762CD862A} = {5B9CF2E6-F5F9-473B-B8F1-D13ABC95658D}
+		{85C1E6E9-87B4-4218-9303-44A4C9FFC91C} = {5B9CF2E6-F5F9-473B-B8F1-D13ABC95658D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F54542B-AD4C-4A99-9A8C-714D53BC949D}
