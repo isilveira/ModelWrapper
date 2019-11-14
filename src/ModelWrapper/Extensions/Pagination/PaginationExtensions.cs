@@ -7,6 +7,12 @@ using System.Linq;
 
 namespace ModelWrapper.Extensions.Pagination
 {
+    public class Pagination
+    {
+        public int Size { get; set; }
+        public int Number { get; set; }
+    }
+
     /// <summary>
     /// Class that extends pagination functionality into ModelWrapper
     /// </summary>
@@ -63,11 +69,11 @@ namespace ModelWrapper.Extensions.Pagination
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Dictionary<string, int> PaginationProperties<TModel>(
+        internal static Pagination Pagination<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
-            Dictionary<string, int> paginationProperties = new Dictionary<string, int>();
+            var pagination = new Pagination();
 
             #region GET PAGE SIZE VALUE
             var pageSizeProperty = source.AllProperties.Where(x =>
@@ -82,12 +88,13 @@ namespace ModelWrapper.Extensions.Pagination
                 {
                     typedValue = typedValue > source.MaximumReturnedCollectionSize() ? source.MaximumReturnedCollectionSize() : typedValue;
                     typedValue = typedValue < source.MinimumReturnedCollectionSize() ? source.MinimumReturnedCollectionSize() : typedValue;
-                    paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, typedValue);
+
+                    pagination.Size = typedValue;
                 }
             }
             else
             {
-                paginationProperties.Add(Constants.CONST_PAGINATION_SIZE, source.DefaultReturnedCollectionSize());
+                pagination.Size = source.DefaultReturnedCollectionSize();
             }
             #endregion
 
@@ -99,19 +106,27 @@ namespace ModelWrapper.Extensions.Pagination
                 int typedValue = CriteriaHelper.TryChangeType<int>(pageNumberProperty.Value.ToString(), out changed);
                 if (changed)
                 {
-                    paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, typedValue != default(int) ? typedValue : 0);
+                    pagination.Number = typedValue != default(int) ? typedValue : 1;
                 }
             }
             else
             {
-                paginationProperties.Add(Constants.CONST_PAGINATION_NUMBER, 0);
+                pagination.Number = 1;
             }
             #endregion
 
-            source.RequestObject.Add(Constants.CONST_PAGINATION, paginationProperties);
+            source.RequestObject.SetValue(Constants.CONST_PAGINATION, pagination);
 
-            return paginationProperties;
+            return pagination;
         }
+
+        public static Pagination Pagination<TModel>(
+            this WrapResponse<TModel> source
+        ) where TModel : class
+        {
+            return source.OriginalRequest.Pagination();
+        }
+
         /// <summary>
         /// Method that extends IQueryable<T> allowing to paginate query with request properties
         /// </summary>
@@ -124,10 +139,10 @@ namespace ModelWrapper.Extensions.Pagination
             IWrapRequest<TSource> request
         ) where TSource : class
         {
-            var paginationProperties = request.PaginationProperties();
+            var pagination = request.Pagination();
 
-            int pageNumber = paginationProperties.GetValue(Constants.CONST_PAGINATION_NUMBER);
-            int pageSize = paginationProperties.GetValue(Constants.CONST_PAGINATION_SIZE);
+            int pageNumber = pagination.Number - 1;
+            int pageSize = pagination.Size;
 
             return source.Skip(pageNumber * pageSize).Take(pageSize);
         }

@@ -69,7 +69,7 @@ namespace ModelWrapper.Extensions.Filter
                 return source;
             }
 
-            request.RequestObject.Add(Constants.CONST_FILTER_PROPERTIES.ToCamelCase(), filterProperties);
+            request.RequestObject.SetValue(Constants.CONST_FILTER_PROPERTIES.ToCamelCase(), filterProperties);
 
             var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression<TSource>(filterProperties);
 

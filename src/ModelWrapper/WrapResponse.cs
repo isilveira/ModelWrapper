@@ -14,7 +14,7 @@ namespace ModelWrapper
     public class WrapResponse<TModel>: IWrapResponse<TModel>
         where TModel : class
     {
-        private IWrapRequest<TModel> OriginalRequest{ get; set; }
+        internal IWrapRequest<TModel> OriginalRequest{ get; set; }
         public long ResultCount { get; set; }
         public string Message { get; set; }
         public object Request { get; set; }

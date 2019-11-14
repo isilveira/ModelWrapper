@@ -95,7 +95,7 @@ namespace ModelWrapper.Extensions.Search
             }
             #endregion
 
-            source.RequestObject.Add(Constants.CONST_QUERY_PROPERTIES, queryProperties);
+            source.RequestObject.SetValue(Constants.CONST_QUERY_PROPERTIES, queryProperties);
 
             return queryProperties;
         }

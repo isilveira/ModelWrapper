@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Source\ModelWrapper\ModelWrapper.csproj" />
+    <ProjectReference Include="..\..\..\src\ModelWrapper\ModelWrapper.csproj" />
     <ProjectReference Include="..\Store.Core.Domain.Interfaces\Store.Core.Domain.Interfaces.csproj" />
   </ItemGroup>
 

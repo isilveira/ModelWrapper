@@ -39,5 +39,23 @@ namespace ModelWrapper.Extensions
 
             return success ? value : Activator.CreateInstance<TValue>();
         }
+
+        internal static void SetValue<TKey, TValue>(
+            this Dictionary<TKey, TValue> source,
+            TKey key,
+            TValue value
+        )
+        {
+            TValue dictionaryValue = default(TValue);
+
+            var success = source.TryGetValue(key, out dictionaryValue);
+
+            if (success)
+            {
+                source.Remove(key);
+            }
+
+            source.Add(key, value);
+        }
     }
 }

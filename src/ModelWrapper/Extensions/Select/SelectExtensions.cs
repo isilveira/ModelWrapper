@@ -36,7 +36,7 @@ namespace ModelWrapper.Extensions.Select
                 && !source.SuppressedResponseProperties().ToList().Any(y => y.ToLower().Equals(x.Name.ToLower()))
             ).ToList();
 
-            source.RequestObject.Add(Constants.CONST_RESPONSE_PROPERTIES, properties.Select(x => x.Name.ToCamelCase()));
+            source.RequestObject.SetValue(Constants.CONST_RESPONSE_PROPERTIES, properties.Select(x => x.Name.ToCamelCase()));
 
             return properties;
         }

@@ -316,7 +316,7 @@ namespace ModelWrapper
                 routeProperties.Add(routeProperty.Name.ToCamelCase(), routeProperty.Value);
             }
 
-            RequestObject.Add(Constants.CONST_ROUTE, routeProperties);
+            RequestObject.SetValue(Constants.CONST_ROUTE, routeProperties);
         }
     }
 }

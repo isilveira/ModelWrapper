@@ -81,7 +81,7 @@ namespace ModelWrapper.Extensions
                     dictionary.Add(property.Name, property.GetValue(model));
                 });
 
-                source.RequestObject.Add(Constants.CONST_MODEL, dictionary);
+                source.RequestObject.SetValue(Constants.CONST_MODEL, dictionary);
             }
         }
     }

@@ -8,6 +8,12 @@ using System.Reflection;
 
 namespace ModelWrapper.Extensions.Ordination
 {
+    public class Ordination
+    {
+        public string OrderBy { get; set; }
+        public string Order { get; set; }
+    }
+
     /// <summary>
     /// Class that extends ordination functionality into ModelWrapper
     /// </summary>
@@ -19,11 +25,11 @@ namespace ModelWrapper.Extensions.Ordination
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Dictionary<string, string> OrdinationProperties<TModel>(
+        internal static Ordination Ordination<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
-            var ordinationProperties = new Dictionary<string, string>();
+            var ordination = new Ordination();
 
             #region GET ORDER PROPERTY
             var orderProperty = source.AllProperties.Where(x =>
@@ -34,12 +40,11 @@ namespace ModelWrapper.Extensions.Ordination
                 && (orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower())
                 || orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_DESCENDING.ToLower())))
             {
-                var value = orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()) ? Constants.CONST_ORDENATION_ORDER_ASCENDING : Constants.CONST_ORDENATION_ORDER_DESCENDING;
-                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, value);
+                ordination.Order = orderProperty.Value.ToString().ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()) ? Constants.CONST_ORDENATION_ORDER_ASCENDING : Constants.CONST_ORDENATION_ORDER_DESCENDING;
             }
             else
             {
-                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDER, Constants.CONST_ORDENATION_ORDER_ASCENDING);
+                ordination.Order = Constants.CONST_ORDENATION_ORDER_ASCENDING;
             }
             #endregion
 
@@ -51,21 +56,29 @@ namespace ModelWrapper.Extensions.Ordination
             if (orderByProperty != null && typeof(TModel).GetProperties().Any(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())))
             {
                 var property = typeof(TModel).GetProperties().Where(x => x.Name.ToLower().Equals(orderByProperty.Value.ToString().ToLower())).SingleOrDefault();
-                ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, property.Name.ToCamelCase());
+                ordination.OrderBy = property.Name.ToCamelCase();
             }
             else
             {
                 if (source.KeyProperties().Any())
                 {
-                    ordinationProperties.Add(Constants.CONST_ORDENATION_ORDERBY, source.KeyProperties().FirstOrDefault());
+                    ordination.OrderBy = source.KeyProperties().FirstOrDefault();
                 }
             }
             #endregion
 
-            source.RequestObject.Add(Constants.CONST_ORDENATION, ordinationProperties);
+            source.RequestObject.SetValue(Constants.CONST_ORDENATION, ordination);
 
-            return ordinationProperties;
+            return ordination;
         }
+
+        public static Ordination Ordination<TModel>(
+            this WrapResponse<TModel> source
+        ) where TModel : class
+        {
+            return source.OriginalRequest.Ordination();
+        }
+
         /// <summary>
         /// Method that extends IQueryable<T> allowing to order query with request properties
         /// </summary>
@@ -78,10 +91,10 @@ namespace ModelWrapper.Extensions.Ordination
             IWrapRequest<TSource> request
         ) where TSource : class
         {
-            var ordinationProperties = request.OrdinationProperties();
+            var ordination = request.Ordination();
 
-            string order = ordinationProperties.GetValue(Constants.CONST_ORDENATION_ORDER);
-            string orderBy = ordinationProperties.GetValue(Constants.CONST_ORDENATION_ORDERBY);
+            string order = ordination.Order;
+            string orderBy = ordination.OrderBy;
 
             if (source == null)
             {
