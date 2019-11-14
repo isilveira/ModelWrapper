@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29201.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{9023AD75-360E-427E-8FBF-F65E13BDB74A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9023AD75-360E-427E-8FBF-F65E13BDB74A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelWrapper", "Source\ModelWrapper\ModelWrapper.csproj", "{56BECE1F-6EAA-4D4A-92F3-91079CBF7ED2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelWrapper", "src\ModelWrapper\ModelWrapper.csproj", "{56BECE1F-6EAA-4D4A-92F3-91079CBF7ED2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B3D240FA-5747-4FDA-A134-A739DB9DA3F8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{B3D240FA-5747-4FDA-A134-A739DB9DA3F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Store", "Store", "{B39353F2-1EE0-4588-A5D3-BFB5E4BCB656}"
 EndProject
@@ -17,19 +17,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Middleware", "Middleware", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentations", "Presentations", "{5B9CF2E6-F5F9-473B-B8F1-D13ABC95658D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Application", "Samples\Store\Store.Core.Application\Store.Core.Application.csproj", "{ADEC04E9-2E98-4F72-9D10-764A9B068F14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Application", "samples\Store\Store.Core.Application\Store.Core.Application.csproj", "{ADEC04E9-2E98-4F72-9D10-764A9B068F14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Entities", "Samples\Store\Store.Core.Domain.Entities\Store.Core.Domain.Entities.csproj", "{DB3E507E-E862-4C58-B419-0933E732624E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Entities", "samples\Store\Store.Core.Domain.Entities\Store.Core.Domain.Entities.csproj", "{DB3E507E-E862-4C58-B419-0933E732624E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Interfaces", "Samples\Store\Store.Core.Domain.Interfaces\Store.Core.Domain.Interfaces.csproj", "{A9616785-4B1C-4A08-8800-079A66BFECDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Domain.Interfaces", "samples\Store\Store.Core.Domain.Interfaces\Store.Core.Domain.Interfaces.csproj", "{A9616785-4B1C-4A08-8800-079A66BFECDC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Infrastructures.Data", "Samples\Store\Store.Core.Infrastructures.Data\Store.Core.Infrastructures.Data.csproj", "{CA90A226-694D-47D5-9189-810BB34E86F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Core.Infrastructures.Data", "samples\Store\Store.Core.Infrastructures.Data\Store.Core.Infrastructures.Data.csproj", "{CA90A226-694D-47D5-9189-810BB34E86F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Middleware", "Samples\Store\Store.Middleware\Store.Middleware.csproj", "{14205F2F-14F7-4F81-8FF6-20BD522FC638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Middleware", "samples\Store\Store.Middleware\Store.Middleware.csproj", "{14205F2F-14F7-4F81-8FF6-20BD522FC638}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Presentations.StoreAPI", "Samples\Store\Store.Presentations.WebAPI\Store.Presentations.StoreAPI.csproj", "{2E0FEDF2-37AE-4727-A98D-E39762CD862A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.Presentations.StoreAPI", "samples\Store\Store.Presentations.StoreAPI\Store.Presentations.StoreAPI.csproj", "{2E0FEDF2-37AE-4727-A98D-E39762CD862A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Presentations.StoreAPP", "Samples\Store\Store.Presentations.StoreAPP\Store.Presentations.StoreAPP.csproj", "{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Store.Presentations.StoreAPP", "samples\Store\Store.Presentations.StoreAPP\Store.Presentations.StoreAPP.csproj", "{85C1E6E9-87B4-4218-9303-44A4C9FFC91C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

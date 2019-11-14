@@ -4,8 +4,13 @@
 
 *Purpose*
 ----
->...
+> O ModelWrapper surgiu com o intuito simplificar a utilização de ViewModels criando uma classe base que deverá ser usada nas ViewModels do projeto permitindo que a ViewModel tenha todos os atributos originais da entidade, além de extender funcionalidades à ViewModel.
     
+*Functionalities*
+----
+> **WrapRequest<Model>** - Classe base para view models de requisições que extende todas as propriedades da entidade (TModel) e implementa funcionalidades como os verbos basicos do HTTP.
+**WrapResponse<TModel>** - Classe base para view models de respostas que extende todas as propriedades da entidade (TModel) que foram configuradas para retorno e implementa metodos para obter os dados de retorno tipados.
+
 *Usage*
 ----
 >...
