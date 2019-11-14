@@ -1,15 +1,16 @@
 # ModelWrapper - Current version 1.1.0
 
->**ModelWrapper** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
+>***ModelWrapper*** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest\<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
 
 *Purpose*
 ----
-> O ModelWrapper surgiu com o intuito simplificar a utilização de ViewModels criando uma classe base que deverá ser usada nas ViewModels do projeto permitindo que a ViewModel tenha todos os atributos originais da entidade, além de extender funcionalidades à ViewModel.
+> ModelWrapper came up to simplify the use of ViewModels by creating a base class that should be used in the project's ViewModels allowing ViewModel to have all of the entity's original attributes, as well as extend functionality to ViewModel.
     
 *Functionalities*
 ----
-> **WrapRequest<Model>** - Classe base para view models de requisições que extende todas as propriedades da entidade (TModel) e implementa funcionalidades como os verbos basicos do HTTP.
-**WrapResponse<TModel>** - Classe base para view models de respostas que extende todas as propriedades da entidade (TModel) que foram configuradas para retorno e implementa metodos para obter os dados de retorno tipados.
+> ***WrapRequest\<Model>*** - Base class for request ViewModels that extends all entity properties (TModel) and implements features like HTTP basic verbs.
+
+> ***WrapResponse\<Model>*** - Response ViewModels base class that extends all entity properties (TModel) that have been set to return and implements methods to get typed return data.
 
 *Usage*
 ----
