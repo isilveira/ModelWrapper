@@ -6,6 +6,12 @@ using System.Linq;
 
 namespace ModelWrapper.Extensions.Search
 {
+    public class Search
+    {
+        public string Query { get; set; }
+        public bool Strict { get; set; }
+        public bool Phrase { get; set; }
+    }
     /// <summary>
     /// Class that extends search functionality into ModelWrapper
     /// </summary>
@@ -17,11 +23,11 @@ namespace ModelWrapper.Extensions.Search
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Dictionary<string, object> QueryProperties<TModel>(
+        internal static Search Search<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
-            var queryProperties = new Dictionary<string, object>();
+            var search = new Search();
 
             #region GET QUERY PROPERTY
             var queryProperty = source.AllProperties.Where(x =>
@@ -34,16 +40,16 @@ namespace ModelWrapper.Extensions.Search
                 string typedValue = CriteriaHelper.TryChangeType<string>(queryProperty.Value.ToString(), out changed);
                 if (changed)
                 {
-                    queryProperties.Add(Constants.CONST_QUERY, typedValue);
+                    search.Query = typedValue;
                 }
                 else
                 {
-                    queryProperties.Add(Constants.CONST_QUERY, string.Empty);
+                    search.Query = string.Empty;
                 }
             }
             else
             {
-                queryProperties.Add(Constants.CONST_QUERY, string.Empty);
+                search.Query = string.Empty;
             }
             #endregion
 
@@ -58,16 +64,16 @@ namespace ModelWrapper.Extensions.Search
                 bool typedValue = CriteriaHelper.TryChangeType<bool>(queryStrictProperty.Value.ToString(), out changed);
                 if (changed)
                 {
-                    queryProperties.Add(Constants.CONST_QUERY_STRICT, typedValue);
+                    search.Strict = typedValue;
                 }
                 else
                 {
-                    queryProperties.Add(Constants.CONST_QUERY_STRICT, false);
+                    search.Strict = false;
                 }
             }
             else
             {
-                queryProperties.Add(Constants.CONST_QUERY_STRICT, false);
+                search.Strict = false;
             }
             #endregion
 
@@ -82,23 +88,31 @@ namespace ModelWrapper.Extensions.Search
                 bool typedValue = CriteriaHelper.TryChangeType<bool>(queryPhraseProperty.Value.ToString(), out changed);
                 if (changed)
                 {
-                    queryProperties.Add(Constants.CONST_QUERY_PHRASE, typedValue);
+                    search.Phrase = typedValue;
                 }
                 else
                 {
-                    queryProperties.Add(Constants.CONST_QUERY_PHRASE, false);
+                    search.Phrase = false;
                 }
             }
             else
             {
-                queryProperties.Add(Constants.CONST_QUERY_PHRASE, false);
+                search.Phrase = false;
             }
             #endregion
 
-            source.RequestObject.SetValue(Constants.CONST_QUERY_PROPERTIES, queryProperties);
-
-            return queryProperties;
+            source.RequestObject.SetValue(Constants.CONST_SEARCH_PROPERTIES, search);
+            
+            return search;
         }
+
+        public static Search Search<TModel>(
+            this WrapResponse<TModel> source
+        ) where TModel : class
+        {
+            return source.OriginalRequest.Search();
+        }
+
         /// <summary>
         /// Method that extends IQueryable<T> allowing to search query with request properties
         /// </summary>
@@ -111,11 +125,12 @@ namespace ModelWrapper.Extensions.Search
             IWrapRequest<TSource> request
         ) where TSource : class
         {
-            var queryProperties = request.QueryProperties();
+            var search = request.Search();
 
-            var query = queryProperties.GetValue(Constants.CONST_QUERY).ToString();
-            var queryStrict = (bool)queryProperties.GetValue(Constants.CONST_QUERY_STRICT);
-            var queryPhrase = (bool)queryProperties.GetValue(Constants.CONST_QUERY_PHRASE);
+            var query = search.Query;
+            var queryStrict = search.Strict;
+            var queryPhrase = search.Phrase;
+
             if (string.IsNullOrWhiteSpace(query))
                 return source;
 

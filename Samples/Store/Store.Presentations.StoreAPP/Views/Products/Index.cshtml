@@ -1,18 +1,27 @@
 ﻿@model Store.Core.Application.Products.Queries.GetProductsByFilter.GetProductsByFilterQueryResponse
 @using ModelWrapper.Extensions.Ordination;
 @using ModelWrapper.Extensions.Pagination;
+@using ModelWrapper.Extensions.Search;
+@using ModelWrapper.Extensions.Filter;
+@using ModelWrapper.Extensions.Select;
 @{
     ViewData["Title"] = "Products";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var ordination = Model.Ordination();
     var pagination = Model.Pagination();
+    var search = Model.Search();
+    var filterBy = "name_startswith";
+    var name_startswith = Model.GetFilterProperty(filterBy).ToString();
+
+    var hasAmount = Model.HasResponseProperty("Amount");
+    var hasValue = Model.HasResponseProperty("Value");
 }
 
 <h1>Products - @ordination.Order - @ordination.OrderBy</h1>
 @using (Html.BeginForm(FormMethod.Get))
 {
     <div class="input-group mb-3">
-        <input type="text" class="form-control" name="query" placeholder="Search..." aria-label="Search..." aria-describedby="button-addon2">
+        <input type="text" class="form-control" name="@(filterBy)" placeholder="Search..." aria-label="Search..." aria-describedby="button-addon2" value="@(name_startswith)" />
         <div class="input-group-append">
             <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Find</button>
         </div>
@@ -24,8 +33,14 @@
         <tr>
             <th>#</th>
             <th>Name</th>
-            <th>Amount</th>
-            <th>Value</th>
+            @if (hasAmount)
+            {
+                <th>Amount</th>
+            }
+            @if (hasValue)
+            {
+                <th>Value</th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -34,8 +49,14 @@
             <tr>
                 <td>@item.ProductID</td>
                 <td>@item.Name</td>
-                <td>@item.Amount</td>
-                <td>@item.Value</td>
+                @if (hasAmount)
+                {
+                    <td>@item.Amount</td>
+                }
+                @if (hasValue)
+                {
+                    <td>@item.Value</td>
+                }
             </tr>
         }
     </tbody>

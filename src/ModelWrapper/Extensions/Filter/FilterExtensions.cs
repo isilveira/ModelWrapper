@@ -6,6 +6,12 @@ using System.Linq;
 
 namespace ModelWrapper.Extensions.Filter
 {
+    public class FilterProperty
+    {
+        public string Name { get; set; }
+        public object Value { get; set; }
+    }
+
     /// <summary>
     /// Class that extends filter functionality into ModelWrapper
     /// </summary>
@@ -17,11 +23,11 @@ namespace ModelWrapper.Extensions.Filter
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Dictionary<string, object> FilterProperties<TModel>(
+        internal static List<FilterProperty> FilterProperties<TModel>(
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
-            Dictionary<string, object> filterProperties = new Dictionary<string, object>();
+            var filterProperties = new List<FilterProperty>();
 
             foreach (var property in typeof(TModel).GetProperties().Where(x =>
                  !source.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
@@ -44,13 +50,37 @@ namespace ModelWrapper.Extensions.Filter
                     }
                     if (listObjects.Count > 0)
                     {
-                        filterProperties.Add(criteriaName, listObjects.Count > 1 ? listObjects : listObjects.FirstOrDefault());
+                        filterProperties.Add(new FilterProperty { Name = criteriaName, Value = listObjects.Count > 1 ? listObjects : listObjects.FirstOrDefault() });
                     }
                 }
             }
 
             return filterProperties;
         }
+
+        public static List<FilterProperty> Filters<TModel>(
+            this WrapResponse<TModel> source
+        ) where TModel : class
+        {
+            return source.OriginalRequest.FilterProperties();
+        }
+
+        public static object GetFilterProperty<TModel>(
+            this WrapResponse<TModel> source, string name
+        ) where TModel : class
+        {
+            var filterProperty = source.Filters().SingleOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
+
+            if (filterProperty == null)
+            {
+                return string.Empty;
+            }
+            else
+            {
+                return filterProperty.Value;
+            }
+        }
+
         /// <summary>
         /// Method that extends IQueryable<T> allowing to filter query with request properties
         /// </summary>
@@ -71,7 +101,11 @@ namespace ModelWrapper.Extensions.Filter
 
             request.RequestObject.SetValue(Constants.CONST_FILTER_PROPERTIES.ToCamelCase(), filterProperties);
 
-            var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression<TSource>(filterProperties);
+            var filterDictionary = new Dictionary<string, object>();
+
+            filterProperties.ForEach(filter => filterDictionary.Add(filter.Name, filter.Value));
+
+            var criteriaExp = LambdaHelper.GenerateFilterCriteriaExpression<TSource>(filterDictionary);
 
             return source.Where(criteriaExp);
         }

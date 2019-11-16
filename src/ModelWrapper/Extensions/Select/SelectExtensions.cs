@@ -40,14 +40,30 @@ namespace ModelWrapper.Extensions.Select
 
             return properties;
         }
-        /// <summary>
-        /// Method that extends IQueryable<T> allowing to select results with request properties
-        /// </summary>
-        /// <typeparam name="TSource">Generic type of the entity</typeparam>
-        /// <param name="source">Self IQueryable<T> instance</param>
-        /// <param name="request">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns IQueryable instance with with the configuration for select</returns>
-        public static IQueryable<object> Select<TSource>(
+
+        public static List<PropertyInfo> ResponseProperties<TModel>(
+            this WrapResponse<TModel> source
+        ) where TModel : class
+        {
+            return source.OriginalRequest.ResponseProperties();
+        }
+
+        public static bool HasResponseProperty<TModel>(
+            this WrapResponse<TModel> source,
+            string name
+        ) where TModel : class
+        {
+            return source.ResponseProperties().Any(property => property.Name.ToLower().Equals(name.ToLower()));
+        }
+
+    /// <summary>
+    /// Method that extends IQueryable<T> allowing to select results with request properties
+    /// </summary>
+    /// <typeparam name="TSource">Generic type of the entity</typeparam>
+    /// <param name="source">Self IQueryable<T> instance</param>
+    /// <param name="request">Self IWrapRequest<T> instance</param>
+    /// <returns>Returns IQueryable instance with with the configuration for select</returns>
+    public static IQueryable<object> Select<TSource>(
             this IQueryable<TSource> source,
             IWrapRequest<TSource> request
         ) where TSource : class

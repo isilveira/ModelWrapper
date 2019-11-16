@@ -25,7 +25,7 @@
         internal static string CONST_ORDENATION_ORDER_ASCENDING     => "ascending";
         internal static string CONST_ORDENATION_ORDER_DESCENDING    => "descending";
         internal static string CONST_QUERY                          => "query";
-        internal static string CONST_QUERY_PROPERTIES               => "queryProperties";
+        internal static string CONST_SEARCH_PROPERTIES               => "searchProperties";
         internal static string CONST_QUERY_STRICT                   => "queryStrict";
         internal static string CONST_QUERY_PHRASE                   => "queryPhrase";
     }
