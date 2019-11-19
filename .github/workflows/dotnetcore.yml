@@ -15,3 +15,12 @@ jobs:
         dotnet-version: 2.2.108
     - name: Build with dotnet
       run: dotnet build --configuration Release
+    - name: Setup NuGet.exe for use with actions
+      uses: NuGet/setup-nuget@v1.0.1
+      with:
+        # NuGet version to install. Can be `latest`, `preview`, a concrete version like `5.3.1`, or a semver range specifier like `5.x`.
+        nuget-version: default
+        # NuGet API Key to configure.
+        nuget-api-key: oy2ghcjoosl5nvw4nb3auautjqhpqgeuvpdiwdtbelwe7m
+        # Source to scope the NuGet API Key to.
+        #nuget-api-key-source: # optional
