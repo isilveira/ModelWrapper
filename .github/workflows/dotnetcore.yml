@@ -1,0 +1,26 @@
+name: .NET Core
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 2.2.108
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
+    - name: Setup NuGet.exe for use with actions
+      uses: NuGet/setup-nuget@v1.0.1
+      with:
+        # NuGet version to install. Can be `latest`, `preview`, a concrete version like `5.3.1`, or a semver range specifier like `5.x`.
+        nuget-version: latest
+        # NuGet API Key to configure.
+        #nuget-api-key: # optional
+        # Source to scope the NuGet API Key to.
+        nuget-api-key-source: NUGET_MODEL_WRAPPER
