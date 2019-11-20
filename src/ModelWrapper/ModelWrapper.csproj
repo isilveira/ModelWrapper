@@ -29,7 +29,7 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-    <None Include="..\..\docs\Logo\Logo_ModelWrapper.jpg">
+    <None Include="..\..\docs\logos\Logo_ModelWrapper.jpg">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
