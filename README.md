@@ -1,42 +1,21 @@
 # ModelWrapper - Current version 1.1.0
 
-Model wrapper - Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.
-____
+>***ModelWrapper*** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest\<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
+
+*Purpose*
+----
+> ModelWrapper came up to simplify the use of ViewModels by creating a base class that should be used in the project's ViewModels allowing ViewModel to have all of the entity's original attributes, as well as extend functionality to ViewModel.
+    
+*Functionalities*
+----
+> ***WrapRequest\<Model>*** - Base class for request ViewModels that extends all entity properties (TModel) and implements features like HTTP basic verbs.
+
+> ***WrapResponse\<Model>*** - Response ViewModels base class that extends all entity properties (TModel) that have been set to return and implements methods to get typed return data.
+
 *Usage*
+----
+>...
 
-Model class:
-```
-public class PatchCustomerCommand : Wrap<Customer>, IRequest<PatchCustomerCommandResponse>
-{
-    public PatchCustomerCommand()
-    {
-        KeyProperty(x => x.CustomerID);
-        SuppressProperty(x => x.RegistrationDate);
-        SuppressProperty(x => x.Orders);
-    }
-}
-```
-Methods:
-
-```
-int categoryID = 12;
-model.Project(x=>x.CategoryID = categoryID); //Sets the value into the internal object;
-```
-
-```
-int categoryID = model.Project(x=>x.CategoryID); //Gets the value of the internal object;
-```
-
-```
-Customer entity = model.Post(); //return a new instance of the entity.
-```
-```
-model.Patch(entity); //Update the supplied properties on entity.
-```
-```
-model.Put(entity); //Update all properties of the entity.
-```
-____
 *GitHub*
 ----
 > https://github.com/isilveira/ModelWrapper
