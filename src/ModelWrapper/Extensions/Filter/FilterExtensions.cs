@@ -42,7 +42,7 @@ namespace ModelWrapper.Extensions.Filter
                     ).Select(x => x.Value).ToList())
                     {
                         bool changed = false;
-                        object typedValue = CriteriaHelper.TryChangeType(value.ToString(), property.PropertyType, out changed);
+                        object typedValue = TypesHelper.TryChangeType(value.ToString(), property.PropertyType, out changed);
                         if (changed)
                         {
                             listObjects.Add(typedValue);

@@ -239,10 +239,22 @@ namespace ModelWrapper
                 {
                     propertyType = Nullable.GetUnderlyingType(propertyType);
                 }
-
+                
                 SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
-                var newPropertyValue = (propertyValue is JToken) ? JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType) : Convert.ChangeType(propertyValue, propertyType);
-                property.SetValue(this.Model, newPropertyValue);
+                if (propertyValue is JToken)
+                {
+                    var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
+                    property.SetValue(this.Model, newPropertyValue);
+                }
+                else
+                {
+                    bool changed = false;
+                    var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
+                    if (changed)
+                    {
+                        property.SetValue(this.Model, newPropertyValue);
+                    }
+                }
             }
         }
         /// <summary>
