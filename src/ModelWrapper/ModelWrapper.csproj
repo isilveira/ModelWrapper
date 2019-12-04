@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.0.0</Version>
+    <Version>2.0.1.0</Version>
     <RepositoryUrl>https://github.com/isilveira/ModelWrapper</RepositoryUrl>
     <PackageIcon>Logo_ModelWrapper.jpg</PackageIcon>
     <PackageProjectUrl>https://github.com/isilveira/ModelWrapper</PackageProjectUrl>
@@ -17,6 +17,8 @@
     <PackageReleaseNotes>Wrap&lt;TModel, int&gt; removed &amp; Project implemented</PackageReleaseNotes>
     <PackageLicenseFile>README.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

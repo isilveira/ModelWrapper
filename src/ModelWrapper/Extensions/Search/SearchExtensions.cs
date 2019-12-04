@@ -37,7 +37,7 @@ namespace ModelWrapper.Extensions.Search
             if (queryProperty != null)
             {
                 bool changed = false;
-                string typedValue = CriteriaHelper.TryChangeType<string>(queryProperty.Value.ToString(), out changed);
+                string typedValue = TypesHelper.TryChangeType<string>(queryProperty.Value.ToString(), out changed);
                 if (changed)
                 {
                     search.Query = typedValue;
@@ -61,7 +61,7 @@ namespace ModelWrapper.Extensions.Search
             if (queryStrictProperty != null)
             {
                 bool changed = false;
-                bool typedValue = CriteriaHelper.TryChangeType<bool>(queryStrictProperty.Value.ToString(), out changed);
+                bool typedValue = TypesHelper.TryChangeType<bool>(queryStrictProperty.Value.ToString(), out changed);
                 if (changed)
                 {
                     search.Strict = typedValue;
@@ -85,7 +85,7 @@ namespace ModelWrapper.Extensions.Search
             if (queryPhraseProperty != null)
             {
                 bool changed = false;
-                bool typedValue = CriteriaHelper.TryChangeType<bool>(queryPhraseProperty.Value.ToString(), out changed);
+                bool typedValue = TypesHelper.TryChangeType<bool>(queryPhraseProperty.Value.ToString(), out changed);
                 if (changed)
                 {
                     search.Phrase = typedValue;

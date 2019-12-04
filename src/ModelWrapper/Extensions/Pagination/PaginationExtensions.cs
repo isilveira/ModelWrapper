@@ -83,7 +83,7 @@ namespace ModelWrapper.Extensions.Pagination
             if (pageSizeProperty != null)
             {
                 bool changed = false;
-                int typedValue = CriteriaHelper.TryChangeType<int>(pageSizeProperty.Value.ToString(), out changed);
+                int typedValue = TypesHelper.TryChangeType<int>(pageSizeProperty.Value.ToString(), out changed);
                 if (changed)
                 {
                     typedValue = typedValue > source.MaximumReturnedCollectionSize() ? source.MaximumReturnedCollectionSize() : typedValue;
@@ -103,7 +103,7 @@ namespace ModelWrapper.Extensions.Pagination
             if (pageNumberProperty != null)
             {
                 bool changed = false;
-                int typedValue = CriteriaHelper.TryChangeType<int>(pageNumberProperty.Value.ToString(), out changed);
+                int typedValue = TypesHelper.TryChangeType<int>(pageNumberProperty.Value.ToString(), out changed);
                 if (changed)
                 {
                     pagination.Number = typedValue != default(int) ? typedValue : 1;
