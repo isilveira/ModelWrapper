@@ -46,7 +46,7 @@ namespace Store.Presentations.StoreAPI.Resources
         [HttpDelete("{categoryid}")]
         public async Task<ActionResult<DeleteCategoryCommandResponse>> Delete([FromRoute]DeleteCategoryCommand request)
         {
-            return await NewSend(request);
+            return await Send(request);
         }
     }
 }

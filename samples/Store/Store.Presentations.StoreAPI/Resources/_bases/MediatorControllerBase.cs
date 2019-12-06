@@ -16,7 +16,7 @@ namespace Store.Presentations.StoreAPI.Resources.Bases
         private IMediator _mediator;
         private IMediator Mediator => _mediator ?? (_mediator = HttpContext.RequestServices.GetService<IMediator>());
 
-        public async Task<ActionResult<TResponse>> NewSend<TEntity, TResponse>(RequestBase<TEntity,TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ActionResult<TResponse>> Send<TEntity, TResponse>(RequestBase<TEntity,TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
             where TEntity : class
             where TResponse : ResponseBase<TEntity>
         {
@@ -30,19 +30,9 @@ namespace Store.Presentations.StoreAPI.Resources.Bases
             }
         }
 
-        public async Task<ActionResult<TResponse>> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            try
-            {
-                return Ok(await Mediator.Send(request, cancellationToken));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        public async Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TResponse> SendRequest<TEntity, TResponse>(RequestBase<TEntity, TResponse> request, CancellationToken cancellationToken = default(CancellationToken))
+            where TEntity : class
+            where TResponse : ResponseBase<TEntity>
         {
             return await Mediator.Send(request, cancellationToken);
         }
