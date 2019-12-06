@@ -1,10 +1,9 @@
-﻿using MediatR;
-using ModelWrapper;
+﻿using Store.Core.Application.Bases;
 using Store.Core.Domain.Entities;
 
 namespace Store.Core.Application.Products.Commands.DeleteProduct
 {
-    public class DeleteProductCommand : WrapRequest<Product>, IRequest<DeleteProductCommandResponse>
+    public class DeleteProductCommand : RequestBase<Product, DeleteProductCommandResponse>
     {
         public DeleteProductCommand()
         {

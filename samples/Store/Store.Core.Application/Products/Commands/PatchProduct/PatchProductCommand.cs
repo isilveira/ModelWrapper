@@ -1,10 +1,9 @@
-﻿using MediatR;
-using ModelWrapper;
+﻿using Store.Core.Application.Bases;
 using Store.Core.Domain.Entities;
 
 namespace Store.Core.Application.Products.Commands.PatchProduct
 {
-    public class PatchProductCommand : WrapRequest<Product>, IRequest<PatchProductCommandResponse>
+    public class PatchProductCommand : RequestBase<Product, PatchProductCommandResponse>
     {
         public PatchProductCommand()
         {

@@ -1,10 +1,9 @@
-﻿using MediatR;
-using ModelWrapper;
+﻿using Store.Core.Application.Bases;
 using Store.Core.Domain.Entities;
 
 namespace Store.Core.Application.Products.Commands.PostProduct
 {
-    public class PostProductCommand : WrapRequest<Product>, IRequest<PostProductCommandResponse>
+    public class PostProductCommand : RequestBase<Product, PostProductCommandResponse>
     {
         public PostProductCommand()
         {

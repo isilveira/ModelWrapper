@@ -7,19 +7,50 @@ using System.Linq;
 
 namespace ModelWrapper
 {
-    /// <summary>
-    /// Class that wrap the response
-    /// </summary>
-    /// <typeparam name="TModel">Model type</typeparam>
-    public class WrapResponse<TModel>: IWrapResponse<TModel>
-        where TModel : class
+    public class WrapResponse : IWrapResponse
     {
-        internal IWrapRequest<TModel> OriginalRequest{ get; set; }
+        public long StatusCode { get; set; }
+        public long InternalCode { get; set; }
         public long ResultCount { get; set; }
         public string Message { get; set; }
         public object Request { get; set; }
         public object Data { get; set; }
-
+        /// <summary>
+        /// Class empty constructor
+        /// </summary>
+        public WrapResponse() { }
+        /// <summary>
+        /// Class constructor
+        /// </summary>
+        /// <param name="request">WrapRequest object</param>
+        /// <param name="data">Response data</param>
+        /// <param name="message">Response message</param>
+        /// <param name="resultCount">Count of data returned</param>
+        public WrapResponse(
+            long statusCode,
+            long internalCode,
+            object request,
+            object data,
+            string message = "Successful operation!",
+            long? resultCount = null
+        )
+        {
+            StatusCode = statusCode;
+            InternalCode = internalCode;
+            Message = message;
+            ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : 1;
+            Request = request;
+            Data = data;
+        }
+    }
+    /// <summary>
+    /// Class that wrap the response
+    /// </summary>
+    /// <typeparam name="TModel">Model type</typeparam>
+    public class WrapResponse<TModel> : WrapResponse, IWrapResponse<TModel>
+        where TModel : class
+    {
+        internal IWrapRequest<TModel> OriginalRequest { get; set; }
         /// <summary>
         /// Class empty constructor
         /// </summary>
@@ -36,48 +67,9 @@ namespace ModelWrapper
             object data,
             string message = "Successful operation!",
             long? resultCount = null
-        )
+        ) : base(200, 200, request.RequestObject, data, message, resultCount)
         {
             OriginalRequest = request;
-            Message = message;
-            ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : 1;
-            Request = request.RequestObject;
-            Data = data;
-        }
-
-        public TModel GetModel()
-        {
-            if (Data is ICollection<object>)
-            {
-                throw new Exception("Data is a collection!");
-            }
-
-            var model = Activator.CreateInstance<TModel>();
-
-            ReflectionHelper.Copy(Data, model);
-
-            return model;
-        }
-
-        public IList<TModel> GetModels()
-        {
-            if (!(Data is ICollection<object>))
-            {
-                throw new Exception("Data is not a collection!");
-            }
-
-            var models = new List<TModel>();
-
-            foreach(var data in ((ICollection<object>)Data))
-            {
-                var model = Activator.CreateInstance<TModel>();
-
-                ReflectionHelper.Copy(data, model);
-
-                models.Add(model);
-            }
-
-            return models;
         }
     }
 }
