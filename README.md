@@ -38,5 +38,9 @@
 ----
 > ```> paket add ModelWrapper --version 2.0.2```
 
+## License
 
+All files are released with the MIT license.
+  
+  [nuget-img]: https://img.shields.io/nuget/v/ModelWrapper.svg
   [nuget]: https://www.nuget.org/packages/ModelWrapper
