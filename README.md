@@ -26,15 +26,15 @@
 
 *Package Manager*
 ----
-> ```PM> Install-Package ModelWrapper -Version 2.0.2```
+> ```PM> Install-Package ModelWrapper -Version 2.1.0```
 
 *.NET CLI*
 ----
-> ```> dotnet add package ModelWrapper --version 2.0.2```
+> ```> dotnet add package ModelWrapper --version 2.1.0```
 
 *Packet*
 ----
-> ```> paket add ModelWrapper --version 2.0.2```
+> ```> paket add ModelWrapper --version 2.1.0```
 
 ## License
 

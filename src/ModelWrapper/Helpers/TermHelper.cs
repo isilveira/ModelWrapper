@@ -23,7 +23,7 @@ namespace ModelWrapper.Helpers
 
             query = ConfigurationService.GetConfiguration().ValidateSupressCharacters(query);
 
-            IList<string> tokens = queryPhrase ? new List<string> { query } : query.Split(" ").ToList();
+            IList<string> tokens = queryPhrase ? new List<string> { query } : query.Split(' ').ToList();
 
             tokens = ConfigurationService.GetConfiguration().ValidateTerms(tokens);
 

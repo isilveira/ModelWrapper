@@ -114,7 +114,7 @@ namespace ModelWrapper.Helpers
                 property.SetGetMethod(propertyGet);
                 property.SetSetMethod(propertySet);
             }
-            return dynamicAnonymousType.CreateType();
+            return dynamicAnonymousType.CreateTypeInfo().AsType();
         }
 
         internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)

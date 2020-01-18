@@ -1,40 +1,48 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <Version>2.0.2.0</Version>
-    <RepositoryUrl>https://github.com/isilveira/ModelWrapper</RepositoryUrl>
-    <PackageIcon>Logo_ModelWrapper.jpg</PackageIcon>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/isilveira/ModelWrapper</PackageProjectUrl>
-    <Description>Tool wich enrich the experience of data models manipulation in RestFul APIs for C# WebApi projects.</Description>
-    <Authors>https://github.com/isilveira</Authors>
-    <Company>https://github.com/BAYSOFT-001</Company>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>2.1.0</Version>
+    <Description>ModelWrapper is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest&lt;TModel&gt;, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality</Description>
+    <Copyright>https://github.com/isilveira</Copyright>
+    <PackageIcon>Logo_ModelWrapper.jpg</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://github.com/isilveira</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>Model, Wrapper, VM, CQRS, POST, PUT, PATCH, GET, EF, QueryString to query</PackageTags>
+    <PackageReleaseNotes>Changing the project to .NET Sandard</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
-    <Copyright>Copyright (c) Baysoft LTDA. All rights reserved.</Copyright>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageTags>ModelWrapper, Model, Wrap, Wrapper, Patch, Post, Put, WebAPI, Rest, RESTFul</PackageTags>
-    <PackageReleaseNotes>Wrap&lt;TModel, int&gt; removed &amp; Project implemented</PackageReleaseNotes>
-    <PackageLicenseFile>README.md</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <FileVersion>2.0.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-    <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\README.md">
+    <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\docs\logos\Logo_ModelWrapper.jpg" Link="Logo_ModelWrapper.jpg">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
     </None>
     <None Include="..\..\docs\logos\Logo_ModelWrapper.jpg">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="..\..\README.md" Link="README.md">
+      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
   </ItemGroup>
 
 </Project>

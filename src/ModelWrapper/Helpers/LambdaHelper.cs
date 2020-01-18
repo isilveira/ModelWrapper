@@ -27,7 +27,7 @@ namespace ModelWrapper.Helpers
 
             foreach (var filterProperty in filters)
             {
-                var propertyParts = filterProperty.Key.Split("_");
+                var propertyParts = filterProperty.Key.Split('_');
                 var property = typeof(TSource).GetProperties().Where(x=>x.Name.ToLower().Equals(propertyParts[0].ToLower())).SingleOrDefault();
 
                 Expression memberExp = Expression.MakeMemberAccess(xExp, property);
