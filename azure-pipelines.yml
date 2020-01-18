@@ -23,7 +23,7 @@ steps:
   inputs:
     command: 'pack'
     arguments: '--configuration $(buildConfiguration)'
-    packagesToPack: 'Source/ModelWrapper/ModelWrapper.csproj'
+    packagesToPack: 'src/ModelWrapper/ModelWrapper.csproj'
     nobuild: true
     versioningScheme: 'off'
 

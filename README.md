@@ -1,4 +1,4 @@
-# ModelWrapper - Current version 2.0.2
+# ModelWrapper ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
 
 >***ModelWrapper*** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest\<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
 
@@ -35,3 +35,10 @@
 *Packet*
 ----
 > ```> paket add ModelWrapper --version 2.0.2```
+
+## License
+
+All files are released with the MIT license.
+  
+  [nuget-img]: https://img.shields.io/nuget/v/ModelWrapper.svg
+  [nuget]: https://www.nuget.org/packages/ModelWrapper
