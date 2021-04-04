@@ -1,28 +1,26 @@
-﻿using MediatR;
+﻿using Store.Middleware.AddServices;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ModelWrapper.Middleware;
-using Store.Core.Application.Interfaces.Infrastructures.Data;
-using Store.Core.Infrastructures.Data;
-using Store.Core.Infrastructures.Data.Seeds;
 using System;
+using System.Reflection;
 
 namespace Store.Middleware
 {
     public static class Configurations
     {
-        public static IServiceCollection AddContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddMiddleware(this IServiceCollection services, IConfiguration configuration, Assembly presentationAssembly)
         {
-            services.AddDbContext<IStoreContext, StoreContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddLocalization();
 
-            return services;
-        }
+            services.AddDbContexts(configuration, presentationAssembly);
+            services.AddSpecifications();
+            services.AddEntityValidations();
+            services.AddDomainValidations();
+            services.AddDomainServices();
 
-        public static IServiceCollection AddServices(this IServiceCollection services)
-        {
             var assembly = AppDomain.CurrentDomain.Load("Store.Core.Application");
 
             services.AddMediatR(assembly);
@@ -34,19 +32,24 @@ namespace Store.Middleware
                 .AddQueryTermsMinimumSize(3)
                 .AddSuppressedTerms(new string[] { "the" });
 
+            // YOUR CODE GOES HERE
             return services;
         }
 
-        public static IApplicationBuilder Configure(this IApplicationBuilder app, IConfiguration configuration)
+        public static IApplicationBuilder UseMiddleware(this IApplicationBuilder app)
         {
-            using(var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using(var context = serviceScope.ServiceProvider.GetService<IStoreContext>())
-                {
-                    context.SeedContext(configuration).Wait();
-                }
-            }
+            var supportedCultures = new string[] { "en-US", "pt-BR" };
 
+            var localizationOptions = new RequestLocalizationOptions()
+                .SetDefaultCulture(supportedCultures[0])
+                .AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures);
+            
+            app.UseRequestLocalization(localizationOptions);
+
+            //app.UseAuthentication();
+            //app.UseAuthorization();
+            // YOUR CODE GOES HERE
             return app;
         }
     }
