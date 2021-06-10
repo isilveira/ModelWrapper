@@ -246,7 +246,7 @@ namespace ModelWrapper
                     var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
                     property.SetValue(this.Model, newPropertyValue);
                 }
-                else
+                else if (propertyValue != null)
                 {
                     bool changed = false;
                     var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
@@ -254,6 +254,10 @@ namespace ModelWrapper
                     {
                         property.SetValue(this.Model, newPropertyValue);
                     }
+                }
+                else
+                {
+                    property.SetValue(this.Model, propertyValue);
                 }
             }
         }
