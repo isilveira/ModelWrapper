@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelWrapper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -109,17 +110,17 @@ namespace ModelWrapper.Helpers
         /// Method that generates a lambda expression for select return
         /// </summary>
         /// <typeparam name="TSource">Expression type attribute</typeparam>
-        /// <param name="selectProperties">List of properties that must be returned</param>
+        /// <param name="selectedProperties">List of properties that must be returned</param>
         /// <returns>Lambda expression for the select</returns>
         internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
-            IList<PropertyInfo> selectProperties
+            IList<SelectedProperty> selectedProperties
         ) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var newType = ReflectionHelper.CreateNewType(selectProperties.ToList());
+            var newType = ReflectionHelper.CreateNewType(selectedProperties.ToList());
 
-            var binding = selectProperties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.Name), Expression.Property(source, p.Name))).ToList();
+            var binding = selectedProperties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.PropertyName), Expression.Property(source, p.PropertyName))).ToList();
             var body = Expression.MemberInit(Expression.New(newType), binding);
 
             return Expression.Lambda<Func<TSource, object>>(body, source);
