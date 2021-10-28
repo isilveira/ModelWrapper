@@ -213,9 +213,10 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
+            var expressionPropertyName = LambdaHelper.GetPropertyName(expression);
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(expressionPropertyName)).SingleOrDefault().Name.ToCamelCase()
             );
         }
         #endregion

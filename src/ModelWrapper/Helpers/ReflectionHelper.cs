@@ -55,14 +55,24 @@ namespace ModelWrapper.Helpers
             List<Type> parameterTypes = null
         )
         {
-            return type.GetMethods()
-                .SingleOrDefault(method =>
-                    method.Name == methodName
-                    && method.GetParameters().Count() == parameters
-                    && method.GetGenericArguments().Count() == genericArguments
-                    && (parameterTypes == null
-                        || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
-                );
+            var result1 = type.GetMethods();
+            var result2 = result1.Where(method => method.Name == methodName);
+            var result3 = result2.Where(method => method.GetParameters().Count() == parameters);
+            var result4 = result3.Where(method => method.GetGenericArguments().Count() == genericArguments);
+            var result5 = result4.Where(method => (parameterTypes == null || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x))));
+
+            var teste = result4.Where(method => (parameterTypes == null || parameterTypes.All(x => method.GetParameters().Any(y => y.ParameterType.GetGenericArguments().Count() == x.GetGenericArguments().Count()))));
+
+            return teste.SingleOrDefault();
+
+            //return type.GetMethods()
+            //    .SingleOrDefault(method =>
+            //        method.Name == methodName
+            //        && method.GetParameters().Count() == parameters
+            //        && method.GetGenericArguments().Count() == genericArguments
+            //        && (parameterTypes == null
+            //            || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
+            //    );
         }
         /// <summary>
         /// Method that creates a runtime type
@@ -118,15 +128,67 @@ namespace ModelWrapper.Helpers
             return dynamicAnonymousType.CreateTypeInfo().AsType();
         }
 
+        internal static ModuleBuilder CreateModule()
+        {
+            return AssemblyBuilder
+                .DefineDynamicAssembly(new AssemblyName("ModelWrapper"), AssemblyBuilderAccess.Run)
+                .DefineDynamicModule("DynamicTypes");
+        }
+
+        internal static Type CreateNewType(SelectedModel selectedModel,
+            ModuleBuilder dynamicModule = null)
+        {
+            if(dynamicModule == null)
+            {
+                dynamicModule = CreateModule();
+            }
+
+            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("SelectWrap" + selectedModel.OriginalType.Name, TypeAttributes.Public);
+            
+            foreach (var p in selectedModel.Properties)
+            {
+                Type type = p.IsClass ? p.IsCollection ? typeof(IEnumerable<>).MakeGenericType(CreateNewType(p, dynamicModule)) : CreateNewType(p, dynamicModule) : p.OriginalType;
+
+                var field = dynamicAnonymousType.DefineField("_" + p.Name, type, FieldAttributes.Private);
+                var property = dynamicAnonymousType.DefineProperty(p.Name, PropertyAttributes.HasDefault, type, null);
+
+                MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+
+                // Define the "get" accessor method for CustomerName.
+                MethodBuilder propertyGet = dynamicAnonymousType.DefineMethod("get_" + p.Name, getSetAttr, type, Type.EmptyTypes);
+
+                ILGenerator custNameGetIL = propertyGet.GetILGenerator();
+
+                custNameGetIL.Emit(OpCodes.Ldarg_0);
+                custNameGetIL.Emit(OpCodes.Ldfld, field);
+                custNameGetIL.Emit(OpCodes.Ret);
+
+                // Define the "set" accessor method for CustomerName.
+                MethodBuilder propertySet = dynamicAnonymousType.DefineMethod("set_" + p.Name, getSetAttr, null, new Type[] { type });
+
+                ILGenerator custNameSetIL = propertySet.GetILGenerator();
+
+                custNameSetIL.Emit(OpCodes.Ldarg_0);
+                custNameSetIL.Emit(OpCodes.Ldarg_1);
+                custNameSetIL.Emit(OpCodes.Stfld, field);
+                custNameSetIL.Emit(OpCodes.Ret);
+
+                // Last, we must map the two methods created above to our PropertyBuilder to 
+                // their corresponding behaviors, "get" and "set" respectively. 
+                property.SetGetMethod(propertyGet);
+                property.SetSetMethod(propertySet);
+            }
+            return dynamicAnonymousType.CreateType();
+        }
         internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)
         {
-            foreach(var property in from.GetType().GetProperties())
+            foreach (var property in from.GetType().GetProperties())
             {
                 var toProperty = to.GetType().GetProperty(property.Name);
 
                 if (toProperty != null)
                 {
-                    toProperty.SetValue(to, property.GetValue(from)); 
+                    toProperty.SetValue(to, property.GetValue(from));
                 }
             }
 

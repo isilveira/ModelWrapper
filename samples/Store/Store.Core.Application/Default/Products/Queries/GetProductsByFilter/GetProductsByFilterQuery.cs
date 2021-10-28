@@ -12,6 +12,7 @@ namespace Store.Core.Application.Default.Products.Queries.GetProductsByFilter
             ConfigSuppressedProperties(x => x.Images);
             ConfigSuppressedProperties(x => x.OrderedProducts);
 
+            //ConfigSuppressedResponseProperties(x => x.Category);
             ConfigSuppressedResponseProperties(x => x.Images);
             ConfigSuppressedResponseProperties(x => x.OrderedProducts);
         }

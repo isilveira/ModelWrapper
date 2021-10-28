@@ -19,7 +19,7 @@ namespace ModelWrapper.Helpers
         /// <param name="filters">Dictionary of filters</param>
         /// <returns>Lambda expression for the filters</returns>
         internal static Expression<Func<TSource, bool>> GenerateFilterCriteriaExpression<TSource>(
-            Dictionary<string,object> filters
+            Dictionary<string, object> filters
         ) where TSource : class
         {
             List<Expression> expressions = new List<Expression>();
@@ -29,7 +29,7 @@ namespace ModelWrapper.Helpers
             foreach (var filterProperty in filters)
             {
                 var propertyParts = filterProperty.Key.Split('_');
-                var property = typeof(TSource).GetProperties().Where(x=>x.Name.ToLower().Equals(propertyParts[0].ToLower())).SingleOrDefault();
+                var property = typeof(TSource).GetProperties().Where(x => x.Name.ToLower().Equals(propertyParts[0].ToLower())).SingleOrDefault();
 
                 Expression memberExp = Expression.MakeMemberAccess(xExp, property);
 
@@ -67,7 +67,7 @@ namespace ModelWrapper.Helpers
 
             foreach (var propertyInfo in typeof(TSource).GetProperties().Where(x =>
                  searchableProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
-                 && !CriteriaHelper.GetNonQueryableTypes().Any(type=> type == x.PropertyType)
+                 && !CriteriaHelper.GetNonQueryableTypes().Any(type => type == x.PropertyType)
             ).ToList())
             {
                 Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
@@ -110,21 +110,62 @@ namespace ModelWrapper.Helpers
         /// Method that generates a lambda expression for select return
         /// </summary>
         /// <typeparam name="TSource">Expression type attribute</typeparam>
-        /// <param name="selectedProperties">List of properties that must be returned</param>
+        /// <param name="selectedModel">Object that represents a format to the returned object</param>
         /// <returns>Lambda expression for the select</returns>
         internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
-            IList<SelectedProperty> selectedProperties
+            SelectedModel selectedModel
         ) where TSource : class
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var newType = ReflectionHelper.CreateNewType(selectedProperties.ToList());
+            var newType = ReflectionHelper.CreateNewType(selectedModel);
 
-            var binding = selectedProperties.ToList().Select(p => Expression.Bind(newType.GetProperty(p.PropertyName), Expression.Property(source, p.PropertyName))).ToList();
-            var body = Expression.MemberInit(Expression.New(newType), binding);
+            MemberInitExpression body = GenerateNewBody(selectedModel, source, newType);
 
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
+
+        private static MemberInitExpression GenerateNewBody(SelectedModel selectedModel, Expression source, Type newType, int level = 0)
+        {
+            var binding = new List<MemberAssignment>();
+            foreach (var property in selectedModel.Properties)
+            {
+                if (!property.IsClass)
+                {
+                    var memberAssignment = Expression.Bind(newType.GetProperty(property.Name), Expression.Property(source, property.Name));
+
+                    binding.Add(memberAssignment);
+                }
+                else
+                {
+                    if (property.IsCollection)
+                    {
+                        var newPropertyInfo = newType.GetProperty(property.RequestedName);
+                        var collectionArgumentType = newPropertyInfo.PropertyType.GetGenericArguments()[0];
+                        var newSource = Expression.Parameter(property.OriginalType, "x" + level.ToString());
+                        var newBody = GenerateNewBody(property, newSource, collectionArgumentType, level++);
+                        var selectOriginProperty = Expression.Property(source, property.Name);
+
+                        var funcType = typeof(Func<,>).MakeGenericType(property.OriginalType, collectionArgumentType);
+                        var selectLambdaExpression = Expression.Lambda(funcType, newBody, newSource);
+                        var memberAssignment = Expression.Call(typeof(Enumerable), "Select", new Type[] { property.OriginalType, collectionArgumentType }, selectOriginProperty, selectLambdaExpression);
+                        var memberAssignment2 = Expression.Bind(newPropertyInfo, memberAssignment);
+                        binding.Add(memberAssignment2);
+                    }
+                    else
+                    {
+                        var newPropertyInfo = newType.GetProperty(property.RequestedName);
+                        var memberAssignment = Expression.Bind(newPropertyInfo, GenerateNewBody(property, Expression.Property(source, property.Name), newPropertyInfo.PropertyType, level++));
+
+                        binding.Add(memberAssignment);
+                    }
+                }
+            }
+            var newExp = Expression.New(newType);
+            var body = Expression.MemberInit(newExp, binding);
+            return body;
+        }
+
         /// <summary>
         /// Method that gets a property name for a given lambda expression
         /// </summary>
