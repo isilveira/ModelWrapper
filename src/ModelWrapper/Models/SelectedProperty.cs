@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ModelWrapper.Models
 {
-    internal class SelectedProperty
+    internal class SelectedProperty : ICloneable
     {
         public string RequestedPropertyName { get; set; }
         public string PropertyName { get; set; }
@@ -14,6 +14,15 @@ namespace ModelWrapper.Models
         public bool IsFromCollectionObject { get; set; }
         public Type PropertyType { get; set; }
         public PropertyInfo PropertyInfo { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+        public SelectedProperty TypedClone()
+        {
+            return (SelectedProperty)this.Clone();
+        }
     }
 
     internal class SelectedModel

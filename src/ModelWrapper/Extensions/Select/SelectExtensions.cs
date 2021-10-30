@@ -84,7 +84,7 @@ namespace ModelWrapper.Extensions.Select
             this IWrapRequest<TModel> source
         ) where TModel : class
         {
-            var responseProperties = source.ResponseProperties();
+            var responseProperties = source.ResponseProperties().Select(property => property.TypedClone()).ToList();
 
             var selectedModel = new SelectedModel
             {
@@ -101,7 +101,7 @@ namespace ModelWrapper.Extensions.Select
             var models = new List<SelectedModel>();
 
             responseProperties
-                .Where(x => !x.IsFromInnerObject)
+                .Where(x => !x.RequestedPropertyName.Contains("."))
                 .ToList()
                 .ForEach(responseProperty =>
                     models.Add(new SelectedModel
@@ -113,7 +113,13 @@ namespace ModelWrapper.Extensions.Select
                     }));
 
             responseProperties
-                .Where(x => x.IsFromInnerObject)
+                .Where(x => x.RequestedPropertyName.Contains("."))
+                .Select(property =>
+                {
+                    property.RootPropertyName = property.RequestedPropertyName.Split(".")[0];
+
+                    return property;
+                })
                 .ToList()
                 .GroupBy(x => x.RootPropertyName)
                 .ToList()
@@ -121,17 +127,24 @@ namespace ModelWrapper.Extensions.Select
                 {
                     var property = x.FirstOrDefault();
                     var originalRootPropertyInfo = originalRootType.GetProperty(property.RootPropertyName);
+                    var originalPropertyType = property.IsFromCollectionObject ? originalRootPropertyInfo.PropertyType.GetGenericArguments()[0] : originalRootPropertyInfo.PropertyType;
                     models.Add(new SelectedModel
                     {
                         Name = property.RootPropertyName,
                         RequestedName = property.RootPropertyName,
-                        OriginalType = property.IsFromCollectionObject ? originalRootPropertyInfo.PropertyType.GetGenericArguments()[0] : originalRootPropertyInfo.PropertyType,
+                        OriginalType = originalPropertyType,
                         OriginalPropertyInfo = originalRootPropertyInfo,
                         IsCollection = property.IsFromCollectionObject,
-                        Properties = x
-                            .ToList()
-                            .Select(y => new SelectedModel { Name = y.PropertyName, RequestedName = y.RequestedPropertyName, OriginalType = y.PropertyType, OriginalPropertyInfo = y.PropertyInfo })
-                            .ToList()
+                        Properties = GetSelectedModelProperties(originalPropertyType, x.ToList().Select(item =>
+                        {
+                            item.RootPropertyName = property.RootPropertyName;
+                            item.RequestedPropertyName = item.RequestedPropertyName.Replace($"{property.RootPropertyName}.", "");
+                            return item;
+                        }).ToList())
+                        //Properties = x
+                        //    .ToList()
+                        //    .Select(y => new SelectedModel { Name = y.PropertyName, RequestedName = y.RequestedPropertyName, OriginalType = y.PropertyType, OriginalPropertyInfo = y.PropertyInfo })
+                        //    .ToList()
                     });
                 });
 
