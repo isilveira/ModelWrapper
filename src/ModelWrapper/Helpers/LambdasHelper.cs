@@ -10,7 +10,7 @@ namespace ModelWrapper.Helpers
     /// <summary>
     /// Class that implements helpful methods for lambda expressions
     /// </summary>
-    internal static class LambdaHelper
+    internal static class LambdasHelper
     {
         /// <summary>
         /// Method that generates a lambda expression for filter criteria
@@ -35,15 +35,15 @@ namespace ModelWrapper.Helpers
 
                 if (propertyParts.Count() == 1)
                 {
-                    expressions.Add(ExpressionHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property));
+                    expressions.Add(ExpressionsHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property));
                 }
                 else
                 {
-                    expressions.Add(ExpressionHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property, propertyParts[1]));
+                    expressions.Add(ExpressionsHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property, propertyParts[1]));
                 }
             }
 
-            Expression orExp = ExpressionHelper.GenerateAndExpressions(expressions);
+            Expression orExp = ExpressionsHelper.GenerateAndExpressions(expressions);
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
@@ -67,7 +67,7 @@ namespace ModelWrapper.Helpers
 
             foreach (var propertyInfo in typeof(TSource).GetProperties().Where(x =>
                  searchableProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
-                 && !CriteriaHelper.GetNonQueryableTypes().Any(type => type == x.PropertyType)
+                 && !CriteriasHelper.GetNonQueryableTypes().Any(type => type == x.PropertyType)
             ).ToList())
             {
                 Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
@@ -84,7 +84,7 @@ namespace ModelWrapper.Helpers
                         memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
                         memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
                     }
-                    memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
+                    memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
                 }
                 else
                 {
@@ -92,17 +92,17 @@ namespace ModelWrapper.Helpers
                     memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
                 }
 
-                memberExp = Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
+                memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
                 List<Expression> andExpressions = new List<Expression>();
 
                 foreach (var token in terms)
                 {
-                    andExpressions.Add(ExpressionHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
+                    andExpressions.Add(ExpressionsHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
                 }
-                orExpressions.Add(queryStrict ? ExpressionHelper.GenerateAndExpressions(andExpressions) : ExpressionHelper.GenerateOrExpression(andExpressions));
+                orExpressions.Add(queryStrict ? ExpressionsHelper.GenerateAndExpressions(andExpressions) : ExpressionsHelper.GenerateOrExpression(andExpressions));
             }
 
-            Expression orExp = ExpressionHelper.GenerateOrExpression(orExpressions);
+            Expression orExp = ExpressionsHelper.GenerateOrExpression(orExpressions);
 
             return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
         }
@@ -118,7 +118,7 @@ namespace ModelWrapper.Helpers
         {
             var source = Expression.Parameter(typeof(TSource), "x");
 
-            var newType = ReflectionHelper.CreateNewType(selectedModel);
+            var newType = ReflectionsHelper.CreateNewType(selectedModel);
 
             MemberInitExpression body = GenerateNewBody(selectedModel, source, newType);
 
@@ -130,37 +130,35 @@ namespace ModelWrapper.Helpers
             var binding = new List<MemberAssignment>();
             foreach (var property in selectedModel.Properties)
             {
-                if (!property.IsClass)
+                if (TypesHelper.TypeIsComplex(property.OriginalType) && TypesHelper.TypeIsCollection(property.OriginalType))
                 {
-                    var memberAssignment = Expression.Bind(newType.GetProperty(property.Name), Expression.Property(source, property.Name));
+                    var newPropertyInfo = newType.GetProperty(property.RequestedName);
+                    var collectionArgumentType = newPropertyInfo.PropertyType.GetGenericArguments()[0];
+                    var newSource = Expression.Parameter(TypesHelper.GetEntityTypeFromComplex(property.OriginalType), "x" + level.ToString());
+                    var newBody = GenerateNewBody(property, newSource, collectionArgumentType, level++);
+                    var selectOriginProperty = Expression.Property(source, property.Name);
+
+                    var funcType = typeof(Func<,>).MakeGenericType(TypesHelper.GetEntityTypeFromComplex(property.OriginalType), collectionArgumentType);
+                    var selectLambdaExpression = Expression.Lambda(funcType, newBody, newSource);
+                    var memberAssignment = Expression.Call(typeof(Enumerable), "Select", new Type[] { TypesHelper.GetEntityTypeFromComplex(property.OriginalType), collectionArgumentType }, selectOriginProperty, selectLambdaExpression);
+                    var memberAssignment2 = Expression.Bind(newPropertyInfo, memberAssignment);
+                    binding.Add(memberAssignment2);
+                }
+                else if (TypesHelper.TypeIsComplex(property.OriginalType))
+                {
+                    var newPropertyInfo = newType.GetProperty(property.RequestedName);
+                    var memberAssignment = Expression.Bind(newPropertyInfo, GenerateNewBody(property, Expression.Property(source, property.Name), newPropertyInfo.PropertyType, level++));
 
                     binding.Add(memberAssignment);
                 }
                 else
                 {
-                    if (property.IsCollection)
-                    {
-                        var newPropertyInfo = newType.GetProperty(property.RequestedName);
-                        var collectionArgumentType = newPropertyInfo.PropertyType.GetGenericArguments()[0];
-                        var newSource = Expression.Parameter(property.OriginalType, "x" + level.ToString());
-                        var newBody = GenerateNewBody(property, newSource, collectionArgumentType, level++);
-                        var selectOriginProperty = Expression.Property(source, property.Name);
+                    var memberAssignment = Expression.Bind(newType.GetProperty(property.Name), Expression.Property(source, property.Name));
 
-                        var funcType = typeof(Func<,>).MakeGenericType(property.OriginalType, collectionArgumentType);
-                        var selectLambdaExpression = Expression.Lambda(funcType, newBody, newSource);
-                        var memberAssignment = Expression.Call(typeof(Enumerable), "Select", new Type[] { property.OriginalType, collectionArgumentType }, selectOriginProperty, selectLambdaExpression);
-                        var memberAssignment2 = Expression.Bind(newPropertyInfo, memberAssignment);
-                        binding.Add(memberAssignment2);
-                    }
-                    else
-                    {
-                        var newPropertyInfo = newType.GetProperty(property.RequestedName);
-                        var memberAssignment = Expression.Bind(newPropertyInfo, GenerateNewBody(property, Expression.Property(source, property.Name), newPropertyInfo.PropertyType, level++));
-
-                        binding.Add(memberAssignment);
-                    }
+                    binding.Add(memberAssignment);
                 }
             }
+
             var newExp = Expression.New(newType);
             var body = Expression.MemberInit(newExp, binding);
             return body;

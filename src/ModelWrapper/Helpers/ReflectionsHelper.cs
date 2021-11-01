@@ -11,7 +11,7 @@ namespace ModelWrapper.Helpers
     /// <summary>
     /// Class that implements helpful methods for reflection handling
     /// </summary>
-    internal static class ReflectionHelper
+    internal static class ReflectionsHelper
     {
         /// <summary>
         /// Method that filter properties from list
@@ -55,24 +55,20 @@ namespace ModelWrapper.Helpers
             List<Type> parameterTypes = null
         )
         {
-            var result1 = type.GetMethods();
-            var result2 = result1.Where(method => method.Name == methodName);
-            var result3 = result2.Where(method => method.GetParameters().Count() == parameters);
-            var result4 = result3.Where(method => method.GetGenericArguments().Count() == genericArguments);
-            var result5 = result4.Where(method => (parameterTypes == null || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x))));
-
-            var teste = result4.Where(method => (parameterTypes == null || parameterTypes.All(x => method.GetParameters().Any(y => y.ParameterType.GetGenericArguments().Count() == x.GetGenericArguments().Count()))));
-
-            return teste.SingleOrDefault();
-
-            //return type.GetMethods()
-            //    .SingleOrDefault(method =>
-            //        method.Name == methodName
-            //        && method.GetParameters().Count() == parameters
-            //        && method.GetGenericArguments().Count() == genericArguments
-            //        && (parameterTypes == null
-            //            || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
-            //    );
+            return type.GetMethods()
+                .Where(method => 
+                    method.Name == methodName
+                    && method.GetParameters().Count() == parameters
+                    && method.GetGenericArguments().Count() == genericArguments
+                    && (parameterTypes == null 
+                        || parameterTypes.All(x => 
+                            method.GetParameters().Any(y => 
+                                y.ParameterType.GetGenericArguments().Count() == x.GetGenericArguments().Count()
+                            )
+                        )
+                    )
+                )
+                .SingleOrDefault();
         }
         /// <summary>
         /// Method that creates a runtime type
@@ -143,11 +139,11 @@ namespace ModelWrapper.Helpers
                 dynamicModule = CreateModule();
             }
 
-            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("SelectWrap" + selectedModel.OriginalType.Name, TypeAttributes.Public);
+            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("SelectWrap" + TypesHelper.GetEntityTypeFromComplex(selectedModel.OriginalType).Name, TypeAttributes.Public);
             
             foreach (var p in selectedModel.Properties)
             {
-                Type type = p.IsClass ? p.IsCollection ? typeof(IEnumerable<>).MakeGenericType(CreateNewType(p, dynamicModule)) : CreateNewType(p, dynamicModule) : p.OriginalType;
+                Type type = TypesHelper.TypeIsComplex(p.OriginalType) ?  TypesHelper.TypeIsCollection(p.OriginalType) ? typeof(IEnumerable<>).MakeGenericType(CreateNewType(p, dynamicModule)) : CreateNewType(p, dynamicModule) : p.OriginalType;
 
                 var field = dynamicAnonymousType.DefineField("_" + p.Name, type, FieldAttributes.Private);
                 var property = dynamicAnonymousType.DefineProperty(p.Name, PropertyAttributes.HasDefault, type, null);

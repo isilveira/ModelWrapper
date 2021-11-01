@@ -107,16 +107,16 @@ namespace ModelWrapper.Extensions.Ordination
             }
 
             Type type = typeof(TSource);
-            var lambda = LambdaHelper.GenereteLambdaExpression<TSource>(ref type, orderBy);
+            var lambda = LambdasHelper.GenereteLambdaExpression<TSource>(ref type, orderBy);
             MethodInfo orderMethod;
 
             if (order.ToLower().Equals(Constants.CONST_ORDENATION_ORDER_ASCENDING.ToLower()))
             {
-                orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderBy", 2, 2);
+                orderMethod = ReflectionsHelper.GetMethodFromType(typeof(Queryable), "OrderBy", 2, 2);
             }
             else
             {
-                orderMethod = ReflectionHelper.GetMethodFromType(typeof(Queryable), "OrderByDescending", 2, 2);
+                orderMethod = ReflectionsHelper.GetMethodFromType(typeof(Queryable), "OrderByDescending", 2, 2);
             }
 
             return (IQueryable<TSource>)orderMethod.MakeGenericMethod(typeof(TSource), type).Invoke(null, new object[] { source, lambda });

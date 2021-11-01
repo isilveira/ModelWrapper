@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace Store.Core.Domain.Entities.Default
 {
-    public class Order : DomainEntity
+    public class Order : DomainEntity<int>
     {
-        public int Id { get; set; }
         public DateTime RegisteredAt { get; set; }
         public DateTime? ConfirmedAt { get; set; }
         public DateTime? CancelledAt { get; set; }

@@ -150,7 +150,7 @@ namespace ModelWrapper
         {
             SetConfigProperty(
                 Constants.CONST_KEYS,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
         /// <summary>
@@ -202,7 +202,7 @@ namespace ModelWrapper
         {
             SetConfigProperty(
                 Constants.CONST_SUPRESSED,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
         /// <summary>
@@ -213,7 +213,7 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
-            var expressionPropertyName = LambdaHelper.GetPropertyName(expression);
+            var expressionPropertyName = LambdasHelper.GetPropertyName(expression);
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
                 typeof(TModel).GetProperties().Where(p => p.Name.Equals(expressionPropertyName)).SingleOrDefault().Name.ToCamelCase()

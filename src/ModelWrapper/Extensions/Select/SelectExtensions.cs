@@ -14,6 +14,9 @@ namespace ModelWrapper.Extensions.Select
     /// </summary>
     public static class SelectExtensions
     {
+        internal static Func<IList<string>, string, bool> IsNotSupressed = (suppressedResponseProperties, property) => !suppressedResponseProperties.Any(suppressed => TermsHelper.GetTerms(suppressed, ".").FirstOrDefault().ToLower().Equals(property.ToLower()));
+         internal static Func<bool, bool, bool, bool> IsToLoadComplexPropertyWhenNotRequested = (isComplexProperty, loadComplexObjectByDefault, isRootObject) => isComplexProperty ? loadComplexObjectByDefault ? isRootObject: false : true;
+
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get select properties from request
         /// </summary>
@@ -38,44 +41,55 @@ namespace ModelWrapper.Extensions.Select
 
             return properties;
         }
-
-        private static List<SelectedProperty> GetValidProperties<TModel>(IWrapRequest<TModel> source, Type type, List<string> requestProperties, string rootName = null, bool isFromCollection = false) where TModel : class
+        private static List<SelectedProperty> GetValidProperties<TModel>(
+            IWrapRequest<TModel> source,
+            Type type,
+            List<string> requestProperties,
+            string rootName = null,
+            bool isFromCollection = false)
+            where TModel : class
         {
-            var suppressedResponseProperties = source.SuppressedResponseProperties();
-
             var properties = new List<SelectedProperty>();
 
-            foreach (var property in type.GetProperties())
-            {
-                if (requestProperties.Count == 0 && !suppressedResponseProperties.Any(x => x.ToLower().Equals(property.Name.ToLower())))
+            type.GetProperties()
+                .Where(property =>
+                    IsNotSupressed(source.SuppressedResponseProperties(), property.Name)
+                    && (
+                        (requestProperties.Count == 0 && IsToLoadComplexPropertyWhenNotRequested(TypesHelper.TypeIsComplex(property.PropertyType), ConfigurationService.GetConfiguration().ByDefaultLoadComplexProperties, string.IsNullOrWhiteSpace(rootName)))
+                        || (requestProperties.Any(requested => TermsHelper.GetTerms(requested, ".").FirstOrDefault().ToLower().Equals(property.Name.ToLower())))
+                    )
+                )
+                .ToList()
+                .ForEach(property =>
                 {
-                    properties.Add(new SelectedProperty { RequestedPropertyName = property.Name, PropertyName = property.Name, RootPropertyName = rootName, IsFromInnerObject = !string.IsNullOrWhiteSpace(rootName), IsFromCollectionObject = isFromCollection, PropertyType = property.PropertyType, PropertyInfo = property });
-                }
-                else
-                {
-                    var notSuppressedResponseProperties = requestProperties.Where(x => !suppressedResponseProperties.Any(y => y.ToLower().Equals(x.ToLower()))).ToList();
-                    foreach (var validProperty in notSuppressedResponseProperties)
+                    if (!TypesHelper.TypeIsComplex(property.PropertyType))
                     {
-                        var validPropertyParts = validProperty.Split(".");
-                        if (property.Name.ToLower().Equals(validPropertyParts[0].ToLower()))
+                        properties.Add(new SelectedProperty
                         {
-                            var rootPropertyName = (string.IsNullOrWhiteSpace(rootName) ? "" : (rootName + ".")) + property.Name;
-                            if (validPropertyParts.Count() > 1 && property.PropertyType.IsClass)
-                            {
-                                properties.AddRange(GetValidProperties(source, property.PropertyType, new List<string> { string.Join(".", validPropertyParts.ToList().Skip(1)) }, rootPropertyName));
-                            }
-                            else if (validPropertyParts.Count() > 1 && property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                            {
-                                properties.AddRange(GetValidProperties(source, property.PropertyType.GetGenericArguments()[0], new List<string> { string.Join(".", validPropertyParts.ToList().Skip(1)) }, rootPropertyName, true));
-                            }
-                            else
-                            {
-                                properties.Add(new SelectedProperty { RequestedPropertyName = rootPropertyName, PropertyName = property.Name, RootPropertyName = rootName, IsFromInnerObject = !string.IsNullOrWhiteSpace(rootName), IsFromCollectionObject = isFromCollection, PropertyType = property.PropertyType, PropertyInfo = property });
-                            }
-                        }
+                            RequestedPropertyName = string.Join(".", TermsHelper.GetTerms(rootName, ".").Union(new List<string> { property.Name }).Where(term => !string.IsNullOrWhiteSpace(term))),
+                            PropertyName = property.Name,
+                            RootPropertyName = rootName,
+                            PropertyType = property.PropertyType,
+                            PropertyInfo = property
+                        });
                     }
-                }
-            }
+                    else if (ConfigurationService.GetConfiguration().ByDefaultLoadComplexProperties)
+                    {
+                        properties.AddRange(
+                            GetValidProperties(
+                                source,
+                                TypesHelper.TypeIsCollection(property.PropertyType) ? property.PropertyType.GetGenericArguments()[0] : property.PropertyType,
+                                requestProperties
+                                    .Where(requested => TermsHelper.GetTerms(requested, ".").FirstOrDefault().ToLower().Equals(property.Name.ToLower()))
+                                    .Select(requested => string.Join(".", TermsHelper.GetTerms(requested, ".").Skip(1)))
+                                    .Where(requested => !string.IsNullOrWhiteSpace(requested))
+                                    .ToList(),
+                                string.Join(".", TermsHelper.GetTerms(rootName, ".").Union(new List<string> { property.Name }).Where(term => !string.IsNullOrWhiteSpace(term))),
+                                TypesHelper.TypeIsCollection(property.PropertyType)
+                            )
+                        );
+                    }
+                });
 
             return properties;
         }
@@ -126,25 +140,20 @@ namespace ModelWrapper.Extensions.Select
                 .ForEach(x =>
                 {
                     var property = x.FirstOrDefault();
-                    var originalRootPropertyInfo = originalRootType.GetProperty(property.RootPropertyName);
-                    var originalPropertyType = property.IsFromCollectionObject ? originalRootPropertyInfo.PropertyType.GetGenericArguments()[0] : originalRootPropertyInfo.PropertyType;
+                    var originalRootPropertyInfo = (TypesHelper.TypeIsCollection(originalRootType) ? originalRootType.GetGenericArguments()[0] : originalRootType).GetProperty(property.RootPropertyName);
+                    var originalPropertyType = originalRootPropertyInfo.PropertyType;
                     models.Add(new SelectedModel
                     {
                         Name = property.RootPropertyName,
                         RequestedName = property.RootPropertyName,
                         OriginalType = originalPropertyType,
                         OriginalPropertyInfo = originalRootPropertyInfo,
-                        IsCollection = property.IsFromCollectionObject,
                         Properties = GetSelectedModelProperties(originalPropertyType, x.ToList().Select(item =>
                         {
                             item.RootPropertyName = property.RootPropertyName;
                             item.RequestedPropertyName = item.RequestedPropertyName.Replace($"{property.RootPropertyName}.", "");
                             return item;
                         }).ToList())
-                        //Properties = x
-                        //    .ToList()
-                        //    .Select(y => new SelectedModel { Name = y.PropertyName, RequestedName = y.RequestedPropertyName, OriginalType = y.PropertyType, OriginalPropertyInfo = y.PropertyInfo })
-                        //    .ToList()
                     });
                 });
 
@@ -163,7 +172,7 @@ namespace ModelWrapper.Extensions.Select
             IWrapRequest<TSource> request
         ) where TSource : class
         {
-            return source.Select(LambdaHelper.GenerateSelectExpression<TSource>(request.GetSelectedModel()));
+            return source.Select(LambdasHelper.GenerateSelectExpression<TSource>(request.GetSelectedModel()));
         }
     }
 }

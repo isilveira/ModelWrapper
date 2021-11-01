@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace ModelWrapper.Helpers
@@ -81,6 +83,36 @@ namespace ModelWrapper.Helpers
                 changed = false;
                 return Activator.CreateInstance<TReturn>();
             }
+        }
+        internal static bool TypeIsClass(Type type)
+        {
+            return type.IsClass;
+        }
+        internal static bool TypeIsCollection(Type type)
+        {
+            var collectionTypes = new List<Type> {
+                typeof(ICollection<>),
+                typeof(IEnumerable<>),
+                typeof(IList<>),
+                typeof(Collection<>),
+                //typeof(Enumerable<>),
+                typeof(List<>),
+                typeof(HashSet<>),
+            };
+
+            return type.IsGenericType && (type.IsArray || collectionTypes.Any(collectionType => collectionType == type.GetGenericTypeDefinition()));
+        }
+        internal static bool TypeIsEntity(Type type)
+        {
+            return ConfigurationService.GetConfiguration().EntityBase != null && ConfigurationService.GetConfiguration().EntityBase.IsAssignableFrom(type);
+        }
+        internal static bool TypeIsComplex(Type type)
+        {
+            return (TypeIsClass(type) && TypeIsEntity(type)) || (TypeIsCollection(type) && TypeIsEntity(type.GenericTypeArguments[0]));
+        }
+        internal static Type GetEntityTypeFromComplex(Type type)
+        {
+            return TypeIsCollection(type) ? type.GenericTypeArguments[0] : type;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace ModelWrapper.Extensions.GetModel
 
             var model = Activator.CreateInstance<TModel>();
 
-            ReflectionHelper.Copy(source.Data, model);
+            ReflectionsHelper.Copy(source.Data, model);
 
             return model;
         }
