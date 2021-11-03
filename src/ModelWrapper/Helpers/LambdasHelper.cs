@@ -175,19 +175,31 @@ namespace ModelWrapper.Helpers
         ) where TModel : class
         {
             LambdaExpression lambda = (LambdaExpression)property;
-            MemberExpression memberExpression;
 
+            return GetPropertyName(lambda);
+        }
+
+        private static string GetPropertyName(LambdaExpression lambda)
+        {
             if (lambda.Body is UnaryExpression)
             {
-                UnaryExpression unaryExpression = (UnaryExpression)(lambda.Body);
-                memberExpression = (MemberExpression)(unaryExpression.Operand);
+                var unaryExpression = (UnaryExpression)(lambda.Body);
+                var memberExpression = (MemberExpression)(unaryExpression.Operand);
+
+                return ((PropertyInfo)memberExpression.Member).Name;
+            }
+            else if (lambda.Body is MethodCallExpression)
+            {
+                var methodCallExpression = (MethodCallExpression)lambda.Body;
+
+                return string.Join(".", ((PropertyInfo)((MemberExpression)methodCallExpression.Arguments[0]).Member).Name, GetPropertyName((LambdaExpression)methodCallExpression.Arguments[1]));
             }
             else
             {
-                memberExpression = (MemberExpression)(lambda.Body);
-            }
+                var memberExpression = (MemberExpression)(lambda.Body);
 
-            return ((PropertyInfo)memberExpression.Member).Name;
+                return ((PropertyInfo)memberExpression.Member).Name;
+            }
         }
         /// <summary>
         /// Method that generates a lambda expression for property name

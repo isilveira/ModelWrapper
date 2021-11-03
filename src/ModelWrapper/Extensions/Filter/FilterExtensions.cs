@@ -30,7 +30,7 @@ namespace ModelWrapper.Extensions.Filter
             var filterProperties = new List<FilterProperty>();
 
             foreach (var property in typeof(TModel).GetProperties().Where(x =>
-                 !source.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
+                 !source.IsPropertySuppressed(x.Name)
             ).ToList())
             {
                 foreach (var criteria in CriteriasHelper.GetPropertyTypeCriteria(property.PropertyType))

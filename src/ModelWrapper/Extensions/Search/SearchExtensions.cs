@@ -144,7 +144,7 @@ namespace ModelWrapper.Extensions.Search
             List<string> searchableProperties = new List<string>();
 
             searchableProperties = typeof(TSource).GetProperties().Where(x =>
-                 !request.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
+                 !request.IsPropertySuppressed(x.Name)
             ).Select(x => x.Name).ToList();
 
             var criteriaExp = LambdasHelper.GenerateSearchCriteriaExpression<TSource>(searchableProperties, queryTokens, queryStrict);

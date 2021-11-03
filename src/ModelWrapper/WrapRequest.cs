@@ -206,6 +206,19 @@ namespace ModelWrapper
             );
         }
         /// <summary>
+        /// Method that configures suppressed properties
+        /// </summary>
+        /// <param name="property">Property</param>
+        public void ConfigSuppressedProperties(
+            string property
+        )
+        {
+            SetConfigProperty(
+                Constants.CONST_SUPRESSED,
+                property
+            );
+        }
+        /// <summary>
         /// Method that configures suppressed response properties
         /// </summary>
         /// <param name="expression">Property lambda expression</param>
@@ -216,7 +229,20 @@ namespace ModelWrapper
             var expressionPropertyName = LambdasHelper.GetPropertyName(expression);
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(expressionPropertyName)).SingleOrDefault().Name.ToCamelCase()
+                expressionPropertyName
+            );
+        }
+        /// <summary>
+        /// Method that configures suppressed response properties
+        /// </summary>
+        /// <param name="property">Property</param>
+        public void ConfigSuppressedResponseProperties(
+            string property
+        )
+        {
+            SetConfigProperty(
+                Constants.CONST_SUPPRESSED_RESPONSE,
+                property
             );
         }
         #endregion

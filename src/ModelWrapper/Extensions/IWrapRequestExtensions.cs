@@ -35,6 +35,13 @@ namespace ModelWrapper.Extensions
         {
             return source.ConfigProperties.GetValue(Constants.CONST_SUPRESSED);
         }
+        internal static bool IsPropertySuppressed<TModel>(
+            this IWrapRequest<TModel> source,
+            string property
+        ) where TModel : class
+        {
+            return source.SuppressedProperties().Any(suppressed => suppressed.ToLower().Equals(property.ToLower()));
+        }
         /// <summary>
         /// Method that returns a list of configured suppressed response properties.
         /// </summary>
@@ -46,6 +53,13 @@ namespace ModelWrapper.Extensions
         ) where TModel : class
         {
             return source.ConfigProperties.GetValue(Constants.CONST_SUPPRESSED_RESPONSE);
+        }
+        internal static bool IsPropertySuppressedResponse<TModel>(
+            this IWrapRequest<TModel> source,
+            string property
+        ) where TModel : class
+        {
+            return source.SuppressedResponseProperties().Any(suppressed => suppressed.ToLower().Equals(property.ToLower()));
         }
         /// <summary>
         /// Method that returns a list of configured supplied properties.

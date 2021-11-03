@@ -14,8 +14,7 @@ namespace ModelWrapper.Extensions.Select
     /// </summary>
     public static class SelectExtensions
     {
-        internal static Func<IList<string>, string, bool> IsNotSupressed = (suppressedResponseProperties, property) => !suppressedResponseProperties.Any(suppressed => TermsHelper.GetTerms(suppressed, ".").FirstOrDefault().ToLower().Equals(property.ToLower()));
-         internal static Func<bool, bool, bool, bool> IsToLoadComplexPropertyWhenNotRequested = (isComplexProperty, loadComplexObjectByDefault, isRootObject) => isComplexProperty ? loadComplexObjectByDefault ? isRootObject: false : true;
+        internal static Func<bool, bool, bool, bool> IsToLoadComplexPropertyWhenNotRequested = (isComplexProperty, loadComplexObjectByDefault, isRootObject) => isComplexProperty ? loadComplexObjectByDefault ? isRootObject : false : true;
 
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get select properties from request
@@ -53,7 +52,7 @@ namespace ModelWrapper.Extensions.Select
 
             type.GetProperties()
                 .Where(property =>
-                    IsNotSupressed(source.SuppressedResponseProperties(), property.Name)
+                    !source.IsPropertySuppressedResponse(string.Join(".", TermsHelper.GetTerms(rootName, ".").Union(new List<string> { property.Name }).Where(term => !string.IsNullOrWhiteSpace(term))))
                     && (
                         (requestProperties.Count == 0 && IsToLoadComplexPropertyWhenNotRequested(TypesHelper.TypeIsComplex(property.PropertyType), ConfigurationService.GetConfiguration().ByDefaultLoadComplexProperties, string.IsNullOrWhiteSpace(rootName)))
                         || (requestProperties.Any(requested => TermsHelper.GetTerms(requested, ".").FirstOrDefault().ToLower().Equals(property.Name.ToLower())))
