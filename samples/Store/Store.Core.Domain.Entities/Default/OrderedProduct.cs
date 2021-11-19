@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 
 namespace Store.Core.Domain.Entities.Default
 {
-    public class OrderedProduct : DomainEntity
+    public class OrderedProduct : DomainEntity<int>
     {
-        public int Id { get; set; }
         public int Amount { get; set; }
         public decimal Value { get; set; }
         public DateTime RegisteredAt { get; set; }

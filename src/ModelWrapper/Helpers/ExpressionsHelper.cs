@@ -8,7 +8,7 @@ namespace ModelWrapper.Helpers
     /// <summary>
     /// Class that implements helpful methods for gererating expressions
     /// </summary>
-    public static class ExpressionHelper
+    public static class ExpressionsHelper
     {
         /// <summary>
         /// Method that generate filter comparison expression
@@ -303,7 +303,7 @@ namespace ModelWrapper.Helpers
             ConstantExpression tokenExp
         )
         {
-            return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "Contains", 1, 0, new List<Type> { typeof(string) }), tokenExp);
+            return Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "Contains", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
         /// <summary>
         /// Method that generate filter string starts with comparison expression
@@ -317,7 +317,7 @@ namespace ModelWrapper.Helpers
             ConstantExpression tokenExp
         )
         {
-            return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "StartsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
+            return Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "StartsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
         /// <summary>
         /// Method that generate filter string ends with comparison expression
@@ -331,7 +331,7 @@ namespace ModelWrapper.Helpers
             ConstantExpression tokenExp
         )
         {
-            return Expression.Call(memberExp, ReflectionHelper.GetMethodFromType(memberExp.Type, "EndsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
+            return Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "EndsWith", 1, 0, new List<Type> { typeof(string) }), tokenExp);
         }
         /// <summary>
         /// Method that generate filter And expression

@@ -23,7 +23,7 @@ namespace ModelWrapper.Extensions.GetModels
             {
                 var model = Activator.CreateInstance<TModel>();
 
-                ReflectionHelper.Copy(data, model);
+                ReflectionsHelper.Copy(data, model);
 
                 models.Add(model);
             }

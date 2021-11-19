@@ -150,7 +150,7 @@ namespace ModelWrapper
         {
             SetConfigProperty(
                 Constants.CONST_KEYS,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
             );
         }
         /// <summary>
@@ -202,7 +202,20 @@ namespace ModelWrapper
         {
             SetConfigProperty(
                 Constants.CONST_SUPRESSED,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+            );
+        }
+        /// <summary>
+        /// Method that configures suppressed properties
+        /// </summary>
+        /// <param name="property">Property</param>
+        public void ConfigSuppressedProperties(
+            string property
+        )
+        {
+            SetConfigProperty(
+                Constants.CONST_SUPRESSED,
+                property
             );
         }
         /// <summary>
@@ -213,9 +226,23 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
+            var expressionPropertyName = LambdasHelper.GetPropertyName(expression);
             SetConfigProperty(
                 Constants.CONST_SUPPRESSED_RESPONSE,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdaHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
+                expressionPropertyName
+            );
+        }
+        /// <summary>
+        /// Method that configures suppressed response properties
+        /// </summary>
+        /// <param name="property">Property</param>
+        public void ConfigSuppressedResponseProperties(
+            string property
+        )
+        {
+            SetConfigProperty(
+                Constants.CONST_SUPPRESSED_RESPONSE,
+                property
             );
         }
         #endregion

@@ -1,4 +1,5 @@
 using Store.Core.Domain.Entities.Default;
+using System.Linq;
 
 namespace Store.Core.Application.Default.Products.Queries.GetProductsByFilter
 {
@@ -9,11 +10,13 @@ namespace Store.Core.Application.Default.Products.Queries.GetProductsByFilter
             ConfigKeys(x => x.Id);
 
             // Configures supressed properties & response properties
-            ConfigSuppressedProperties(x => x.Images);
-            ConfigSuppressedProperties(x => x.OrderedProducts);
+            ConfigSuppressedProperties("Images");
+            ConfigSuppressedProperties("OrderedProducts");
 
-            ConfigSuppressedResponseProperties(x => x.Images);
-            ConfigSuppressedResponseProperties(x => x.OrderedProducts);
+            ConfigSuppressedResponseProperties("Category");
+            ConfigSuppressedResponseProperties("Images.Id");
+            ConfigSuppressedResponseProperties("Images");
+            ConfigSuppressedResponseProperties("OrderedProducts.Order.Customer.RegisteredAt");
         }
     }
 }

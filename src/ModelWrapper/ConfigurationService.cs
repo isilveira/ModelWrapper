@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelWrapper
@@ -33,6 +34,10 @@ namespace ModelWrapper
         /// </summary>
         public int? QueryTermsMaximumSize { get; internal set; }
         /// <summary>
+        /// Default configuration for load complex properties
+        /// </summary>
+        public bool ByDefaultLoadComplexProperties { get; set; }
+        /// <summary>
         /// Suppressed character configuration
         /// </summary>
         public IList<char> SuppressedCharacters { get; internal set; }
@@ -40,6 +45,10 @@ namespace ModelWrapper
         /// Suppressed terms configuration
         /// </summary>
         public IList<string> SuppressedTerms { get; internal set; }
+        /// <summary>
+        /// Entities base type
+        /// </summary>
+        public Type EntityBase { get; set; }
         /// <summary>
         /// Configuration services constructor
         /// </summary>
@@ -49,6 +58,7 @@ namespace ModelWrapper
             MaximumReturnedCollectionSize = 1000;
             DefaultReturnedCollectionSize = 50;
             QueryTermsMinimumSize = 3;
+            ByDefaultLoadComplexProperties = false;
             SuppressedCharacters = new List<char> { };
             SuppressedTerms = new List<string> { };
         }

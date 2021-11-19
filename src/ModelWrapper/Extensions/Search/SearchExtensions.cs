@@ -134,7 +134,7 @@ namespace ModelWrapper.Extensions.Search
             if (string.IsNullOrWhiteSpace(query))
                 return source;
 
-            var queryTokens = TermHelper.GetTerms(query, queryPhrase);
+            var queryTokens = TermsHelper.GetSearchTerms(query, queryPhrase);
 
             query = string.Join("+", queryTokens.ToArray());
 
@@ -144,10 +144,10 @@ namespace ModelWrapper.Extensions.Search
             List<string> searchableProperties = new List<string>();
 
             searchableProperties = typeof(TSource).GetProperties().Where(x =>
-                 !request.SuppressedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))
+                 !request.IsPropertySuppressed(x.Name)
             ).Select(x => x.Name).ToList();
 
-            var criteriaExp = LambdaHelper.GenerateSearchCriteriaExpression<TSource>(searchableProperties, queryTokens, queryStrict);
+            var criteriaExp = LambdasHelper.GenerateSearchCriteriaExpression<TSource>(searchableProperties, queryTokens, queryStrict);
 
             return source.Where(criteriaExp);
         }

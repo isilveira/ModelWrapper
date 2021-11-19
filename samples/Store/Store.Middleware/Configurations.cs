@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ModelWrapper.Middleware;
 using System;
 using System.Reflection;
+using Store.Core.Domain.Entities;
 
 namespace Store.Middleware
 {
@@ -30,6 +31,8 @@ namespace Store.Middleware
                 .AddMinimumReturnedCollectionSize(1)
                 .AddMaximumReturnedCollectionSize(100)
                 .AddQueryTermsMinimumSize(3)
+                .AddByDefaultLoadComplexProperties(true)
+                .AddEntityBaseType(typeof(DomainEntity))
                 .AddSuppressedTerms(new string[] { "the" });
 
             // YOUR CODE GOES HERE

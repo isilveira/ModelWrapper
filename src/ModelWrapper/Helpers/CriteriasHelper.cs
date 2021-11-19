@@ -8,7 +8,7 @@ namespace ModelWrapper.Helpers
     /// <summary>
     /// Class that implements helpful methods for criteria
     /// </summary>
-    internal static class CriteriaHelper
+    internal static class CriteriasHelper
     {
         /// <summary>
         /// Method that gets possible criterias for some given type

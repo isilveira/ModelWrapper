@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 
 namespace ModelWrapper.Middleware
@@ -99,6 +100,20 @@ namespace ModelWrapper.Middleware
             return services;
         }
         /// <summary>
+        /// Method tahe configures the default load behavior for complex properties
+        /// </summary>
+        /// <param name="services">Self instance of IServiceCollection</param>
+        /// <param name="byDefaultLoadComplexProperties">Default load behavior for complex properties. If not set default is false.</param>
+        /// <returns>Instance of IServiceCollection</returns>
+        public static IServiceCollection AddByDefaultLoadComplexProperties(
+            this IServiceCollection services,
+            bool byDefaultLoadComplexProperties)
+        {
+            ConfigurationService.GetConfiguration().ByDefaultLoadComplexProperties = byDefaultLoadComplexProperties;
+
+            return services;
+        }
+        /// <summary>
         /// Method that configures a list of characters that will be ignored on quered strings
         /// </summary>
         /// <param name="services">Self instance of IServiceCollection</param>
@@ -125,6 +140,14 @@ namespace ModelWrapper.Middleware
         )
         {
             ConfigurationService.GetConfiguration().SuppressedTerms = suppressedTerms;
+
+            return services;
+        }
+        public static IServiceCollection AddEntityBaseType(
+            this IServiceCollection services,
+            Type entityBaseType)
+        {
+            ConfigurationService.GetConfiguration().EntityBase = entityBaseType;
 
             return services;
         }

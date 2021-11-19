@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelWrapper.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +11,7 @@ namespace ModelWrapper.Helpers
     /// <summary>
     /// Class that implements helpful methods for reflection handling
     /// </summary>
-    internal static class ReflectionHelper
+    internal static class ReflectionsHelper
     {
         /// <summary>
         /// Method that filter properties from list
@@ -55,24 +56,30 @@ namespace ModelWrapper.Helpers
         )
         {
             return type.GetMethods()
-                .SingleOrDefault(method =>
+                .Where(method => 
                     method.Name == methodName
                     && method.GetParameters().Count() == parameters
                     && method.GetGenericArguments().Count() == genericArguments
-                    && (parameterTypes == null
-                        || parameterTypes.All(x => method.GetParameters().Select(parameter => parameter.ParameterType).Contains(x)))
-                );
+                    && (parameterTypes == null 
+                        || parameterTypes.All(x => 
+                            method.GetParameters().Any(y => 
+                                y.ParameterType.GetGenericArguments().Count() == x.GetGenericArguments().Count()
+                            )
+                        )
+                    )
+                )
+                .SingleOrDefault();
         }
         /// <summary>
         /// Method that creates a runtime type
         /// </summary>
-        /// <param name="props">Properties for the new type</param>
+        /// <param name="selectedProperties">Properties for the new type</param>
         /// <param name="assemblyName">Assembly name</param>
         /// <param name="moduleName">Module name</param>
         /// <param name="typeName">Type name</param>
         /// <returns>Runtime new type</returns>
         internal static Type CreateNewType(
-            IList<PropertyInfo> props,
+            IList<SelectedProperty> selectedProperties,
             string assemblyName = "ModelWrapper",
             string moduleName = "DynamicTypes",
             string typeName = "SelectWrap"
@@ -83,15 +90,15 @@ namespace ModelWrapper.Helpers
             ModuleBuilder dynamicModule = dynamicAssembly.DefineDynamicModule(moduleName);
             TypeBuilder dynamicAnonymousType = dynamicModule.DefineType(typeName, TypeAttributes.Public);
 
-            foreach (var p in props)
+            foreach (var p in selectedProperties)
             {
-                var field = dynamicAnonymousType.DefineField("_" + p.Name, p.PropertyType, FieldAttributes.Private);
-                var property = dynamicAnonymousType.DefineProperty(p.Name, PropertyAttributes.HasDefault, p.PropertyType, null);
+                var field = dynamicAnonymousType.DefineField("_" + p.PropertyName, p.PropertyType, FieldAttributes.Private);
+                var property = dynamicAnonymousType.DefineProperty(p.PropertyName, PropertyAttributes.HasDefault, p.PropertyType, null);
 
                 MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
 
                 // Define the "get" accessor method for CustomerName.
-                MethodBuilder propertyGet = dynamicAnonymousType.DefineMethod("get_" + p.Name, getSetAttr, p.PropertyType, Type.EmptyTypes);
+                MethodBuilder propertyGet = dynamicAnonymousType.DefineMethod("get_" + p.PropertyName, getSetAttr, p.PropertyType, Type.EmptyTypes);
 
                 ILGenerator custNameGetIL = propertyGet.GetILGenerator();
 
@@ -100,7 +107,7 @@ namespace ModelWrapper.Helpers
                 custNameGetIL.Emit(OpCodes.Ret);
 
                 // Define the "set" accessor method for CustomerName.
-                MethodBuilder propertySet = dynamicAnonymousType.DefineMethod("set_" + p.Name, getSetAttr, null, new Type[] { p.PropertyType });
+                MethodBuilder propertySet = dynamicAnonymousType.DefineMethod("set_" + p.PropertyName, getSetAttr, null, new Type[] { p.PropertyType });
 
                 ILGenerator custNameSetIL = propertySet.GetILGenerator();
 
@@ -117,15 +124,67 @@ namespace ModelWrapper.Helpers
             return dynamicAnonymousType.CreateTypeInfo().AsType();
         }
 
+        internal static ModuleBuilder CreateModule()
+        {
+            return AssemblyBuilder
+                .DefineDynamicAssembly(new AssemblyName("ModelWrapper"), AssemblyBuilderAccess.Run)
+                .DefineDynamicModule("DynamicTypes");
+        }
+
+        internal static Type CreateNewType(SelectedModel selectedModel,
+            ModuleBuilder dynamicModule = null)
+        {
+            if(dynamicModule == null)
+            {
+                dynamicModule = CreateModule();
+            }
+
+            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("SelectWrap" + TypesHelper.GetEntityTypeFromComplex(selectedModel.OriginalType).Name, TypeAttributes.Public);
+            
+            foreach (var p in selectedModel.Properties)
+            {
+                Type type = TypesHelper.TypeIsComplex(p.OriginalType) ?  TypesHelper.TypeIsCollection(p.OriginalType) ? typeof(IEnumerable<>).MakeGenericType(CreateNewType(p, dynamicModule)) : CreateNewType(p, dynamicModule) : p.OriginalType;
+
+                var field = dynamicAnonymousType.DefineField("_" + p.Name, type, FieldAttributes.Private);
+                var property = dynamicAnonymousType.DefineProperty(p.Name, PropertyAttributes.HasDefault, type, null);
+
+                MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+
+                // Define the "get" accessor method for CustomerName.
+                MethodBuilder propertyGet = dynamicAnonymousType.DefineMethod("get_" + p.Name, getSetAttr, type, Type.EmptyTypes);
+
+                ILGenerator custNameGetIL = propertyGet.GetILGenerator();
+
+                custNameGetIL.Emit(OpCodes.Ldarg_0);
+                custNameGetIL.Emit(OpCodes.Ldfld, field);
+                custNameGetIL.Emit(OpCodes.Ret);
+
+                // Define the "set" accessor method for CustomerName.
+                MethodBuilder propertySet = dynamicAnonymousType.DefineMethod("set_" + p.Name, getSetAttr, null, new Type[] { type });
+
+                ILGenerator custNameSetIL = propertySet.GetILGenerator();
+
+                custNameSetIL.Emit(OpCodes.Ldarg_0);
+                custNameSetIL.Emit(OpCodes.Ldarg_1);
+                custNameSetIL.Emit(OpCodes.Stfld, field);
+                custNameSetIL.Emit(OpCodes.Ret);
+
+                // Last, we must map the two methods created above to our PropertyBuilder to 
+                // their corresponding behaviors, "get" and "set" respectively. 
+                property.SetGetMethod(propertyGet);
+                property.SetSetMethod(propertySet);
+            }
+            return dynamicAnonymousType.CreateType();
+        }
         internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)
         {
-            foreach(var property in from.GetType().GetProperties())
+            foreach (var property in from.GetType().GetProperties())
             {
                 var toProperty = to.GetType().GetProperty(property.Name);
 
                 if (toProperty != null)
                 {
-                    toProperty.SetValue(to, property.GetValue(from)); 
+                    toProperty.SetValue(to, property.GetValue(from));
                 }
             }
 
