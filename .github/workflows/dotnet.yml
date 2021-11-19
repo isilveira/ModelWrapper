@@ -24,4 +24,4 @@ jobs:
     - name: Test
       run: dotnet test --configuration release --no-build --verbosity normal
     - name: Pack
-      run: dotnet pack src/ModelWrapper --configuration release --no-build --verbosity normal
+      run: dotnet pack src/ModelWrapper --configuration release --verbosity normal
