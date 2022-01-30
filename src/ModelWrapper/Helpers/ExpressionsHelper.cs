@@ -303,7 +303,9 @@ namespace ModelWrapper.Helpers
             ConstantExpression tokenExp
         )
         {
-            return Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "Contains", 1, 0, new List<Type> { typeof(string) }), tokenExp);
+            var method = ReflectionsHelper.GetMethodFromType(memberExp.Type, "Contains", 1, 0, new List<Type> { typeof(string) });
+
+            return Expression.Call(memberExp, method, tokenExp);
         }
         /// <summary>
         /// Method that generate filter string starts with comparison expression

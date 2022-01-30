@@ -68,7 +68,7 @@ namespace ModelWrapper.Helpers
                         )
                     )
                 )
-                .SingleOrDefault();
+                .FirstOrDefault();
         }
         /// <summary>
         /// Method that creates a runtime type
