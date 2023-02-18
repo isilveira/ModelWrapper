@@ -102,7 +102,7 @@ namespace ModelWrapper.Extensions.Search
             #endregion
 
             source.RequestObject.SetValue(Constants.CONST_SEARCH_PROPERTIES, search);
-            
+
             return search;
         }
 
