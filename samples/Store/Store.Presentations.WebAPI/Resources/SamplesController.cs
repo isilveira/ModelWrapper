@@ -16,6 +16,8 @@ namespace Store.Resources
         [HttpGet]
         public async Task<ActionResult<GetSamplesByFilterQueryResponse>> Get(GetSamplesByFilterQuery request, CancellationToken cancellationToken = default(CancellationToken))
         {
+            var response = await Mediator.Send(response, cancellationToken);
+
             return await Mediator.Send(request, cancellationToken);
         }
 
