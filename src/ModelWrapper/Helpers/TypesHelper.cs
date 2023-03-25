@@ -40,7 +40,7 @@ namespace ModelWrapper.Helpers
                 changed = true;
                 return convertedObject;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 changed = false;
                 return Activator.CreateInstance(typeTo);
@@ -78,7 +78,7 @@ namespace ModelWrapper.Helpers
                 changed = true;
                 return (TReturn)convertedObject;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 changed = false;
                 return Activator.CreateInstance<TReturn>();
