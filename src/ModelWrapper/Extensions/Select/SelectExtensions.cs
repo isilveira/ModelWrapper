@@ -23,7 +23,7 @@ namespace ModelWrapper.Extensions.Select
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
         internal static List<SelectedProperty> ResponseProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             List<string> requestProperties = new List<string>();
@@ -41,7 +41,7 @@ namespace ModelWrapper.Extensions.Select
             return properties;
         }
         private static List<SelectedProperty> GetValidProperties<TModel>(
-            IWrapRequest<TModel> source,
+            WrapRequest<TModel> source,
             Type type,
             List<string> requestProperties,
             string rootName = null,
@@ -94,7 +94,7 @@ namespace ModelWrapper.Extensions.Select
         }
 
         internal static SelectedModel GetSelectedModel<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             var responseProperties = source.ResponseProperties().Select(property => property.TypedClone()).ToList();
@@ -168,7 +168,7 @@ namespace ModelWrapper.Extensions.Select
         /// <returns>Returns IQueryable instance with with the configuration for select</returns>
         public static IQueryable<object> Select<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request
+            WrapRequest<TSource> request
         ) where TSource : class
         {
             return source.Select(LambdasHelper.GenerateSelectExpression<TSource>(request.GetSelectedModel()));

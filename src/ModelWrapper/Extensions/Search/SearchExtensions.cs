@@ -24,7 +24,7 @@ namespace ModelWrapper.Extensions.Search
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Search Search<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             var search = new Search();
@@ -122,7 +122,7 @@ namespace ModelWrapper.Extensions.Search
         /// <returns>Returns IQueryable instance with with the configuration for search</returns>
         public static IQueryable<TSource> Search<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request
+            WrapRequest<TSource> request
         ) where TSource : class
         {
             var search = request.Search();

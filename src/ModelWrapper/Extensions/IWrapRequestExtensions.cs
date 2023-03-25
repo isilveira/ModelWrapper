@@ -18,7 +18,7 @@ namespace ModelWrapper.Extensions
         /// <param name="source">IWrapRequest object instance</param>
         /// <returns>List of keys properties</returns>
         internal static List<string> KeyProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             return source.ConfigProperties.GetValue(Constants.CONST_KEYS);
@@ -30,13 +30,13 @@ namespace ModelWrapper.Extensions
         /// <param name="source">IWrapRequest object instance</param>
         /// <returns>List of supperssed properties</returns>
         internal static List<string> SuppressedProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             return source.ConfigProperties.GetValue(Constants.CONST_SUPRESSED);
         }
         internal static bool IsPropertySuppressed<TModel>(
-            this IWrapRequest<TModel> source,
+            this WrapRequest<TModel> source,
             string property
         ) where TModel : class
         {
@@ -49,13 +49,13 @@ namespace ModelWrapper.Extensions
         /// <param name="source">IWrapRequest object instance</param>
         /// <returns>List of supperssed response properties</returns>
         internal static List<string> SuppressedResponseProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             return source.ConfigProperties.GetValue(Constants.CONST_SUPPRESSED_RESPONSE);
         }
         internal static bool IsPropertySuppressedResponse<TModel>(
-            this IWrapRequest<TModel> source,
+            this WrapRequest<TModel> source,
             string property
         ) where TModel : class
         {
@@ -68,7 +68,7 @@ namespace ModelWrapper.Extensions
         /// <param name="source">IWrapRequest object instance</param>
         /// <returns>List of spupplied properties</returns>
         internal static List<string> SuppliedProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             return source.ConfigProperties.GetValue(Constants.CONST_SUPPLIED);
@@ -81,7 +81,7 @@ namespace ModelWrapper.Extensions
         /// <param name="model">Model object</param>
         /// <param name="properties">List of properties that will be inserted on the request object</param>
         internal static void SetModelOnRequest<TModel>(
-            this IWrapRequest<TModel> source,
+            this WrapRequest<TModel> source,
             TModel model,
             IList<PropertyInfo> properties
         ) where TModel : class

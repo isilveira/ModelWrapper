@@ -17,7 +17,7 @@ namespace ModelWrapper.Extensions.Put
         /// <param name="model">Entity were data from request will be putted</param>
         /// <returns>Entity updated</returns>
         public static TModel Put<TModel>(
-            this IWrapRequest<TModel> request,
+            this WrapRequest<TModel> request,
             TModel model
         ) where TModel : class
         {

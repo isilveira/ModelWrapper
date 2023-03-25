@@ -16,7 +16,7 @@ namespace ModelWrapper.Extensions.Patch
         /// <param name="model">Entity were data from request will be patched</param>
         /// <returns>Entity updated</returns>
         public static TModel Patch<TModel>(
-            this IWrapRequest<TModel> request,
+            this WrapRequest<TModel> request,
             TModel model
         ) where TModel : class
         {

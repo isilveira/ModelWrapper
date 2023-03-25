@@ -26,7 +26,7 @@ namespace ModelWrapper.Extensions.Ordination
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Ordination Ordination<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             var ordination = new Ordination();
@@ -88,7 +88,7 @@ namespace ModelWrapper.Extensions.Ordination
         /// <returns>Returns IQueryable instance with with the configuration for ordination</returns>
         public static IQueryable<TSource> OrderBy<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request
+            WrapRequest<TSource> request
         ) where TSource : class
         {
             var ordination = request.Ordination();

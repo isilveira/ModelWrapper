@@ -2,7 +2,6 @@
 using ModelWrapper.Binders;
 using ModelWrapper.Extensions;
 using ModelWrapper.Helpers;
-using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,29 +18,29 @@ namespace ModelWrapper
     /// </summary>
     /// <typeparam name="TModel">Generic type of the endpoint</typeparam>
     [ModelBinder(BinderType = typeof(WrapRequestBinder))]
-    public class WrapRequest<TModel> : DynamicObject, IWrapRequest<TModel>
+    public class WrapRequest<TModel> : DynamicObject
         where TModel : class
     {
         /// <summary>
         /// Instance of the Model
         /// </summary>
-        public TModel Model { get; set; }
+        internal TModel Model { get; set; }
         /// <summary>
         /// List of properties received on request
         /// </summary>
-        public List<WrapRequestProperty> AllProperties { get; set; }
+        internal List<WrapRequestProperty> AllProperties { get; set; }
         /// <summary>
         /// List of configurations for the request
         /// </summary>
-        public Dictionary<string, List<string>> ConfigProperties { get; set; }
+        internal Dictionary<string, List<string>> ConfigProperties { get; set; }
         /// <summary>
         /// List of configuration values
         /// </summary>
-        public Dictionary<string, object> ConfigValues { get; set; }
+        internal Dictionary<string, object> ConfigValues { get; set; }
         /// <summary>
         /// Representation of the request object
         /// </summary>
-        public Dictionary<string, object> RequestObject { get; set; }
+        internal Dictionary<string, object> RequestObject { get; set; }
         /// <summary>
         /// Class protected constructor
         /// </summary>
@@ -111,7 +110,7 @@ namespace ModelWrapper
 
             if (configProperties.IsDefault())
             {
-                ConfigProperties.Add(name, new List<string>{ property });
+                ConfigProperties.Add(name, new List<string> { property });
             }
             else
             {
@@ -266,7 +265,7 @@ namespace ModelWrapper
                 {
                     propertyType = Nullable.GetUnderlyingType(propertyType);
                 }
-                
+
                 SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
                 if (propertyValue is JToken)
                 {
@@ -353,13 +352,21 @@ namespace ModelWrapper
         public void BindComplete()
         {
             var routeProperties = new Dictionary<string, object>();
-            
-            foreach(var routeProperty in AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute))
+
+            foreach (var routeProperty in AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute))
             {
                 routeProperties.Add(routeProperty.Name.ToCamelCase(), routeProperty.Value);
             }
 
             RequestObject.SetValue(Constants.CONST_ROUTE, routeProperties);
+        }
+        public TModel GetModel()
+        {
+            return Model;
+        }
+        public Dictionary<string, object> GetRequestObject()
+        {
+            return RequestObject;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ModelWrapper.Extensions.Filter
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
         internal static List<FilterProperty> FilterProperties<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             var filterProperties = new List<FilterProperty>();
@@ -90,7 +90,7 @@ namespace ModelWrapper.Extensions.Filter
         /// <returns>Returns IQueryable instance with with the configuration for filter</returns>
         public static IQueryable<TSource> Filter<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request
+            WrapRequest<TSource> request
         ) where TSource : class
         {
             var filterProperties = request.FilterProperties();

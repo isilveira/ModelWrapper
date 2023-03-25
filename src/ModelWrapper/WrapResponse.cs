@@ -9,8 +9,8 @@ namespace ModelWrapper
 {
     public class WrapResponse : IWrapResponse
     {
-        public long StatusCode { get; set; }
-        public long InternalCode { get; set; }
+        public int StatusCode { get; set; }
+        public int InternalCode { get; set; }
         public long ResultCount { get; set; }
         public string Message { get; set; }
         public object Request { get; set; }
@@ -27,8 +27,8 @@ namespace ModelWrapper
         /// <param name="message">Response message</param>
         /// <param name="resultCount">Count of data returned</param>
         public WrapResponse(
-            long statusCode,
-            long internalCode,
+            int statusCode,
+            int internalCode,
             object request,
             object data,
             string message = "Successful operation!",
@@ -50,7 +50,7 @@ namespace ModelWrapper
     public class WrapResponse<TModel> : WrapResponse, IWrapResponse<TModel>
         where TModel : class
     {
-        internal IWrapRequest<TModel> OriginalRequest { get; set; }
+        internal WrapRequest<TModel> OriginalRequest { get; set; }
         /// <summary>
         /// Class empty constructor
         /// </summary>

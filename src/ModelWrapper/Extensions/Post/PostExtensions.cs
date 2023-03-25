@@ -16,7 +16,7 @@ namespace ModelWrapper.Extensions.Post
         /// <param name="request">Self IWrapRequest<T> instance</param>
         /// <returns>New entity</returns>
         public static TModel Post<TModel>(
-            this IWrapRequest<TModel> request
+            this WrapRequest<TModel> request
         ) where TModel : class
         {
             var model = Activator.CreateInstance<TModel>();

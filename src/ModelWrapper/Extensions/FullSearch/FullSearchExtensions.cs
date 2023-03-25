@@ -24,7 +24,7 @@ namespace ModelWrapper.Extensions.FullSearch
         /// <returns>Returns IQueryable instance with with the configuration for a full search</returns>
         public static IQueryable<object> FullSearch<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request,
+            WrapRequest<TSource> request,
             out int count
         ) where TSource : class
         {
@@ -46,7 +46,7 @@ namespace ModelWrapper.Extensions.FullSearch
         /// <returns>Returns IQueryable instance with with the configuration for full search</returns>
         public static IQueryable<object> FullSearch<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request,
+            WrapRequest<TSource> request,
             out long count
         ) where TSource : class
         {

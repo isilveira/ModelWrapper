@@ -25,7 +25,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns the default return collection size</returns>
         internal static int DefaultReturnedCollectionSize<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             object size = null;
@@ -40,7 +40,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns the maximum return collection size</returns>
         internal static int MaximumReturnedCollectionSize<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             object configMax = null;
@@ -55,7 +55,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns the minimum return collection size</returns>
         internal static int MinimumReturnedCollectionSize<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             object configMin = null;
@@ -70,7 +70,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
         internal static Pagination Pagination<TModel>(
-            this IWrapRequest<TModel> source
+            this WrapRequest<TModel> source
         ) where TModel : class
         {
             var pagination = new Pagination();
@@ -136,7 +136,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <returns>Returns IQueryable instance with with the configuration for pagination</returns>
         public static IQueryable<TSource> Page<TSource>(
             this IQueryable<TSource> source,
-            IWrapRequest<TSource> request
+            WrapRequest<TSource> request
         ) where TSource : class
         {
             var pagination = request.Pagination();
