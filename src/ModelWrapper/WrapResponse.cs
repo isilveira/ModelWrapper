@@ -1,9 +1,5 @@
-﻿using ModelWrapper.Extensions;
-using ModelWrapper.Helpers;
-using ModelWrapper.Interfaces;
-using System;
+﻿using ModelWrapper.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ModelWrapper
 {
@@ -68,6 +64,26 @@ namespace ModelWrapper
             string message = "Successful operation!",
             long? resultCount = null
         ) : base(200, 200, request.RequestObject, data, message, resultCount)
+        {
+            OriginalRequest = request;
+        }
+        /// <summary>
+        /// Class constructor
+        /// </summary>
+        /// <param name="statusCode">Http status code</param>
+        /// <param name="internalCode">Internal status code</param>
+        /// <param name="request">WrapRequest object</param>
+        /// <param name="data">Response data</param>
+        /// <param name="message">Response message</param>
+        /// <param name="resultCount">Count of data returned</param>
+        public WrapResponse(
+            int statusCode,
+            int internalCode,
+            WrapRequest<TModel> request,
+            object data,
+            string message = "Successful operation!",
+            long? resultCount = null
+        ) : base(statusCode, internalCode, request.RequestObject, data, message, resultCount)
         {
             OriginalRequest = request;
         }
