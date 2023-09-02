@@ -1,59 +1,44 @@
-# BAYSOFT.CLI ![Nuget](https://img.shields.io/nuget/v/BAYSOFT.CLI)
+# ModelWrapper ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
 
-´´´dotnet tool install --global --add-source ./nupkg baysoft.cli
+>***ModelWrapper*** is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest\<TModel>, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality. - *isilveria*.
 
-´´´dotnet tool update --global --add-source ./nupkg baysoft.cli
+*Purpose*
+----
+> ModelWrapper came up to simplify the use of ViewModels by creating a base class that should be used in the project's ViewModels allowing ViewModel to have all of the entity's original attributes, as well as extend functionality to ViewModel.
+    
+*Functionalities*
+----
+> ***WrapRequest\<Model>*** - Base class for request ViewModels that extends all entity properties (TModel) and implements features like HTTP basic verbs.
 
-Aplication
-	Commands								- OK
-	Queries									- OK
-	Notifications							- OK
+> ***WrapResponse\<Model>*** - Response ViewModels base class that extends all entity properties (TModel) that have been set to return and implements methods to get typed return data.
 
-Domain
-	Context
-		Interfaces
-			Infrastructures
-				Data
-					IDefaultDbContextReader	- OK
-					IDefaultDbContextWriter	- OK
-		Resources							- OK
-		Collection
-			Entity							- OK
-			Resources						- OK
-			Services						- OK
-			Specifications					- OK
-			DomainValidations				- OK
-			EntityValidations				- OK
-	Resources								- OK
+*Usage*
+----
+>...
 
-Infrastructures
-	Data
-		Context
-			EntityMappings					- OK
-			Migrations						
-				InitialMigrationDbContext	- OK
-				DbContextModelSnapshot		- OK
-			DefaultDbContext				- OK
-			DefaultDbContextReader			- OK
-			DefaultDbContextWriter			- OK
-Middleware
-	AddServices
-		AddDbContextConfigurations			- OK
-		AddDomainServicesConfigurations		- OK
-		AddValidationsConfigurations		- OK
+*GitHub*
+----
+> https://github.com/isilveira/ModelWrapper
 
-Presentations
-	Resources
-		Controllers							- OK
-	React
-		Organisms
-			Form							- OK
-			Table							- OK
-			Tab								- OK (Refatorar: Panels estão apontando para a entidade agregadora e não os agregados
-		Pages
-			index							- OK
-			Index							- OK
-			Create							- OK
-			Edit							- OK
+*Nuget*
+----
+> https://www.nuget.org/packages/ModelWrapper
 
-TODO: Criar arquivos dos projetos ou renomea-los.
+*Package Manager*
+----
+> ```PM> Install-Package ModelWrapper -Version 3.0.0```
+
+*.NET CLI*
+----
+> ```> dotnet add package ModelWrapper --version 3.0.0```
+
+*Packet*
+----
+> ```> paket add ModelWrapper --version 3.0.0```
+
+## License
+
+All files are released with the MIT license.
+  
+  [nuget-img]: https://img.shields.io/nuget/v/ModelWrapper.svg
+  [nuget]: https://www.nuget.org/packages/ModelWrapper
