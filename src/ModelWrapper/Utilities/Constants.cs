@@ -28,5 +28,10 @@
         internal static string CONST_SEARCH_PROPERTIES               => "searchProperties";
         internal static string CONST_QUERY_STRICT                   => "queryStrict";
         internal static string CONST_QUERY_PHRASE                   => "queryPhrase";
+        public static string CONST_NOTIFICATIONS_MESSAGE            => "message";
+        public static string CONST_NOTIFICATIONS_INNER              => "innerNotification";
+        public static string CONST_NOTIFICATIONS_REQUEST            => "requestNotifications";
+        public static string CONST_NOTIFICATIONS_ENTITY             => "entityNotifications";
+        public static string CONST_NOTIFICATIONS_DOMAIN             => "domainNotifications";
     }
 }

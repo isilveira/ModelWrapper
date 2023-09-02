@@ -17,6 +17,29 @@ namespace ModelWrapper.Extensions.Search
     /// </summary>
     public static class SearchExtensions
     {
+        public static void ClearSearch<TModel>(this WrapRequest<TModel> source) where TModel : class
+        {
+            #region Clear Query
+            source.AllProperties.RemoveAll(x =>
+                x.Name.ToLower().Equals(Constants.CONST_QUERY.ToLower())
+                && x.Source == WrapPropertySource.FromQuery
+            );
+            #endregion
+
+            #region Clear Query Strict
+            source.AllProperties.RemoveAll(x =>
+                x.Name.ToLower().Equals(Constants.CONST_QUERY_STRICT.ToLower())
+                && x.Source == WrapPropertySource.FromQuery
+            );
+            #endregion
+
+            #region Clear Query Phrase
+            source.AllProperties.RemoveAll(x =>
+                x.Name.ToLower().Equals(Constants.CONST_QUERY_PHRASE.ToLower())
+                && x.Source == WrapPropertySource.FromQuery
+            );
+            #endregion
+        }
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get query properties from request
         /// </summary>

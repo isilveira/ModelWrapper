@@ -1,4 +1,6 @@
-﻿namespace ModelWrapper.Interfaces
+﻿using System.Collections.Generic;
+
+namespace ModelWrapper.Interfaces
 {
     public interface IWrapResponse
     {
@@ -6,6 +8,7 @@
         string Message { get; set; }
         object Request { get; set; }
         object Data { get; set; }
+        Dictionary<string, object> Notifications { get; set; }
     }
     /// <summary>
     /// Interface for extend functionalities of WrapResponse

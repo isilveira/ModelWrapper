@@ -17,6 +17,20 @@ namespace ModelWrapper.Extensions.Filter
     /// </summary>
     public static class FilterExtensions
     {
+        public static void ClearFilters<TModel>(this WrapRequest<TModel> source)
+            where TModel : class
+        {
+            typeof(TModel)
+                .GetProperties()
+                .Where(property => !source.IsPropertySuppressed(property.Name))
+                .SelectMany(property => CriteriasHelper.GetPropertyTypeCriteria(property.PropertyType).Select(criteria => $"{property.Name.ToCamelCase()}{criteria}"))
+                .ToList()
+                .ForEach(propertyCriteria =>
+                {
+                    source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(propertyCriteria.ToLower()));
+                });
+        }
+
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get filter properties from request
         /// </summary>

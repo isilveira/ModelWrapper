@@ -18,6 +18,11 @@ namespace ModelWrapper.Extensions.Pagination
     /// </summary>
     public static class PaginationExtensions
     {
+        public static void ClearPagintation<TModel>(this WrapRequest<TModel> source)
+            where TModel : class
+        {
+            source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(Constants.CONST_PAGINATION_SIZE.ToLower()) || property.Name.ToLower().Equals(Constants.CONST_PAGINATION_NUMBER.ToLower()));
+        }
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get DefaultReturnedCollectionSize property
         /// </summary>

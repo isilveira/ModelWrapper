@@ -19,6 +19,11 @@ namespace ModelWrapper.Extensions.Ordination
     /// </summary>
     public static class OrdinationExtensions
     {
+        public static void ClearOrdination<TModel>(this WrapRequest<TModel> source)
+            where TModel : class
+        {
+            source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDER.ToLower()) || property.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDERBY.ToLower()));
+        }
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get ordination properties from request
         /// </summary>

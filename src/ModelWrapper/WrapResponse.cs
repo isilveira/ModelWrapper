@@ -11,6 +11,7 @@ namespace ModelWrapper
         public string Message { get; set; }
         public object Request { get; set; }
         public object Data { get; set; }
+        public Dictionary<string, object> Notifications { get; set; }
         /// <summary>
         /// Class empty constructor
         /// </summary>
@@ -27,6 +28,7 @@ namespace ModelWrapper
             int internalCode,
             object request,
             object data,
+            Dictionary<string, object> notifications = null,
             string message = "Successful operation!",
             long? resultCount = null
         )
@@ -34,9 +36,10 @@ namespace ModelWrapper
             StatusCode = statusCode;
             InternalCode = internalCode;
             Message = message;
-            ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : 1;
+            ResultCount = resultCount.HasValue ? resultCount.Value : data is ICollection<object> ? ((ICollection<object>)data).Count : data is null ? 0 : 1;
             Request = request;
             Data = data;
+            Notifications = notifications;
         }
     }
     /// <summary>
@@ -61,9 +64,10 @@ namespace ModelWrapper
         public WrapResponse(
             WrapRequest<TModel> request,
             object data,
+            Dictionary<string, object> notifications = null,
             string message = "Successful operation!",
             long? resultCount = null
-        ) : base(200, 200, request.RequestObject, data, message, resultCount)
+        ) : base(200, 200, request.RequestObject, data, notifications, message, resultCount)
         {
             OriginalRequest = request;
         }
@@ -74,6 +78,7 @@ namespace ModelWrapper
         /// <param name="internalCode">Internal status code</param>
         /// <param name="request">WrapRequest object</param>
         /// <param name="data">Response data</param>
+        /// <param name="exception">Response exception</param>
         /// <param name="message">Response message</param>
         /// <param name="resultCount">Count of data returned</param>
         public WrapResponse(
@@ -81,9 +86,10 @@ namespace ModelWrapper
             int internalCode,
             WrapRequest<TModel> request,
             object data,
+            Dictionary<string, object> notifications = null,
             string message = "Successful operation!",
             long? resultCount = null
-        ) : base(statusCode, internalCode, request.RequestObject, data, message, resultCount)
+        ) : base(statusCode, internalCode, request.RequestObject, data, notifications, message, resultCount)
         {
             OriginalRequest = request;
         }

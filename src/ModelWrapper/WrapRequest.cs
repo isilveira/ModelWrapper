@@ -88,11 +88,16 @@ namespace ModelWrapper
         )
         {
             var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
-            AllProperties.Add(new WrapRequestProperty { Name = binder.Name, Value = value, Source = source });
+            
+            AddProperty(binder.Name, value, source);
 
             SetPropertyValue(binder.Name, value);
 
             return true;
+        }
+        public void AddProperty(string name, object value, WrapPropertySource source = WrapPropertySource.FromBody)
+        {
+            AllProperties.Add(new WrapRequestProperty { Name = name, Value = value, Source = source });
         }
         #endregion
         #region Configuration methods
