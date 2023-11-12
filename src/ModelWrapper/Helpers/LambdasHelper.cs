@@ -120,12 +120,12 @@ namespace ModelWrapper.Helpers
 
             var newType = ReflectionsHelper.CreateNewType(selectedModel);
 
-            MemberInitExpression body = GenerateNewBody(selectedModel, source, newType);
+            var body = GenerateNewBody(selectedModel, source, newType);
 
             return Expression.Lambda<Func<TSource, object>>(body, source);
         }
 
-        private static MemberInitExpression GenerateNewBody(SelectedModel selectedModel, Expression source, Type newType, int level = 0)
+        private static ConditionalExpression GenerateNewBody(SelectedModel selectedModel, Expression source, Type newType, int level = 0)
         {
             var binding = new List<MemberAssignment>();
             foreach (var property in selectedModel.Properties)
@@ -160,8 +160,10 @@ namespace ModelWrapper.Helpers
             }
 
             var newExp = Expression.New(newType);
-            var body = Expression.MemberInit(newExp, binding);
-            return body;
+			var defaultExp = Expression.Default(newType);
+			var body = Expression.MemberInit(newExp, binding);
+            var expIf = Expression.Condition(Expression.NotEqual(source, Expression.Constant(null)), body, defaultExp);
+            return expIf;
         }
 
         /// <summary>
