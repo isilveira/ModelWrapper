@@ -47,11 +47,20 @@ namespace ModelWrapper
         protected WrapRequest()
         {
             Initialize();
-        }
-        /// <summary>
-        /// Method that instantiates the properties
-        /// </summary>
-        private void Initialize()
+		}
+		/// <summary>
+		/// Class protected constructor
+		/// </summary>
+		protected WrapRequest(TModel model)
+		{
+			Initialize();
+            this.Model = model;
+            UpdateSuppliedProperties();
+		}
+		/// <summary>
+		/// Method that instantiates the properties
+		/// </summary>
+		private void Initialize()
         {
             Model = Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
@@ -324,14 +333,24 @@ namespace ModelWrapper
             TResult value = function.Invoke(this.Model);
             UpdateSuppliedProperties();
             return value;
-        }
-        /// <summary>
-        /// Method that projects an action on the model object
-        /// </summary>
-        /// <param name="action">Lambda expression for the action</param>
-        public void Project(
-            Action<TModel> action
-        )
+		}
+		/// <summary>
+		/// Method that projects values or functions of the model object
+		/// </summary>
+		/// <typeparam name="TResult">Projection result type</typeparam>
+		/// <param name="function">Lambda expression for the function</param>
+		/// <returns>Projection result</returns>
+		public WrapRequest<TModel> Project(TModel model)
+		{
+            this.Model = model;
+			UpdateSuppliedProperties();
+			return this;
+		}
+		/// <summary>
+		/// Method that projects an action on the model object
+		/// </summary>
+		/// <param name="action">Lambda expression for the action</param>
+		public void Project(Action<TModel> action)
         {
             action.Invoke(this.Model);
             UpdateSuppliedProperties();
