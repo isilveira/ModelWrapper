@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using ModelWrapper.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -30,9 +32,13 @@ namespace ModelWrapper.Models
         public Type OriginalType { get; set; }
         public PropertyInfo OriginalPropertyInfo { get; set; }
         public List<SelectedModel> Properties { get; set; }
-        public SelectedModel()
-        {
+		public SelectedModel()
+		{
             Properties = new List<SelectedModel>();
-        }
-    }
+		}
+		public string GetNewTypeName()
+		{
+			return "SelectWrap" + TypesHelper.GetEntityTypeFromComplex(this.OriginalType).Name + this.OriginalPropertyInfo != default ? this.Name : string.Empty;
+		}
+	}
 }

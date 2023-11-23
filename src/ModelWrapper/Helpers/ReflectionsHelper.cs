@@ -139,7 +139,7 @@ namespace ModelWrapper.Helpers
                 dynamicModule = CreateModule();
             }
 
-            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType("SelectWrap" + TypesHelper.GetEntityTypeFromComplex(selectedModel.OriginalType).Name, TypeAttributes.Public);
+            TypeBuilder dynamicAnonymousType = dynamicModule.DefineType(selectedModel.GetNewTypeName(), TypeAttributes.Public);
             
             foreach (var p in selectedModel.Properties)
             {
