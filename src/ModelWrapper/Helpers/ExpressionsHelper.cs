@@ -388,6 +388,60 @@ namespace ModelWrapper.Helpers
                 }
             }
             return orExp;
-        }
-    }
+		}
+		/// <summary>
+		/// Method that generate filter And expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter AndAlso</returns>
+		internal static Expression GenerateAndAlsoExpressions(
+			List<Expression> expressions
+		)
+		{
+			Expression andExp = Expression.Empty();
+			if (expressions.Count == 1)
+			{
+				andExp = expressions[0];
+			}
+			else
+			{
+				andExp = Expression.AndAlso(expressions[0], expressions[1]);
+
+				for (int i = 2; i < expressions.Count; i++)
+				{
+					andExp = Expression.AndAlso(andExp, expressions[i]);
+				}
+			}
+			return andExp;
+		}
+		/// <summary>
+		/// Method that generate filter Or expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter OrElse</returns>
+		internal static Expression GenerateOrElseExpression(
+			List<Expression> expressions
+		)
+		{
+			Expression orExp = Expression.Empty();
+			if (expressions.Count == 1)
+			{
+				orExp = expressions[0];
+			}
+			else
+			{
+				orExp = Expression.OrElse(expressions[0], expressions[1]);
+
+				for (int i = 2; i < expressions.Count; i++)
+				{
+					orExp = Expression.OrElse(orExp, expressions[i]);
+				}
+			}
+			return orExp;
+		}
+	}
 }

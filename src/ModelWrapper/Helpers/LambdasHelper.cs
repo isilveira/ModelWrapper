@@ -69,50 +69,75 @@ namespace ModelWrapper.Helpers
                  searchableProperties.Any(y => y.ToLower().Equals(x.Name.ToLower()))
                  && !CriteriasHelper.GetNonQueryableTypes().Any(type => type == x.PropertyType)
             ).ToList())
-            {
-                Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
-                Expression memberHasValue = null;
-                if (memberExp.Type != typeof(string))
-                {
-                    if (Nullable.GetUnderlyingType(memberExp.Type) != null)
-                    {
-                        memberHasValue = Expression.MakeMemberAccess(memberExp, memberExp.Type.GetProperty("HasValue"));
-                        memberHasValue = queryStrict ? memberHasValue : Expression.Not(memberHasValue);
-                    }
-                    else if (memberExp.Type.IsClass)
-                    {
-                        memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
-                        memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
-                    }
-                    memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
+			{
+				SetPropertyExpressions(terms, queryStrict, orExpressions, xExp, propertyInfo);
+			}
+
+			Expression orExp = ExpressionsHelper.GenerateOrElseExpression(orExpressions);
+
+            return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
+		}
+
+		private static void SetPropertyExpressions(IList<string> terms, bool queryStrict, List<Expression> orExpressions, Expression xExp, PropertyInfo propertyInfo)
+		{
+			Expression memberExp = Expression.MakeMemberAccess(xExp, propertyInfo);
+			Expression memberHasValue = null;
+			if (memberExp.Type != typeof(string))
+			{
+				if (Nullable.GetUnderlyingType(memberExp.Type) != null)
+				{
+					memberHasValue = Expression.MakeMemberAccess(memberExp, memberExp.Type.GetProperty("HasValue"));
+					memberHasValue = queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+					memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
+				}
+				else if (memberExp.Type.IsClass)
+				{
+					List<Expression> subAndExpressions = new List<Expression>();
+					List<Expression> subOrExpressions = new List<Expression>();
+					memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+                    
+                    subAndExpressions.Add(memberHasValue);
+					
+                    foreach (var subPropertyInfo in memberExp.Type.GetProperties().Where(x =>
+						 !TypesHelper.TypeIsComplex(x.PropertyType)
+						 && !CriteriasHelper.GetNonQueryableTypes().Any(type => type == x.PropertyType)
+					).ToList())
+					{
+						SetPropertyExpressions(terms, queryStrict, subOrExpressions, memberExp, subPropertyInfo);
+					}
+
+                    subAndExpressions.Add(ExpressionsHelper.GenerateOrElseExpression(subOrExpressions));
+
+                    orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+                    return;
                 }
                 else
                 {
-                    memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
-                    memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+                    memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
                 }
+			}
+			else
+			{
+				memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
+				memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+			}
 
-                memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
-                List<Expression> andExpressions = new List<Expression>();
+			memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
+			List<Expression> andExpressions = new List<Expression>();
 
-                foreach (var token in terms)
-                {
-                    andExpressions.Add(ExpressionsHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
-                }
-                orExpressions.Add(queryStrict ? ExpressionsHelper.GenerateAndExpressions(andExpressions) : ExpressionsHelper.GenerateOrExpression(andExpressions));
-            }
-
-            Expression orExp = ExpressionsHelper.GenerateOrExpression(orExpressions);
-
-            return Expression.Lambda<Func<TSource, bool>>(orExp.Reduce(), xExp);
-        }
-        /// <summary>
-        /// Method that generates a lambda expression for select return
-        /// </summary>
-        /// <typeparam name="TSource">Expression type attribute</typeparam>
-        /// <param name="selectedModel">Object that represents a format to the returned object</param>
-        /// <returns>Lambda expression for the select</returns>
-        internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
+			foreach (var token in terms)
+			{
+				andExpressions.Add(ExpressionsHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
+			}
+			orExpressions.Add(queryStrict ? ExpressionsHelper.GenerateAndAlsoExpressions(andExpressions) : ExpressionsHelper.GenerateOrElseExpression(andExpressions));
+		}
+		/// <summary>
+		/// Method that generates a lambda expression for select return
+		/// </summary>
+		/// <typeparam name="TSource">Expression type attribute</typeparam>
+		/// <param name="selectedModel">Object that represents a format to the returned object</param>
+		/// <returns>Lambda expression for the select</returns>
+		internal static Expression<Func<TSource, object>> GenerateSelectExpression<TSource>(
             SelectedModel selectedModel
         ) where TSource : class
         {
