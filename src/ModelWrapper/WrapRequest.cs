@@ -272,7 +272,7 @@ namespace ModelWrapper
         {
             var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
 
-            if (property != null)
+            if (property != null && property.CanWrite)
             {
                 Type propertyType = property.PropertyType;
                 if (Nullable.GetUnderlyingType(propertyType) != null)
