@@ -87,7 +87,6 @@ namespace ModelWrapper.Helpers
 				if (Nullable.GetUnderlyingType(memberExp.Type) != null)
 				{
 					memberHasValue = Expression.MakeMemberAccess(memberExp, memberExp.Type.GetProperty("HasValue"));
-					memberHasValue = queryStrict ? memberHasValue : Expression.Not(memberHasValue);
 					memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
 				}
 				else if (memberExp.Type.IsClass)
@@ -114,22 +113,26 @@ namespace ModelWrapper.Helpers
                 else
                 {
                     memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToString", 0, 0));
-                }
+					memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
+				}
 			}
 			else
 			{
 				memberHasValue = Expression.Equal(memberExp, Expression.Constant(null));
-				memberHasValue = !queryStrict ? memberHasValue : Expression.Not(memberHasValue);
+				memberHasValue = Expression.Not(memberHasValue);
 			}
-
 			memberExp = Expression.Call(memberExp, ReflectionsHelper.GetMethodFromType(memberExp.Type, "ToLower", 0, 0));
+
 			List<Expression> andExpressions = new List<Expression>();
 
 			foreach (var token in terms)
 			{
 				andExpressions.Add(ExpressionsHelper.GenerateStringContainsExpression(memberExp, Expression.Constant(token, typeof(string))));
 			}
-			orExpressions.Add(queryStrict ? ExpressionsHelper.GenerateAndAlsoExpressions(andExpressions) : ExpressionsHelper.GenerateOrElseExpression(andExpressions));
+			if(memberHasValue == null)
+				orExpressions.Add(queryStrict ? ExpressionsHelper.GenerateAndAlsoExpressions(andExpressions) : ExpressionsHelper.GenerateOrElseExpression(andExpressions));
+			else
+                orExpressions.Add(Expression.And(memberHasValue, queryStrict ? ExpressionsHelper.GenerateAndAlsoExpressions(andExpressions) : ExpressionsHelper.GenerateOrElseExpression(andExpressions)));
 		}
 		/// <summary>
 		/// Method that generates a lambda expression for select return
