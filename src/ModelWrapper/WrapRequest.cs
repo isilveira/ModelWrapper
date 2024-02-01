@@ -270,7 +270,7 @@ namespace ModelWrapper
             object propertyValue
         )
         {
-            var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
+            var property = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
 
             if (property != null && property.CanWrite)
             {
@@ -299,8 +299,37 @@ namespace ModelWrapper
                 {
                     property.SetValue(this.Model, propertyValue);
                 }
-            }
-        }
+			}
+			var requestProperty = this.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
+
+			if (requestProperty != null && requestProperty.CanWrite)
+			{
+				Type propertyType = requestProperty.PropertyType;
+				if (Nullable.GetUnderlyingType(propertyType) != null)
+				{
+					propertyType = Nullable.GetUnderlyingType(propertyType);
+				}
+
+				if (propertyValue is JToken)
+				{
+					var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), requestProperty.PropertyType);
+					requestProperty.SetValue(this, newPropertyValue);
+				}
+				else if (propertyValue != null)
+				{
+					bool changed = false;
+					var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), requestProperty.PropertyType, out changed);
+					if (changed)
+					{
+						requestProperty.SetValue(this, newPropertyValue);
+					}
+				}
+				else
+				{
+					requestProperty.SetValue(this, propertyValue);
+				}
+			}
+		}
         /// <summary>
         /// Method that gets a property value from model object
         /// </summary>
