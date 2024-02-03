@@ -28,19 +28,13 @@ namespace ModelWrapper.Helpers
 
             foreach (var filterProperty in filters)
             {
-                var propertyParts = filterProperty.Key.Split('_');
-                var property = typeof(TSource).GetProperties().Where(x => x.Name.ToLower().Equals(propertyParts[0].ToLower())).SingleOrDefault();
+                var comparisonType = ExpressionsHelper.GetPropertyComparisonType(filterProperty.Key);
+                var propertyName = string.IsNullOrWhiteSpace(comparisonType) ? filterProperty.Key : filterProperty.Key.Replace($"_{comparisonType}", "");
+                var property = typeof(TSource).GetProperties().Where(x => x.Name.ToLower().Equals(propertyName.ToLower())).SingleOrDefault();
 
                 Expression memberExp = Expression.MakeMemberAccess(xExp, property);
 
-                if (propertyParts.Count() == 1)
-                {
-                    expressions.Add(ExpressionsHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property));
-                }
-                else
-                {
-                    expressions.Add(ExpressionsHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property, propertyParts[1]));
-                }
+                expressions.Add(ExpressionsHelper.GenerateFilterComparisonExpression(memberExp, filterProperty, property, comparisonType));
             }
 
             Expression orExp = ExpressionsHelper.GenerateAndExpressions(expressions);

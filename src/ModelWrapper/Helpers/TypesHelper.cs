@@ -36,7 +36,7 @@ namespace ModelWrapper.Helpers
                     }
                 }
 
-                object convertedObject = typeTo == typeof(Guid) ? Guid.Parse(value) : Convert.ChangeType(value, typeTo);
+                object convertedObject = typeTo == typeof(Guid) ? Guid.Parse(value) : typeTo == typeof(byte[]) ? Encoding.UTF8.GetBytes(!string.IsNullOrWhiteSpace(value) && value == "null" ? string.Empty : value) : Convert.ChangeType(value, typeTo);
                 changed = true;
                 return convertedObject;
             }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModelWrapper.Extensions.Filter;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,6 +11,54 @@ namespace ModelWrapper.Helpers
     /// </summary>
     public static class ExpressionsHelper
     {
+        internal static string GetPropertyComparisonType(string propertyName)
+        {
+			if (propertyName.EndsWith("_Not"))
+			{
+                return "Not";
+			}
+			if (propertyName.EndsWith("_Contains"))
+			{
+                return "Contains";
+			}
+			if (propertyName.EndsWith("_NotContains"))
+			{
+                return "NotContains";
+			}
+			if (propertyName.EndsWith("_StartsWith"))
+			{
+                return "StartsWith";
+			}
+			if (propertyName.EndsWith("_NotStartsWith"))
+			{
+				return "NotStartsWith";
+			}
+			if (propertyName.EndsWith("_EndsWith"))
+			{
+				return "EndsWith";
+			}
+			if (propertyName.EndsWith("_NotEndsWith"))
+			{
+				return "NotEndsWith";
+			}
+			if (propertyName.EndsWith("_GreaterThan"))
+			{
+				return "GreaterThan";
+			}
+			if (propertyName.EndsWith("_GreaterThanOrEqual"))
+			{
+				return "GreaterThanOrEqual";
+			}
+			if (propertyName.EndsWith("_LessThan"))
+			{
+				return "LessThan";
+			}
+			if (propertyName.EndsWith("_LessThanOrEqual"))
+			{
+				return "LessThanOrEqual";
+			}
+			return string.Empty;
+		}
         /// <summary>
         /// Method that generate filter comparison expression
         /// </summary>
@@ -92,8 +141,13 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(Expression.Equal(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					List<Expression> subAndExpressions = new List<Expression>();
+					Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+					subAndExpressions.Add(memberHasValue);
+                    subAndExpressions.Add(Expression.Equal(memberExp, Expression.Constant(value, property.PropertyType)));
+					orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
                 }
                 return GenerateOrExpression(orExpressions);
             }

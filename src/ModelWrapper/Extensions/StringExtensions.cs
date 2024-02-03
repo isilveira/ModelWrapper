@@ -1,4 +1,6 @@
-﻿namespace ModelWrapper.Extensions
+﻿using Newtonsoft.Json.Linq;
+
+namespace ModelWrapper.Extensions
 {
     /// <summary>
     /// Class that extends functionalities of string instances
@@ -12,12 +14,7 @@
         /// <returns>Transformed string</returns>
         public static string ToCamelCase(this string source)
         {
-            if (string.IsNullOrWhiteSpace(source))
-                return source;
-            if (source.Length == 1)
-                return source.ToLower();
-
-            return source.Substring(0, 1).ToLower() + source.Substring(1);
+            return System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(source);
         }
     }
 }
