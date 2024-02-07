@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModelWrapper.Extensions.Select
 {
@@ -172,6 +174,15 @@ namespace ModelWrapper.Extensions.Select
         ) where TSource : class
         {
             return source.Select(LambdasHelper.GenerateSelectExpression<TSource>(request.GetSelectedModel()));
-        }
-    }
+		}
+		public static object Select<TSource, TResult>(
+            this TSource source,
+			WrapRequest<TSource> request
+		) 
+            where TSource : class
+            where TResult : class
+		{
+            return (new List<TSource>() { source }).AsQueryable().Select(request).SingleOrDefault();
+		}
+	}
 }
