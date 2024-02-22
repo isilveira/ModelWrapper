@@ -74,7 +74,7 @@ namespace ModelWrapper.Extensions.Pagination
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Pagination Pagination<TModel>(
+        public static Pagination Pagination<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {

@@ -30,7 +30,7 @@ namespace ModelWrapper.Extensions.Ordination
         /// <typeparam name="TModel">Generic type of the entity</typeparam>
         /// <param name="source">Self IWrapRequest<T> instance</param>
         /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Ordination Ordination<TModel>(
+        public static Ordination Ordination<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {
