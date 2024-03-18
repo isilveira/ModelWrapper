@@ -178,7 +178,9 @@ namespace ModelWrapper.Helpers
         }
         internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)
         {
-            foreach (var property in from.GetType().GetProperties())
+            var properties = from.GetType().GetProperties().Where(p => !p.PropertyType.IsClass || p.PropertyType == typeof(string) || p.PropertyType == typeof(byte[])).ToList();
+
+			foreach (var property in properties)
             {
                 var toProperty = to.GetType().GetProperty(property.Name);
 
