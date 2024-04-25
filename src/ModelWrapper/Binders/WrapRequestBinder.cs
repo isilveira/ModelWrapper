@@ -33,7 +33,6 @@ namespace ModelWrapper.Binders
                     model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] {
                         new WrapRequestMemberBinder(key, WrapPropertySource.FromForm, true),
                         bindingContext.HttpContext.Request.Form[key].ToString().Equals("null") ? null : bindingContext.HttpContext.Request.Form[key].ToString()
-
 					});
                 });
             }
