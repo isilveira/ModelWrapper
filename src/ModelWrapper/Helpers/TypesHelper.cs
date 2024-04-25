@@ -100,7 +100,7 @@ namespace ModelWrapper.Helpers
                 typeof(HashSet<>),
             };
 
-            return type.IsGenericType && (type.IsArray || collectionTypes.Any(collectionType => collectionType == type.GetGenericTypeDefinition()));
+            return type.IsArray ||(type.IsGenericType && collectionTypes.Any(collectionType => collectionType == type.GetGenericTypeDefinition()));
         }
         internal static bool TypeIsEntity(Type type)
         {
