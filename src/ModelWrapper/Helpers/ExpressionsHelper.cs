@@ -142,12 +142,19 @@ namespace ModelWrapper.Helpers
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
 				{
-					List<Expression> subAndExpressions = new List<Expression>();
-					Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+                    if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+                    {
+                        List<Expression> subAndExpressions = new List<Expression>();
+                        Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
 
-					subAndExpressions.Add(memberHasValue);
-                    subAndExpressions.Add(Expression.Equal(memberExp, Expression.Constant(value, property.PropertyType)));
-					orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+                        subAndExpressions.Add(memberHasValue);
+                        subAndExpressions.Add(Expression.Equal(memberExp, Expression.Constant(value, property.PropertyType)));
+                        orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+                    }
+                    else
+                    {
+						orExpressions.Add(Expression.Equal(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -173,8 +180,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(GenerateStringContainsExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(GenerateStringContainsExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(GenerateStringContainsExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -200,8 +219,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(GenerateStringStartsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(GenerateStringStartsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(GenerateStringStartsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -227,8 +258,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(GenerateStringEndsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(GenerateStringEndsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(GenerateStringEndsWithExpression(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -254,8 +297,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(Expression.GreaterThan(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(Expression.GreaterThan(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(Expression.GreaterThan(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -281,8 +336,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(Expression.GreaterThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(Expression.GreaterThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(Expression.GreaterThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -308,8 +375,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(Expression.LessThan(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(Expression.LessThan(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(Expression.LessThan(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }
@@ -335,8 +414,20 @@ namespace ModelWrapper.Helpers
             {
                 List<Expression> orExpressions = new List<Expression>();
                 foreach (var value in ((List<object>)filterProperty.Value))
-                {
-                    orExpressions.Add(Expression.LessThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(Expression.LessThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(Expression.LessThanOrEqual(memberExp, Expression.Constant(value, property.PropertyType)));
+					}
                 }
                 return GenerateOrExpression(orExpressions);
             }

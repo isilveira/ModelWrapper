@@ -104,7 +104,7 @@ namespace ModelWrapper
 
             return true;
         }
-        public void AddProperty(string name, object value, WrapPropertySource source = WrapPropertySource.FromBody)
+        private void AddProperty(string name, object value, WrapPropertySource source = WrapPropertySource.FromBody)
         {
             AllProperties.Add(new WrapRequestProperty { Name = name, Value = value, Source = source });
         }
