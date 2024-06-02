@@ -1,20 +1,16 @@
 ﻿using ModelWrapper.Helpers;
-using ModelWrapper.Interfaces;
 using ModelWrapper.Models;
 using ModelWrapper.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ModelWrapper.Extensions.Select
 {
-    /// <summary>
-    /// Class that extends select functionality into ModelWrapper
-    /// </summary>
-    public static class SelectExtensions
+	/// <summary>
+	/// Class that extends select functionality into ModelWrapper
+	/// </summary>
+	public static class SelectExtensions
     {
         internal static Func<bool, bool, bool, bool> IsToLoadComplexPropertyWhenNotRequested = (isComplexProperty, loadComplexObjectByDefault, isRootObject) => isComplexProperty ? loadComplexObjectByDefault ? isRootObject : false : true;
 
