@@ -108,7 +108,7 @@ namespace ModelWrapper.Helpers
         }
         internal static bool TypeIsComplex(Type type)
         {
-            return (TypeIsClass(type) && TypeIsEntity(type)) || (TypeIsCollection(type) && TypeIsEntity(type.GenericTypeArguments[0]));
+            return (TypeIsClass(type) && TypeIsEntity(type)) || (TypeIsCollection(type) && type.GenericTypeArguments.Length > 0 && TypeIsEntity(type.GenericTypeArguments[0]));
         }
         internal static Type GetEntityTypeFromComplex(Type type)
         {
