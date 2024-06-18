@@ -1,6 +1,8 @@
-﻿using ModelWrapper.Extensions.Filter;
+﻿using ModelWrapper.Extensions;
+using ModelWrapper.Extensions.Filter;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -12,52 +14,60 @@ namespace ModelWrapper.Helpers
     public static class ExpressionsHelper
     {
         internal static string GetPropertyComparisonType(string propertyName)
-        {
-			if (propertyName.EndsWith("_Not"))
+		{
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.NotEqual)))
 			{
-                return "Not";
+                return CriteriasHelper.Criterias.NotEqual.GetDescription();
 			}
-			if (propertyName.EndsWith("_Contains"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.In)))
 			{
-                return "Contains";
+				return CriteriasHelper.Criterias.In.GetDescription();
 			}
-			if (propertyName.EndsWith("_NotContains"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.NotIn)))
 			{
-                return "NotContains";
+				return CriteriasHelper.Criterias.NotIn.GetDescription();
 			}
-			if (propertyName.EndsWith("_StartsWith"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.Contains)))
 			{
-                return "StartsWith";
+                return CriteriasHelper.Criterias.Contains.GetDescription();
 			}
-			if (propertyName.EndsWith("_NotStartsWith"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.NotContains)))
 			{
-				return "NotStartsWith";
+                return CriteriasHelper.Criterias.NotContains.GetDescription();
 			}
-			if (propertyName.EndsWith("_EndsWith"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.StartsWith)))
 			{
-				return "EndsWith";
+                return CriteriasHelper.Criterias.StartsWith.GetDescription();
 			}
-			if (propertyName.EndsWith("_NotEndsWith"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.NotStartsWith)))
 			{
-				return "NotEndsWith";
+				return CriteriasHelper.Criterias.NotStartsWith.GetDescription();
 			}
-			if (propertyName.EndsWith("_GreaterThan"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.EndsWith)))
 			{
-				return "GreaterThan";
+				return CriteriasHelper.Criterias.EndsWith.GetDescription();
 			}
-			if (propertyName.EndsWith("_GreaterThanOrEqual"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.NotEndsWith)))
 			{
-				return "GreaterThanOrEqual";
+				return CriteriasHelper.Criterias.NotEndsWith.GetDescription();
 			}
-			if (propertyName.EndsWith("_LessThan"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.GreaterThan)))
 			{
-				return "LessThan";
+				return CriteriasHelper.Criterias.GreaterThan.GetDescription();
 			}
-			if (propertyName.EndsWith("_LessThanOrEqual"))
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.GreaterThanOrEqual)))
 			{
-				return "LessThanOrEqual";
+				return CriteriasHelper.Criterias.GreaterThanOrEqual.GetDescription();
 			}
-			return string.Empty;
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.LessThan)))
+			{
+				return CriteriasHelper.Criterias.LessThan.GetDescription();
+			}
+			if (propertyName.EndsWith(CriteriasHelper.CriteriaWithSeparator(CriteriasHelper.Criterias.LessThanOrEqual)))
+			{
+				return CriteriasHelper.Criterias.LessThanOrEqual.GetDescription();
+			}
+			return CriteriasHelper.Criterias.Equal.GetDescription();
 		}
         /// <summary>
         /// Method that generate filter comparison expression
@@ -77,48 +87,56 @@ namespace ModelWrapper.Helpers
             if (string.IsNullOrWhiteSpace(comparisonType))
             {
                 return GenerateFilterStrictExpression(memberExp, filterProperty, property);
-            }
-            if (comparisonType == "Not")
+			}
+			if (comparisonType == CriteriasHelper.Criterias.NotEqual.GetDescription())
             {
                 return Expression.Not(GenerateFilterStrictExpression(memberExp, filterProperty, property));
             }
-            if (comparisonType == "Contains")
+            if (comparisonType == CriteriasHelper.Criterias.In.GetDescription())
+			{
+				return GenerateFilterInExpression(memberExp, filterProperty, property);
+			}
+			if (comparisonType == CriteriasHelper.Criterias.NotIn.GetDescription())
+			{
+				return Expression.Not(GenerateFilterInExpression(memberExp, filterProperty, property));
+			}
+			if (comparisonType == CriteriasHelper.Criterias.Contains.GetDescription())
             {
                 return GenerateFilterContainsExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "NotContains")
+            if (comparisonType == CriteriasHelper.Criterias.NotContains.GetDescription())
             {
                 return Expression.Not(GenerateFilterContainsExpression(memberExp, filterProperty, property));
             }
-            if (comparisonType == "StartsWith")
+            if (comparisonType == CriteriasHelper.Criterias.StartsWith.GetDescription())
             {
                 return GenerateFilterStartsWithExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "NotStartsWith")
+            if (comparisonType == CriteriasHelper.Criterias.NotStartsWith.GetDescription())
             {
                 return Expression.Not(GenerateFilterStartsWithExpression(memberExp, filterProperty, property));
             }
-            if (comparisonType == "EndsWith")
+            if (comparisonType == CriteriasHelper.Criterias.EndsWith.GetDescription())
             {
                 return GenerateFilterEndsWithExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "NotEndsWith")
+            if (comparisonType == CriteriasHelper.Criterias.NotEndsWith.GetDescription())
             {
                 return Expression.Not(GenerateFilterEndsWithExpression(memberExp, filterProperty, property));
             }
-            if (comparisonType == "GreaterThan")
+            if (comparisonType == CriteriasHelper.Criterias.GreaterThan.GetDescription())
             {
                 return GenerateFilterGreaterThanExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "GreaterThanOrEqual")
+            if (comparisonType == CriteriasHelper.Criterias.GreaterThanOrEqual.GetDescription())
             {
                 return GenerateFilterGreaterOrEqualExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "LessThan")
+            if (comparisonType == CriteriasHelper.Criterias.LessThan.GetDescription())
             {
                 return GenerateFilterLessThanExpression(memberExp, filterProperty, property);
             }
-            if (comparisonType == "LessThanOrEqual")
+            if (comparisonType == CriteriasHelper.Criterias.LessThanOrEqual.GetDescription())
             {
                 return GenerateFilterLessThanOrEqualExpression(memberExp, filterProperty, property);
             }
@@ -162,15 +180,61 @@ namespace ModelWrapper.Helpers
             {
                 return Expression.Equal(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
-        }
-        /// <summary>
-        /// Method that generate filter contains comparison expression
-        /// </summary>
-        /// <param name="memberExp">Member expression</param>
-        /// <param name="filterProperty">KeyValuePair for properties and values</param>
-        /// <param name="property">Property that will be filtered</param>
-        /// <returns>Expression for the filter contains comparison</returns>
-        internal static Expression GenerateFilterContainsExpression(
+		}
+		/// <summary>
+		/// Method that generate filter in comparison expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter in comparison</returns>
+		internal static Expression GenerateFilterInExpression(
+			Expression memberExp,
+			KeyValuePair<string, object> filterProperty,
+			PropertyInfo property
+		)
+		{
+			if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+			{
+				List<Expression> orExpressions = new List<Expression>();
+				foreach (var value in ((List<object>)filterProperty.Value))
+				{
+					if (Nullable.GetUnderlyingType(property.PropertyType) != null)
+					{
+						List<Expression> subAndExpressions = new List<Expression>();
+						Expression memberHasValue = Expression.NotEqual(memberExp, Expression.Constant(null));
+
+						subAndExpressions.Add(memberHasValue);
+						subAndExpressions.Add(GenerateListContainsExpression(memberExp, Expression.Constant(value, property.PropertyType), property.PropertyType));
+						orExpressions.Add(ExpressionsHelper.GenerateAndAlsoExpressions(subAndExpressions));
+					}
+					else
+					{
+						orExpressions.Add(GenerateListContainsExpression(memberExp, Expression.Constant(value, property.PropertyType), property.PropertyType));
+					}
+				}
+				return GenerateOrExpression(orExpressions);
+			}
+			else
+			{
+                if(filterProperty.Value.GetType() == typeof(string) && ((string)filterProperty.Value).Split(ConfigurationService.GetConfiguration().DefaultInStringSeparator).Length > 1)
+                {
+                    var listString = ((string)filterProperty.Value).Split(ConfigurationService.GetConfiguration().DefaultInStringSeparator).ToList();
+
+					return GenerateListContainsExpression(memberExp, Expression.Constant(listString, listString.GetType()), listString.GetType());
+				}
+
+				return GenerateListContainsExpression(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType), property.PropertyType);
+			}
+		}
+		/// <summary>
+		/// Method that generate filter contains comparison expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter contains comparison</returns>
+		internal static Expression GenerateFilterContainsExpression(
             Expression memberExp,
             KeyValuePair<string, object> filterProperty,
             PropertyInfo property
@@ -435,15 +499,32 @@ namespace ModelWrapper.Helpers
             {
                 return Expression.LessThanOrEqual(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType));
             }
-        }
-        /// <summary>
-        /// Method that generate filter string contains comparison expression
-        /// </summary>
-        /// <param name="memberExp">Member expression</param>
-        /// <param name="filterProperty">KeyValuePair for properties and values</param>
-        /// <param name="property">Property that will be filtered</param>
-        /// <returns>Expression for the filter string contains comparison</returns>
-        internal static Expression GenerateStringContainsExpression(
+		}
+		/// <summary>
+		/// Method that generate filter list contains comparison expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter list contains comparison</returns>
+		internal static Expression GenerateListContainsExpression(
+			Expression memberExp,
+			ConstantExpression tokenExp,
+            Type listType
+		)
+		{
+			var method = ReflectionsHelper.GetMethodFromType(listType, "Contains", 1, 0, new List<Type> { memberExp.Type });
+
+			return Expression.Call(tokenExp, method, memberExp);
+		}
+		/// <summary>
+		/// Method that generate filter string contains comparison expression
+		/// </summary>
+		/// <param name="memberExp">Member expression</param>
+		/// <param name="filterProperty">KeyValuePair for properties and values</param>
+		/// <param name="property">Property that will be filtered</param>
+		/// <returns>Expression for the filter string contains comparison</returns>
+		internal static Expression GenerateStringContainsExpression(
             Expression memberExp,
             ConstantExpression tokenExp
         )

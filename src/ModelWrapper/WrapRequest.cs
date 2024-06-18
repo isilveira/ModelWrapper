@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace ModelWrapper
 {
@@ -100,7 +101,7 @@ namespace ModelWrapper
             
             AddProperty(binder.Name, value, source);
 
-            SetPropertyValue(binder.Name, value);
+            SetPropertyValue(binder, value);
 
             return true;
         }
@@ -266,69 +267,89 @@ namespace ModelWrapper
         /// <param name="propertyName">Property name</param>
         /// <param name="propertyValue">Property value</param>
         internal void SetPropertyValue(
-            string propertyName,
+			SetMemberBinder binder,
             object propertyValue
         )
-        {
-            var property = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
-
-            if (property != null && property.CanWrite)
+		{
+            if (binder.Name.Split('.').Length > 1)
             {
-                Type propertyType = property.PropertyType;
-                if (Nullable.GetUnderlyingType(propertyType) != null)
-                {
-                    propertyType = Nullable.GetUnderlyingType(propertyType);
-                }
+                var propertyRoot = binder.Name.Split(".")[0];
+                var propertyName = string.Join(".", binder.Name.Split(".").Skip(1));
 
-                SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
-                if (propertyValue is JToken)
+				var modelProperty = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyRoot.ToLower()));
+                var requestProperty = this.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyRoot.ToLower()));
+
+                var model = (modelProperty != null ? modelProperty : requestProperty).GetValue((modelProperty != null ? this.Model : this));
+
+				var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
+
+				model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] {
+                    new WrapRequestMemberBinder(propertyName, source, true),
+					propertyValue
+				});
+            } else {
+
+                var property = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
+                if (property != null && property.CanWrite)
                 {
-                    var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
-                    property.SetValue(this.Model, newPropertyValue);
-                }
-                else if (propertyValue != null)
-                {
-                    bool changed = false;
-                    var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
-                    if (changed)
+                    Type propertyType = property.PropertyType;
+                    if (Nullable.GetUnderlyingType(propertyType) != null)
                     {
+                        propertyType = Nullable.GetUnderlyingType(propertyType);
+                    }
+
+                    SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
+                    if (propertyValue is JToken)
+                    {
+                        var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
                         property.SetValue(this.Model, newPropertyValue);
+                    }
+                    else if (propertyValue != null)
+                    {
+                        bool changed = false;
+                        var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
+                        if (changed)
+                        {
+                            property.SetValue(this.Model, newPropertyValue);
+                        }
+                    }
+                    else
+                    {
+                        property.SetValue(this.Model, propertyValue);
                     }
                 }
                 else
                 {
-                    property.SetValue(this.Model, propertyValue);
+                    var requestProperty = this.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
+                    if (requestProperty != null && requestProperty.CanWrite)
+                    {
+                        Type propertyType = requestProperty.PropertyType;
+                        if (Nullable.GetUnderlyingType(propertyType) != null)
+                        {
+                            propertyType = Nullable.GetUnderlyingType(propertyType);
+                        }
+
+                        if (propertyValue is JToken)
+                        {
+                            var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), requestProperty.PropertyType);
+                            requestProperty.SetValue(this, newPropertyValue);
+                        }
+                        else if (propertyValue != null)
+                        {
+                            bool changed = false;
+                            var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), requestProperty.PropertyType, out changed);
+                            if (changed)
+                            {
+                                requestProperty.SetValue(this, newPropertyValue);
+                            }
+                        }
+                        else
+                        {
+                            requestProperty.SetValue(this, propertyValue);
+                        }
+                    }
                 }
-			}
-			var requestProperty = this.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
-
-			if (requestProperty != null && requestProperty.CanWrite)
-			{
-				Type propertyType = requestProperty.PropertyType;
-				if (Nullable.GetUnderlyingType(propertyType) != null)
-				{
-					propertyType = Nullable.GetUnderlyingType(propertyType);
-				}
-
-				if (propertyValue is JToken)
-				{
-					var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), requestProperty.PropertyType);
-					requestProperty.SetValue(this, newPropertyValue);
-				}
-				else if (propertyValue != null)
-				{
-					bool changed = false;
-					var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), requestProperty.PropertyType, out changed);
-					if (changed)
-					{
-						requestProperty.SetValue(this, newPropertyValue);
-					}
-				}
-				else
-				{
-					requestProperty.SetValue(this, propertyValue);
-				}
-			}
+            }
 		}
         /// <summary>
         /// Method that gets a property value from model object

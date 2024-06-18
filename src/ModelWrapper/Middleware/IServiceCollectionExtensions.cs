@@ -150,6 +150,14 @@ namespace ModelWrapper.Middleware
             ConfigurationService.GetConfiguration().EntityBase = entityBaseType;
 
             return services;
-        }
-    }
+		}
+		public static IServiceCollection AddByDefaultInStringSeparator(
+			this IServiceCollection services,
+			string separator)
+		{
+			ConfigurationService.GetConfiguration().DefaultInStringSeparator = separator;
+
+			return services;
+		}
+	}
 }

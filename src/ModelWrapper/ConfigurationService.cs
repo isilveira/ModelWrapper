@@ -49,10 +49,14 @@ namespace ModelWrapper
         /// Entities base type
         /// </summary>
         public Type EntityBase { get; set; }
-        /// <summary>
-        /// Configuration services constructor
-        /// </summary>
-        public ConfigurationService()
+		/// <summary>
+		/// Default In string separator
+		/// </summary>
+		public string DefaultInStringSeparator { get; set; }
+		/// <summary>
+		/// Configuration services constructor
+		/// </summary>
+		public ConfigurationService()
         {
             MinimumReturnedCollectionSize = 10;
             MaximumReturnedCollectionSize = 1000;
@@ -61,6 +65,7 @@ namespace ModelWrapper
             ByDefaultLoadComplexProperties = false;
             SuppressedCharacters = new List<char> { };
             SuppressedTerms = new List<string> { };
+			DefaultInStringSeparator = ";";
         }
         /// <summary>
         /// Method that returns the configuration services instance
@@ -124,6 +129,6 @@ namespace ModelWrapper
             SuppressedTerms.ToList().ForEach(term => terms.Remove(term));
 
             return terms;
-        }
-    }
+		}
+	}
 }
