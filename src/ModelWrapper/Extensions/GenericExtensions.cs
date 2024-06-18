@@ -1,6 +1,4 @@
-﻿using EnumsNET;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -62,7 +60,7 @@ namespace ModelWrapper.Extensions
 
 			source.Add(key, value);
 		}
-		internal static string GetDescription<TEnum>(this TEnum source) where TEnum : Enum 
+		internal static string GetDescription<TEnum>(this TEnum source) where TEnum : Enum
 		{
 			FieldInfo fi = source.GetType().GetField(source.ToString());
 
@@ -74,6 +72,42 @@ namespace ModelWrapper.Extensions
 			}
 
 			return source.ToString();
+		}
+
+		internal static List<PropertyInfo> GetProperties<TModel>(this WrapRequest<TModel> request, bool onlySupplied, bool supressed = false, bool keys = false) where TModel : class
+		{
+			var properties = typeof(TModel).GetProperties().ToList();
+
+			if (onlySupplied)
+				properties = properties.Where(x => request.SuppliedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))).ToList();
+
+			if (supressed == false)
+				properties = properties.Where(p => !request.IsPropertySuppressed(p.Name)).ToList();
+
+			if(keys == false)
+				properties = properties.Where(p => !request.KeyProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
+
+			return properties;
+		}
+
+		internal static TModel CreateOrUpdateModel<TModel>(this WrapRequest<TModel> request, List<PropertyInfo> properties, TModel model = null) where TModel : class
+		{
+			if(model == null)
+				model = Activator.CreateInstance<TModel>();
+
+			properties.ForEach(property => property.SetValue(model, property.GetValue(request.Model)));
+
+			return model;
+		}
+		internal static TModel CreateOrUpdateModelAndSetOnRequest<TModel>(this WrapRequest<TModel> request, TModel model, bool updateWithOnlySupplied) where TModel : class
+		{
+			var properties = request.GetProperties(onlySupplied: updateWithOnlySupplied);
+
+			model = request.CreateOrUpdateModel(properties, model);
+
+			request.SetModelOnRequest(model, properties);
+
+			return model;
 		}
 	}
 }

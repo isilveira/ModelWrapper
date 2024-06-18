@@ -1,13 +1,10 @@
-﻿using ModelWrapper.Interfaces;
-using System.Linq;
-
-namespace ModelWrapper.Extensions.Put
+﻿namespace ModelWrapper.Extensions.Put
 {
 
-    /// <summary>
-    /// Class that extends put functionality into ModelWrapper
-    /// </summary>
-    public static class PutExtensions
+	/// <summary>
+	/// Class that extends put functionality into ModelWrapper
+	/// </summary>
+	public static class PutExtensions
     {
         /// <summary>
         /// Mathod that extends IWrapRequest<T> allowing use put
@@ -20,17 +17,8 @@ namespace ModelWrapper.Extensions.Put
             this WrapRequest<TModel> request,
             TModel model
         ) where TModel : class
-        {
-            var properties = typeof(TModel).GetProperties().ToList();
-
-            properties = properties.Where(p => !request.IsPropertySuppressed(p.Name)).ToList();
-            properties = properties.Where(p => !request.KeyProperties().Any(x => x.ToLower().Equals(p.Name.ToLower()))).ToList();
-
-            properties.ForEach(property => property.SetValue(model, property.GetValue(request.Model)));
-
-            request.SetModelOnRequest(model, properties);
-
-            return model;
-        }
+		{
+			return request.CreateOrUpdateModelAndSetOnRequest(model, false);
+		}
     }
 }
