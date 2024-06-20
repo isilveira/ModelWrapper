@@ -1,4 +1,6 @@
-﻿using ModelWrapper.Helpers;
+﻿using ModelWrapper.Binders;
+using ModelWrapper.Extensions.Filter;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using System;
@@ -23,6 +25,17 @@ namespace ModelWrapper.Extensions.Pagination
         {
             source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(Constants.CONST_PAGINATION_SIZE.ToLower()) || property.Name.ToLower().Equals(Constants.CONST_PAGINATION_NUMBER.ToLower()));
         }
+        public static void SetPagination<TModel>(this WrapRequest<TModel> source, int pageSize, int pageNumber)
+			where TModel : class
+		{
+            source.ClearPagintation();
+
+			var memberBinderPageSize = new WrapRequestMemberBinder(Constants.CONST_PAGINATION_SIZE, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderPageSize, pageSize.ToString() });
+
+			var memberBinderPageNumber = new WrapRequestMemberBinder(Constants.CONST_PAGINATION_SIZE, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderPageNumber, pageNumber.ToString() });
+		}
         /// <summary>
         /// Method that extends IWrapRequest<T> allowing to get DefaultReturnedCollectionSize property
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Helpers;
+﻿using ModelWrapper.Binders;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using System.Collections.Generic;
@@ -38,15 +39,34 @@ namespace ModelWrapper.Extensions.Search
                 x.Name.ToLower().Equals(Constants.CONST_QUERY_PHRASE.ToLower())
                 && x.Source == WrapPropertySource.FromQuery
             );
-            #endregion
-        }
-        /// <summary>
-        /// Method that extends IWrapRequest<T> allowing to get query properties from request
-        /// </summary>
-        /// <typeparam name="TModel">Generic type of the entity</typeparam>
-        /// <param name="source">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static Search Search<TModel>(
+			#endregion
+		}
+		public static void SetSearch<TModel>(this WrapRequest<TModel> source, string query, bool strict = false, bool phrase = false) where TModel : class
+		{
+            source.ClearSearch();
+
+			#region Clear Query
+			var memberBinderQuery = new WrapRequestMemberBinder(Constants.CONST_QUERY, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderQuery, query });
+			#endregion
+
+			#region Clear Query Strict
+			var memberBinderStrict = new WrapRequestMemberBinder(Constants.CONST_QUERY_STRICT, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderStrict, strict.ToString() });
+			#endregion
+
+			#region Clear Query Phrase
+			var memberBinderPhrase = new WrapRequestMemberBinder(Constants.CONST_QUERY_PHRASE, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderPhrase, phrase.ToString() });
+			#endregion
+		}
+		/// <summary>
+		/// Method that extends IWrapRequest<T> allowing to get query properties from request
+		/// </summary>
+		/// <typeparam name="TModel">Generic type of the entity</typeparam>
+		/// <param name="source">Self IWrapRequest<T> instance</param>
+		/// <returns>Returns a dictionary with properties and values found</returns>
+		internal static Search Search<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {

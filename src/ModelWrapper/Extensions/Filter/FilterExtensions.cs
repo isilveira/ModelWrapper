@@ -1,8 +1,11 @@
-﻿using ModelWrapper.Helpers;
+﻿using ModelWrapper.Binders;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace ModelWrapper.Extensions.Filter
 {
@@ -29,15 +32,21 @@ namespace ModelWrapper.Extensions.Filter
                 {
                     source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(propertyCriteria.ToLower()));
                 });
-        }
+		}
+		public static void AddFilter<TModel>(this WrapRequest<TModel> source, string filterProperty, object filterValue)
+			where TModel : class
+		{
+			var memberBinder = new WrapRequestMemberBinder(filterProperty, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinder, filterValue.ToString() });
+		}
 
-        /// <summary>
-        /// Method that extends IWrapRequest<T> allowing to get filter properties from request
-        /// </summary>
-        /// <typeparam name="TModel">Generic type of the entity</typeparam>
-        /// <param name="source">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static List<FilterProperty> FilterProperties<TModel>(
+		/// <summary>
+		/// Method that extends IWrapRequest<T> allowing to get filter properties from request
+		/// </summary>
+		/// <typeparam name="TModel">Generic type of the entity</typeparam>
+		/// <param name="source">Self IWrapRequest<T> instance</param>
+		/// <returns>Returns a dictionary with properties and values found</returns>
+		internal static List<FilterProperty> FilterProperties<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {

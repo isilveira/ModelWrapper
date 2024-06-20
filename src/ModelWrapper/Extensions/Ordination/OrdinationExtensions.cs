@@ -1,4 +1,6 @@
-﻿using ModelWrapper.Helpers;
+﻿using ModelWrapper.Binders;
+using ModelWrapper.Extensions.Pagination;
+using ModelWrapper.Helpers;
 using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using System;
@@ -23,14 +25,25 @@ namespace ModelWrapper.Extensions.Ordination
             where TModel : class
         {
             source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDER.ToLower()) || property.Name.ToLower().Equals(Constants.CONST_ORDENATION_ORDERBY.ToLower()));
-        }
-        /// <summary>
-        /// Method that extends IWrapRequest<T> allowing to get ordination properties from request
-        /// </summary>
-        /// <typeparam name="TModel">Generic type of the entity</typeparam>
-        /// <param name="source">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns a dictionary with properties and values found</returns>
-        public static Ordination Ordination<TModel>(
+		}
+		public static void SetOrdination<TModel>(this WrapRequest<TModel> source, string order, string orderBy)
+			where TModel : class
+		{
+			source.ClearOrdination();
+
+			var memberBinderOrder = new WrapRequestMemberBinder(Constants.CONST_ORDENATION_ORDER, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderOrder, order });
+
+			var memberBinderOrderBy = new WrapRequestMemberBinder(Constants.CONST_ORDENATION_ORDERBY, WrapPropertySource.FromQuery, true);
+			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderOrderBy, orderBy });
+		}
+		/// <summary>
+		/// Method that extends IWrapRequest<T> allowing to get ordination properties from request
+		/// </summary>
+		/// <typeparam name="TModel">Generic type of the entity</typeparam>
+		/// <param name="source">Self IWrapRequest<T> instance</param>
+		/// <returns>Returns a dictionary with properties and values found</returns>
+		public static Ordination Ordination<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {
