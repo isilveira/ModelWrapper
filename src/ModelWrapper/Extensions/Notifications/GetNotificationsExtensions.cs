@@ -48,10 +48,10 @@ namespace ModelWrapper.Extensions.Notifications
         {
             return source.Any(x => x.Key == Constants.CONST_NOTIFICATIONS_DOMAIN);
         }
-        public static Dictionary<string, object> GetDomain(this Dictionary<string, object> source)
+        public static string[] GetDomain(this Dictionary<string, object> source)
         {
             if (source.HasDomain())
-                return source.GetValue(Constants.CONST_NOTIFICATIONS_DOMAIN) as Dictionary<string, object>;
+                return source.GetValue(Constants.CONST_NOTIFICATIONS_DOMAIN) as string[];
 
             return null;
         }

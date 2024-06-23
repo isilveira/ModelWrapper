@@ -1,15 +1,12 @@
 ﻿using ModelWrapper.Binders;
-using ModelWrapper.Extensions.Filter;
 using ModelWrapper.Helpers;
-using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace ModelWrapper.Extensions.Pagination
 {
-    public class Pagination
+	public class Pagination
     {
         public int Size { get; set; }
         public int Number { get; set; }
@@ -33,7 +30,7 @@ namespace ModelWrapper.Extensions.Pagination
 			var memberBinderPageSize = new WrapRequestMemberBinder(Constants.CONST_PAGINATION_SIZE, WrapPropertySource.FromQuery, true);
 			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderPageSize, pageSize.ToString() });
 
-			var memberBinderPageNumber = new WrapRequestMemberBinder(Constants.CONST_PAGINATION_SIZE, WrapPropertySource.FromQuery, true);
+			var memberBinderPageNumber = new WrapRequestMemberBinder(Constants.CONST_PAGINATION_NUMBER, WrapPropertySource.FromQuery, true);
 			source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinderPageNumber, pageNumber.ToString() });
 		}
         /// <summary>
