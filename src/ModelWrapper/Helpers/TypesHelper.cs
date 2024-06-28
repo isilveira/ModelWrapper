@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -114,5 +115,18 @@ namespace ModelWrapper.Helpers
         {
             return TypeIsCollection(type) ? type.GenericTypeArguments[0] : type;
         }
-    }
+        internal static List<T> FromObjectToList<T>(this T item)
+        {
+            var list = new List<T>();
+
+            list.Add(item);
+
+            return list;
+        }
+		internal static IList CreateGenericList(this Type typeInList)
+		{
+			var genericListType = typeof(List<>).MakeGenericType(new[] { typeInList });
+			return (IList)Activator.CreateInstance(genericListType);
+		}
+	}
 }

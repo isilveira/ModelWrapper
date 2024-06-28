@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Helpers;
+﻿using ModelWrapper.Binders;
+using ModelWrapper.Helpers;
 using ModelWrapper.Models;
 using ModelWrapper.Utilities;
 using System;
@@ -14,13 +15,30 @@ namespace ModelWrapper.Extensions.Select
     {
         internal static Func<bool, bool, bool, bool> IsToLoadComplexPropertyWhenNotRequested = (isComplexProperty, loadComplexObjectByDefault, isRootObject) => isComplexProperty ? loadComplexObjectByDefault ? isRootObject : false : true;
 
-        /// <summary>
-        /// Method that extends IWrapRequest<T> allowing to get select properties from request
-        /// </summary>
-        /// <typeparam name="TModel">Generic type of the entity</typeparam>
-        /// <param name="source">Self IWrapRequest<T> instance</param>
-        /// <returns>Returns a dictionary with properties and values found</returns>
-        internal static List<SelectedProperty> ResponseProperties<TModel>(
+		public static void ClearResponseProperties<TModel>(
+			this WrapRequest<TModel> source
+		) where TModel : class
+		{
+			source.AllProperties.RemoveAll(property => property.Name.ToLower().Equals(Constants.CONST_RESPONSE_PROPERTIES.ToLower()));
+		}
+		public static void SetResponseProperties<TModel>(
+			this WrapRequest<TModel> source,
+		List<string> responseProperties
+		) where TModel : class
+		{
+            foreach (var property in responseProperties)
+            {
+                var memberBinder = new WrapRequestMemberBinder(Constants.CONST_RESPONSE_PROPERTIES.ToLower(), WrapPropertySource.FromQuery, true);
+                source.GetType().GetMethod("TrySetMember").Invoke(source, new object[] { memberBinder, property });
+            }
+		}
+		/// <summary>
+		/// Method that extends IWrapRequest<T> allowing to get select properties from request
+		/// </summary>
+		/// <typeparam name="TModel">Generic type of the entity</typeparam>
+		/// <param name="source">Self IWrapRequest<T> instance</param>
+		/// <returns>Returns a dictionary with properties and values found</returns>
+		internal static List<SelectedProperty> ResponseProperties<TModel>(
             this WrapRequest<TModel> source
         ) where TModel : class
         {

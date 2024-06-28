@@ -194,6 +194,22 @@ namespace ModelWrapper.Helpers
 			PropertyInfo property
 		)
 		{
+            if(filterProperty.Value.GetType() != typeof(string) && filterProperty.Value.GetType() == memberExp.Type)
+            {
+                var typedList = memberExp.Type.CreateGenericList();
+
+				try
+				{
+                    typedList.Add(Convert.ChangeType(filterProperty.Value, memberExp.Type));
+				}
+				catch (Exception ex)
+				{
+					throw new Exception($"Cannot convert value '{filterProperty.Value}' to type '{memberExp.Type.Name}' of property {memberExp}", ex);
+				}
+
+				return GenerateListContainsExpression(memberExp, Expression.Constant(typedList, typedList.GetType()), typedList.GetType());
+			}
+
 			if (filterProperty.Value.GetType().IsGenericType && filterProperty.Value.GetType().GetGenericTypeDefinition() == typeof(List<>))
 			{
 				List<Expression> orExpressions = new List<Expression>();
@@ -217,11 +233,21 @@ namespace ModelWrapper.Helpers
 			}
 			else
 			{
-                if(filterProperty.Value.GetType() == typeof(string) && ((string)filterProperty.Value).Split(ConfigurationService.GetConfiguration().DefaultInStringSeparator).Length > 1)
+                if(filterProperty.Value.GetType() == typeof(string) && ((string)filterProperty.Value).Split(ConfigurationService.GetConfiguration().DefaultInStringSeparator).Length >= 1)
                 {
                     var listString = ((string)filterProperty.Value).Split(ConfigurationService.GetConfiguration().DefaultInStringSeparator).ToList();
+                    var typedList = listString.Select(item => {
+                        try
+                        {
+                            return Convert.ChangeType(item, memberExp.Type);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception($"Cannot convert value '{item}' to type '{memberExp.Type.Name}' of property {memberExp}", ex);
+                        }
+                    }).ToList();
 
-					return GenerateListContainsExpression(memberExp, Expression.Constant(listString, listString.GetType()), listString.GetType());
+					return GenerateListContainsExpression(memberExp, Expression.Constant(typedList, typedList.GetType()), typedList.GetType());
 				}
 
 				return GenerateListContainsExpression(memberExp, Expression.Constant(filterProperty.Value, property.PropertyType), property.PropertyType);
