@@ -129,7 +129,8 @@ namespace ModelWrapper
             }
             else
             {
-                configProperties.Value.Add(property);
+                if(!configProperties.Value.Exists(p => p == property))
+                    configProperties.Value.Add(property);
             }
         }
         /// <summary>
