@@ -106,8 +106,12 @@ namespace ModelWrapper.Helpers
         internal static bool TypeIsEntity(Type type)
         {
             return ConfigurationService.GetConfiguration().EntityBase != null && ConfigurationService.GetConfiguration().EntityBase.IsAssignableFrom(type);
-        }
-        internal static bool TypeIsComplex(Type type)
+		}
+		internal static bool TypeIsEntityCollection(Type type)
+		{
+            return TypeIsCollection(type) && type.GenericTypeArguments.All(arg => TypeIsEntity(arg));
+		}
+		internal static bool TypeIsComplex(Type type)
         {
             return (TypeIsClass(type) && TypeIsEntity(type)) || (TypeIsCollection(type) && type.GenericTypeArguments.Length > 0 && TypeIsEntity(type.GenericTypeArguments[0]));
         }

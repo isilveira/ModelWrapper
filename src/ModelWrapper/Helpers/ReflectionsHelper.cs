@@ -1,6 +1,8 @@
 ﻿using ModelWrapper.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -186,7 +188,33 @@ namespace ModelWrapper.Helpers
 
                 if (toProperty != null)
                 {
-                    toProperty.SetValue(to, property.GetValue(from));
+					if (TypesHelper.TypeIsEntity(toProperty.PropertyType))
+					{
+						toProperty.SetValue(to, Copy(property.GetValue(from), toProperty.GetValue(to)));
+					}
+					else if(TypesHelper.TypeIsEntityCollection(toProperty.PropertyType))
+                    {
+                        var value = property.GetValue(from);
+                        if(value is IList list)
+						{
+                            var listType = toProperty.PropertyType.GenericTypeArguments[0];
+                            Array values = Array.CreateInstance(listType, list.Count);
+                            for (int i = 0; i < list.Count; i++)
+                            {
+                                values.SetValue(Copy(list[i], Activator.CreateInstance(listType)), i);
+                            }
+							Type genericListType = typeof(List<>);
+							Type concreteListType = genericListType.MakeGenericType(toProperty.PropertyType.GenericTypeArguments[0]);
+
+							var toList = Activator.CreateInstance(concreteListType, new object[] { values });
+
+						    toProperty.SetValue(to, toList);
+                        }
+					}
+                    else
+                    {
+                        toProperty.SetValue(to, property.GetValue(from));
+                    }
                 }
             }
 
