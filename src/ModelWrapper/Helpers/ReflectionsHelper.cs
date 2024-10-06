@@ -58,19 +58,62 @@ namespace ModelWrapper.Helpers
         )
         {
             return type.GetMethods()
-                .Where(method => 
+                .Where(method =>
                     method.Name == methodName
                     && method.GetParameters().Count() == parameters
                     && method.GetGenericArguments().Count() == genericArguments
-                    && (parameterTypes == null 
-                        || parameterTypes.All(x => 
-                            method.GetParameters().Any(y => 
+                    && (parameterTypes == null
+                        || parameterTypes.All(x =>
+                            method.GetParameters().Any(y =>
                                 y.ParameterType.GetGenericArguments().Count() == x.GetGenericArguments().Count()
                             )
                         )
                     )
                 )
                 .FirstOrDefault();
+		}
+		/// <summary>
+		/// Method that find a method from a given type
+		/// </summary>
+		/// <param name="type">Type were method must be found</param>
+		/// <param name="methodName">Name of the method</param>
+		/// <param name="parameters">Number of parameters</param>
+		/// <param name="genericArguments">Number of arguments</param>
+		/// <param name="parameterTypes">List of parameter types</param>
+		/// <returns>Method found</returns>
+		internal static MethodInfo GetMethodFromType(
+			Type type,
+			string methodName,
+			int parameters,
+			int genericArguments,
+			Type expFuncOutType
+		)
+		{
+			return type.GetMethods()
+				.Where(method =>
+					method.Name == methodName
+					&& method.GetParameters().Count() == parameters
+					&& method.GetGenericArguments().Count() == genericArguments
+                    && method.GetParameters().Any(p=>TypeIsEqual(p.ParameterType, expFuncOutType))
+				)
+				.FirstOrDefault();
+		}
+		internal static bool TypeIsEqual(Type type1, Type type2)
+        {
+            if(type1 == type2) return true;
+
+            if(type1.IsGenericType && type1.GetGenericArguments().Count() > 0)
+            {
+                bool isEqual = false;
+                for(int i = 0; i < type1.GetGenericArguments().Count(); i++)
+                {
+                    isEqual = TypeIsEqual(type1.GetGenericArguments()[i], type2);
+                    //if(!isEqual) break;
+                }
+                return isEqual;
+            }
+
+            return false;
         }
         /// <summary>
         /// Method that creates a runtime type

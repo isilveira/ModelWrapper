@@ -251,5 +251,21 @@ namespace ModelWrapper.Helpers
             Type delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
             return Expression.Lambda(delegateType, expr, arg);
         }
+
+        internal static Expression GenerateAccessMemberExpression<TSource>(ref Type type, string parameterName, string propertyName)
+            where TSource : class
+        {
+			var parameterExp = Expression.Parameter(typeof(TSource), parameterName);
+
+			var property = typeof(TSource).GetProperties().Where(x => x.Name.ToLower().Equals(propertyName.ToLower())).SingleOrDefault();
+
+            type = property.PropertyType;
+
+			Expression memberExp = Expression.MakeMemberAccess(parameterExp, property);
+
+            Type delegateType = typeof(Func<,>).MakeGenericType(typeof(TSource), type);
+
+            return Expression.Lambda(delegateType, memberExp, parameterExp);
+		}
     }
 }

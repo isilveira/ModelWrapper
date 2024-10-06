@@ -1,4 +1,5 @@
-﻿using ModelWrapper.Extensions.Count;
+﻿using ModelWrapper.Extensions.Aggregation;
+using ModelWrapper.Extensions.Count;
 using ModelWrapper.Extensions.Filter;
 using ModelWrapper.Extensions.Ordination;
 using ModelWrapper.Extensions.Pagination;
@@ -31,8 +32,9 @@ namespace ModelWrapper.Extensions.FullSearch
             return source
                 .Filter(request)
                 .Search(request)
-                .Count(out count)
                 .OrderBy(request)
+                .Count(out count)
+                .Aggregate(request)
                 .Page(request)
                 .Select(request);
         }
@@ -53,8 +55,9 @@ namespace ModelWrapper.Extensions.FullSearch
             return source
                 .Filter(request)
                 .Search(request)
-                .LongCount(out count)
                 .OrderBy(request)
+				.LongCount(out count)
+				.Aggregate(request)
                 .Page(request)
                 .Select(request);
         }

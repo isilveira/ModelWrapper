@@ -1,15 +1,12 @@
 ﻿using ModelWrapper.Binders;
 using ModelWrapper.Helpers;
-using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace ModelWrapper.Extensions.Filter
 {
-    public class FilterProperty
+	public class FilterProperty
     {
         public string Name { get; set; }
         public object Value { get; set; }

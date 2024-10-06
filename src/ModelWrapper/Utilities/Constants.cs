@@ -33,5 +33,8 @@
         public static string CONST_NOTIFICATIONS_REQUEST            => "requestNotifications";
         public static string CONST_NOTIFICATIONS_ENTITY             => "entityNotifications";
         public static string CONST_NOTIFICATIONS_DOMAIN             => "domainNotifications";
-    }
+		public static string CONST_AGGREGATION                     => "aggregation";
+		public static string CONST_AGGREGATION_AGGREGATES          => "aggregate";
+		public static string CONST_AGGREGATION_AGGREGATORS         => "aggregateBy";
+	}
 }
