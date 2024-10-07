@@ -196,7 +196,7 @@ namespace ModelWrapper.Extensions.Aggregation
 
 							if (sumValue != null)
 							{
-								aggregateSum.Add(property, sumValue);
+								aggregateSum.Add(property.ToCamelCase(), sumValue);
 							}
 						}
 
@@ -217,7 +217,7 @@ namespace ModelWrapper.Extensions.Aggregation
 
 							if (avgValue != null)
 							{
-								aggregateAvg.Add(property, avgValue);
+								aggregateAvg.Add(property.ToCamelCase(), avgValue);
 							}
 						}
 
@@ -238,7 +238,7 @@ namespace ModelWrapper.Extensions.Aggregation
 
 							if (minValue != null)
 							{
-								aggregateMin.Add(property, minValue);
+								aggregateMin.Add(property.ToCamelCase(), minValue);
 							}
 						}
 
@@ -259,7 +259,7 @@ namespace ModelWrapper.Extensions.Aggregation
 
 							if (maxValue != null)
 							{
-								aggregateMax.Add(property, maxValue);
+								aggregateMax.Add(property.ToCamelCase(), maxValue);
 							}
 						}
 
