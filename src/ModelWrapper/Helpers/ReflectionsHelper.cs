@@ -223,7 +223,11 @@ namespace ModelWrapper.Helpers
         }
         internal static TCopyTo Copy<TCopyFrom, TCopyTo>(TCopyFrom from, TCopyTo to)
         {
-            var properties = from.GetType().GetProperties().Where(p => !p.PropertyType.IsClass || p.PropertyType == typeof(string) || p.PropertyType == typeof(byte[])).ToList();
+            var properties = from
+                .GetType()
+                .GetProperties()
+                //.Where(p => !p.PropertyType.IsClass || p.PropertyType == typeof(string) || p.PropertyType == typeof(byte[]))
+                .ToList();
 
 			foreach (var property in properties)
             {
@@ -233,7 +237,14 @@ namespace ModelWrapper.Helpers
                 {
 					if (TypesHelper.TypeIsEntity(toProperty.PropertyType))
 					{
-						toProperty.SetValue(to, Copy(property.GetValue(from), toProperty.GetValue(to)));
+                        var toPropertyValue = toProperty.GetValue(to);
+
+                        if (toPropertyValue == null)
+                        {
+                            toPropertyValue = Activator.CreateInstance(toProperty.PropertyType);
+                        }
+
+                        toProperty.SetValue(to, Copy(property.GetValue(from), toPropertyValue));
 					}
 					else if(TypesHelper.TypeIsEntityCollection(toProperty.PropertyType))
                     {
