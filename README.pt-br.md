@@ -1,4 +1,4 @@
-# ModelWrapper
+# ModelWrapper  ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
 
 **ModelWrapper** é uma biblioteca para projetos Web API em C# (.NET) que simplifica o uso de modelos de requisição e resposta (ViewModels), permitindo trabalhar de forma unificada com o modelo de domínio (`TModel`).
 
@@ -25,7 +25,7 @@ O **ModelWrapper** fornece uma base genérica para esses modelos, permitindo que
 - `WrapRequest<TModel>` — Base para *ViewModels* de requisição, herdando todas as propriedades de `TModel`.
 - `WrapResponse<TModel>` — Base para *ViewModels* de resposta, herdando propriedades de `TModel` e permitindo extensão.
 - Compatível com APIs RESTful em C#.
-- Distribuído via NuGet: [`ModelWrapper`](https://www.nuget.org/packages/ModelWrapper) (versão 3.0.0).
+- Distribuído via NuGet: [`ModelWrapper`](https://www.nuget.org/packages/ModelWrapper) (versão 9.0.10.0).
 - Permite extensão para uso com bibliotecas de mapeamento como AutoMapper.
 
 ---
@@ -35,12 +35,12 @@ O **ModelWrapper** fornece uma base genérica para esses modelos, permitindo que
 ### Via NuGet Package Manager
 
 ```powershell
-Install-Package ModelWrapper -Version 3.0.0
+Install-Package ModelWrapper -Version 9.0.10.0
 ```
 
 ### Via .NET CLI
 ```
-dotnet add package ModelWrapper --version 3.0.0
+dotnet add package ModelWrapper --version 9.0.10.0
 ```
 
 ### 💻 Exemplo de Uso
