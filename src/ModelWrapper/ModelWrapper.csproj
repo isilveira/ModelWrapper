@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net9.0</TargetFramework>
+	<TargetFramework>net10.0</TargetFramework>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/isilveira/ModelWrapper</PackageProjectUrl>
-    <Version>9.0.10.0</Version>
+    <Version>10.0.1.0</Version>
     <Description>ModelWrapper is a set of tools for enriching model object manipulation, allowing all data sent to the server to be captured by WrapRequest&lt;TModel&gt;, feeding the model object (TModel) and allowing all other information to be extracted and used by extended functionality</Description>
     <Copyright>https://github.com/isilveira</Copyright>
     <PackageIcon>Logo_ModelWrapper.jpg</PackageIcon>
@@ -39,9 +39,9 @@
 
   <ItemGroup>
     <PackageReference Include="Enums.NET" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
