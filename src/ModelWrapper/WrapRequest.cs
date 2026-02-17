@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ModelWrapper.Binders;
 using ModelWrapper.Extensions;
 using ModelWrapper.Helpers;
@@ -6,6 +6,7 @@ using ModelWrapper.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace ModelWrapper
     /// <summary>
     /// Class that encapsulates the request
     /// </summary>
-    /// <typeparam name="TModel">Generic type of the endpoint</typeparam>
+    /// <typeparam name="TModel">Generic type of the endpoint (single entity or List&lt;TEntity&gt; for batch)</typeparam>
     [ModelBinder(BinderType = typeof(WrapRequestBinder))]
     public class WrapRequest<TModel> : DynamicObject
         where TModel : class
@@ -26,6 +27,14 @@ namespace ModelWrapper
         /// Instance of the Model
         /// </summary>
         internal TModel Model { get; set; }
+        /// <summary>
+        /// Indicates whether the model is a batch (List&lt;T&gt;)
+        /// </summary>
+        internal bool IsBatch => TypesHelper.IsBatchModel(typeof(TModel));
+        /// <summary>
+        /// Element type for batch (e.g. User when TModel is List&lt;User&gt;) or TModel itself
+        /// </summary>
+        internal Type ElementType => TypesHelper.GetEntityTypeFromComplex(typeof(TModel));
         /// <summary>
         /// List of properties received on request
         /// </summary>
@@ -63,7 +72,9 @@ namespace ModelWrapper
 		/// </summary>
 		private void Initialize()
         {
-            Model = Activator.CreateInstance<TModel>();
+            Model = IsBatch
+                ? (TModel)(object)TypesHelper.CreateGenericList(ElementType)
+                : Activator.CreateInstance<TModel>();
             AllProperties = new List<WrapRequestProperty>();
             ConfigProperties = new Dictionary<string, List<string>>();
             ConfigValues = new Dictionary<string, object>();
@@ -163,10 +174,12 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
-            SetConfigProperty(
-                Constants.CONST_KEYS,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
-            );
+            var propertyType = IsBatch ? ElementType : typeof(TModel);
+            var property = propertyType.GetProperties().FirstOrDefault(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression)));
+            if (property != null)
+            {
+                SetConfigProperty(Constants.CONST_KEYS, property.Name.ToCamelCase());
+            }
         }
         /// <summary>
         /// Method that sets the default return size of collections
@@ -215,10 +228,12 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
-            SetConfigProperty(
-                Constants.CONST_SUPRESSED,
-                typeof(TModel).GetProperties().Where(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression))).SingleOrDefault().Name.ToCamelCase()
-            );
+            var propertyType = IsBatch ? ElementType : typeof(TModel);
+            var property = propertyType.GetProperties().FirstOrDefault(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression)));
+            if (property != null)
+            {
+                SetConfigProperty(Constants.CONST_SUPRESSED, property.Name.ToCamelCase());
+            }
         }
         /// <summary>
         /// Method that configures suppressed properties
@@ -241,11 +256,12 @@ namespace ModelWrapper
             Expression<Func<TModel, object>> expression
         )
         {
-            var expressionPropertyName = LambdasHelper.GetPropertyName(expression);
-            SetConfigProperty(
-                Constants.CONST_SUPPRESSED_RESPONSE,
-                expressionPropertyName
-            );
+            var propertyType = IsBatch ? ElementType : typeof(TModel);
+            var property = propertyType.GetProperties().FirstOrDefault(p => p.Name.Equals(LambdasHelper.GetPropertyName(expression)));
+            if (property != null)
+            {
+                SetConfigProperty(Constants.CONST_SUPPRESSED_RESPONSE, property.Name);
+            }
         }
         /// <summary>
         /// Method that configures suppressed response properties
@@ -272,25 +288,49 @@ namespace ModelWrapper
             object propertyValue
         )
 		{
+            var effectiveType = IsBatch ? ElementType : Model.GetType();
+            var effectiveModel = Model;
+
             if (binder.Name.Split('.').Length > 1)
             {
                 var propertyRoot = binder.Name.Split(".")[0];
                 var propertyName = string.Join(".", binder.Name.Split(".").Skip(1));
 
-				var modelProperty = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyRoot.ToLower()));
+				var modelProperty = effectiveType.GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyRoot.ToLower()));
                 var requestProperty = this.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyRoot.ToLower()));
 
-                var model = (modelProperty != null ? modelProperty : requestProperty).GetValue((modelProperty != null ? this.Model : this));
+                var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
+                var setNested = new Action<object>(target =>
+                {
+                    if (target != null)
+                        target.GetType().GetMethod("TrySetMember").Invoke(target, new object[] {
+                            new WrapRequestMemberBinder(propertyName, source, true),
+                            propertyValue
+                        });
+                });
 
-				var source = binder.GetType() == typeof(WrapRequestMemberBinder) ? ((WrapRequestMemberBinder)binder).Source : WrapPropertySource.FromBody;
-
-				model.GetType().GetMethod("TrySetMember").Invoke(model, new object[] {
-                    new WrapRequestMemberBinder(propertyName, source, true),
-					propertyValue
-				});
+                if (modelProperty != null)
+                {
+                    if (IsBatch && Model is IList list)
+                    {
+                        foreach (var item in list)
+                        {
+                            var nested = item != null ? modelProperty.GetValue(item) : null;
+                            setNested(nested);
+                        }
+                    }
+                    else
+                    {
+                        setNested(modelProperty.GetValue(this.Model));
+                    }
+                }
+                else if (requestProperty != null)
+                {
+                    setNested(requestProperty.GetValue(this));
+                }
             } else {
 
-                var property = this.Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
+                var property = effectiveType.GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(binder.Name.ToLower()));
                 if (property != null && property.CanWrite)
                 {
                     Type propertyType = property.PropertyType;
@@ -299,24 +339,34 @@ namespace ModelWrapper
                         propertyType = Nullable.GetUnderlyingType(propertyType);
                     }
 
-                    SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
+                    object newPropertyValue = null;
                     if (propertyValue is JToken)
                     {
-                        var newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
-                        property.SetValue(this.Model, newPropertyValue);
+                        newPropertyValue = JsonConvert.DeserializeObject(propertyValue.ToString(), property.PropertyType);
                     }
                     else if (propertyValue != null)
                     {
                         bool changed = false;
-                        var newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
-                        if (changed)
+                        newPropertyValue = TypesHelper.TryChangeType(propertyValue.ToString(), property.PropertyType, out changed);
+                        if (!changed) newPropertyValue = propertyValue;
+                    }
+                    else
+                    {
+                        newPropertyValue = propertyValue;
+                    }
+
+                    SetConfigProperty(Constants.CONST_SUPPLIED, property.Name);
+
+                    if (IsBatch && Model is IList list)
+                    {
+                        foreach (var item in list)
                         {
-                            property.SetValue(this.Model, newPropertyValue);
+                            if (item != null) property.SetValue(item, newPropertyValue);
                         }
                     }
                     else
                     {
-                        property.SetValue(this.Model, propertyValue);
+                        property.SetValue(this.Model, newPropertyValue);
                     }
                 }
                 else
@@ -363,11 +413,22 @@ namespace ModelWrapper
             bool empty = false
         )
         {
-            var property = Model.GetType().GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
+            var effectiveType = IsBatch ? ElementType : Model.GetType();
+            var property = effectiveType.GetProperties().SingleOrDefault(p => p.Name.ToLower().Equals(propertyName.ToLower()));
+            if (property == null) return null;
+
             if (empty)
-                return property.GetValue(Activator.CreateInstance<TModel>());
-            else
-                return property.GetValue(this.Model);
+            {
+                var emptyInstance = IsBatch ? Activator.CreateInstance(ElementType) : Activator.CreateInstance<TModel>();
+                return property.GetValue(emptyInstance);
+            }
+
+            if (IsBatch && Model is IList list && list.Count > 0)
+            {
+                return property.GetValue(list[0]);
+            }
+
+            return property.GetValue(this.Model);
         }
         #endregion
         #region Model projection methods
@@ -408,7 +469,8 @@ namespace ModelWrapper
         }
         private void UpdateSuppliedProperties()
         {
-            typeof(TModel).GetProperties().ToList().ForEach(property =>
+            var propertyType = IsBatch ? ElementType : typeof(TModel);
+            propertyType.GetProperties().ToList().ForEach(property =>
             {
                 var propertyValue = GetPropertyValue(property.Name);
                 var propertyEmptyValue = GetPropertyValue(property.Name, true);
@@ -426,6 +488,8 @@ namespace ModelWrapper
         /// </summary>
         public void BindComplete()
         {
+            UpdateSuppliedProperties();
+
             var routeProperties = new Dictionary<string, object>();
 
             foreach (var routeProperty in AllProperties.Where(x => x.Source == WrapPropertySource.FromRoute))
@@ -435,9 +499,21 @@ namespace ModelWrapper
 
             RequestObject.SetValue(Constants.CONST_ROUTE, routeProperties);
         }
+        /// <summary>
+        /// Gets the model (single entity or batch list).
+        /// </summary>
         public TModel GetModel()
         {
             return Model;
+        }
+        /// <summary>
+        /// Gets the models as a list when TModel is List&lt;T&gt;. Returns single-item list for non-batch.
+        /// </summary>
+        public IList GetModels()
+        {
+            if (IsBatch && Model is IList list)
+                return list;
+            return new List<object> { Model };
         }
         public Dictionary<string, object> GetRequestObject()
         {

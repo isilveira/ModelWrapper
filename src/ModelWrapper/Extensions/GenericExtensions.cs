@@ -1,4 +1,6 @@
-﻿using System;
+using ModelWrapper.Helpers;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -76,7 +78,8 @@ namespace ModelWrapper.Extensions
 
 		internal static List<PropertyInfo> GetProperties<TModel>(this WrapRequest<TModel> request, bool onlySupplied, bool supressed = false, bool keys = false) where TModel : class
 		{
-			var properties = typeof(TModel).GetProperties().ToList();
+			var propertyType = request.IsBatch ? request.ElementType : typeof(TModel);
+			var properties = propertyType.GetProperties().ToList();
 
 			if (onlySupplied)
 				properties = properties.Where(x => request.SuppliedProperties().Any(y => y.ToLower().Equals(x.Name.ToLower()))).ToList();
@@ -92,7 +95,24 @@ namespace ModelWrapper.Extensions
 
 		internal static TModel CreateOrUpdateModel<TModel>(this WrapRequest<TModel> request, List<PropertyInfo> properties, TModel model = null) where TModel : class
 		{
-			if(model == null)
+			if (request.IsBatch && request.Model is IList sourceList)
+			{
+				var listType = typeof(List<>).MakeGenericType(request.ElementType);
+				var resultList = (IList)(model ?? Activator.CreateInstance(listType));
+
+				for (var i = 0; i < sourceList.Count; i++)
+				{
+					var sourceItem = sourceList[i];
+					var targetItem = (i < resultList.Count ? resultList[i] : null) ?? Activator.CreateInstance(request.ElementType);
+					properties.ForEach(property => property.SetValue(targetItem, property.GetValue(sourceItem)));
+					if (i >= resultList.Count)
+						resultList.Add(targetItem);
+				}
+
+				return (TModel)resultList;
+			}
+
+			if (model == null)
 				model = Activator.CreateInstance<TModel>();
 
 			properties.ForEach(property => property.SetValue(model, property.GetValue(request.Model)));

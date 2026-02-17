@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ModelWrapper.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ModelWrapper.Binders
@@ -48,10 +52,44 @@ namespace ModelWrapper.Binders
 
                 if (!string.IsNullOrWhiteSpace(body))
                 {
-                    var json = JObject.Parse(body);
+                    var trimmedBody = body.TrimStart();
+                    var isBatchArray = trimmedBody.StartsWith("[");
+                    var modelType = bindingContext.ModelType;
 
-                    JsonSerializer serializer = new JsonSerializer();
-                    model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
+                    var batchModelType = GetBatchModelType(modelType);
+                    if (isBatchArray && batchModelType != null)
+                    {
+                        var elementType = TypesHelper.GetEntityTypeFromComplex(batchModelType);
+                        var listType = typeof(List<>).MakeGenericType(elementType);
+                        var serializer = new JsonSerializer();
+                        IList batchData;
+
+                        using (var jsonReader = new JTokenReader(JArray.Parse(body)))
+                        {
+                            batchData = (IList)serializer.Deserialize(jsonReader, listType);
+                        }
+
+                        if (batchData != null)
+                        {
+                            var currentType = modelType;
+                            while (currentType != null)
+                            {
+                                var modelProperty = currentType.GetProperty("Model", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                                if (modelProperty != null)
+                                {
+                                    modelProperty.SetValue(model, batchData);
+                                    break;
+                                }
+                                currentType = currentType.BaseType;
+                            }
+                        }
+                    }
+                    else if (trimmedBody.StartsWith("{"))
+                    {
+                        var json = JObject.Parse(body);
+                        var serializer = new JsonSerializer();
+                        model = serializer.Deserialize(json.CreateReader(), bindingContext.ModelType);
+                    }
                 }
             }
 
@@ -88,6 +126,25 @@ namespace ModelWrapper.Binders
             bindingContext.Model = model;
 
             bindingContext.Result = ModelBindingResult.Success(bindingContext.Model);
+        }
+
+        /// <summary>
+        /// Traverses the type hierarchy to find the batch model type (e.g. List&lt;T&gt;) when the parameter is a concrete class like BatchPostEventCommand.
+        /// </summary>
+        private static Type GetBatchModelType(Type modelType)
+        {
+            var currentType = modelType;
+            while (currentType != null)
+            {
+                if (currentType.IsGenericType && currentType.GenericTypeArguments.Length > 0)
+                {
+                    var firstArg = currentType.GenericTypeArguments[0];
+                    if (TypesHelper.IsBatchModel(firstArg))
+                        return firstArg;
+                }
+                currentType = currentType.BaseType;
+            }
+            return null;
         }
     }
 }

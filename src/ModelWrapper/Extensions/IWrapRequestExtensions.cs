@@ -1,4 +1,4 @@
-﻿using ModelWrapper.Interfaces;
+using ModelWrapper.Interfaces;
 using ModelWrapper.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,14 +88,29 @@ namespace ModelWrapper.Extensions
         {
             if (properties.Count > 0)
             {
-                var dictionary = new Dictionary<string, object>();
-
-                properties.ToList().ForEach(property =>
+                if (source.IsBatch && model is System.Collections.IList modelList)
                 {
-                    dictionary.Add(property.Name, property.GetValue(model));
-                });
-
-                source.RequestObject.SetValue(Constants.CONST_MODEL, dictionary);
+                    var modelsData = new List<Dictionary<string, object>>();
+                    foreach (var item in modelList)
+                    {
+                        var dictionary = new Dictionary<string, object>();
+                        properties.ToList().ForEach(property =>
+                        {
+                            dictionary.Add(property.Name, property.GetValue(item));
+                        });
+                        modelsData.Add(dictionary);
+                    }
+                    source.RequestObject.SetValue(Constants.CONST_MODEL, modelsData);
+                }
+                else
+                {
+                    var dictionary = new Dictionary<string, object>();
+                    properties.ToList().ForEach(property =>
+                    {
+                        dictionary.Add(property.Name, property.GetValue(model));
+                    });
+                    source.RequestObject.SetValue(Constants.CONST_MODEL, dictionary);
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -118,6 +118,13 @@ namespace ModelWrapper.Helpers
         internal static Type GetEntityTypeFromComplex(Type type)
         {
             return TypeIsCollection(type) ? type.GenericTypeArguments[0] : type;
+        }
+        /// <summary>
+        /// Indicates whether the type represents a batch model (e.g. List&lt;T&gt;, IList&lt;T&gt;).
+        /// </summary>
+        internal static bool IsBatchModel(Type type)
+        {
+            return TypeIsCollection(type) && type.GenericTypeArguments.Length > 0;
         }
         internal static List<T> FromObjectToList<T>(this T item)
         {
