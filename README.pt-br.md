@@ -1,111 +1,60 @@
-# ModelWrapper  ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
+# ModelWrapper ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
 
-**ModelWrapper** é uma biblioteca para projetos Web API em C# (.NET) que simplifica o uso de modelos de requisição e resposta (ViewModels), permitindo trabalhar de forma unificada com o modelo de domínio (`TModel`).
+**ModelWrapper** é uma biblioteca C# (.NET) para Web APIs ASP.NET Core. Ela encapsula o modelo de domínio em ViewModels de requisição/resposta e converte **comandos** da query string (filtro, busca, ordenação, paginação, seleção, agregação) em operações sobre `IQueryable`.
 
-Autor: **Ítalo Silveira**  
-Licença: **MIT**  
-Empresa: **BAYSOFT**
+| | |
+|---|---|
+| **Autor** | Ítalo Silveira |
+| **Licença** | MIT |
+| **NuGet** | [ModelWrapper](https://www.nuget.org/packages/ModelWrapper) |
+| **Target** | .NET 10 (`net10.0`) |
 
----
-
-## 🔍 Visão Geral
-
-Em projetos RESTful é comum definir classes diferentes para representar entidades, requisições e respostas.  
-O **ModelWrapper** fornece uma base genérica para esses modelos, permitindo que você:
-
-- Crie *ViewModels* de **requisição** herdando de `WrapRequest<TModel>`, reutilizando todas as propriedades da entidade base.
-- Crie *ViewModels* de **resposta** herdando de `WrapResponse<TModel>`, expondo propriedades específicas de forma tipada.
-- Evite duplicação e mantenha consistência entre entidades e contratos de API.
-- Centralize regras e comportamentos comuns entre requisições e respostas.
+[English README](README.md) · **[Documentação completa →](docs/README.md)**
 
 ---
 
-## ✅ Funcionalidades Principais
+## Por que usar?
 
-- `WrapRequest<TModel>` — Base para *ViewModels* de requisição, herdando todas as propriedades de `TModel`.
-- `WrapResponse<TModel>` — Base para *ViewModels* de resposta, herdando propriedades de `TModel` e permitindo extensão.
-- Compatível com APIs RESTful em C#.
-- Distribuído via NuGet: [`ModelWrapper`](https://www.nuget.org/packages/ModelWrapper) (versão 9.0.10.0).
-- Permite extensão para uso com bibliotecas de mapeamento como AutoMapper.
+- **`WrapRequest<TModel>`** — faz bind de body, form, query e route em um único objeto; reutiliza as propriedades de `TModel`; expõe os comandos de query.
+- **`WrapResponse<TModel>`** — envelope padrão de resposta com dados, contagem e metadados da requisição.
+- **Comandos de query** — filtros (`name_Contains`, `price_GreaterThan`, …), busca (`query`), ordenação, paginação, seleção de campos e agregações — aplicados com extensões como `FullSearch`.
+- **Helpers de CRUD** — `Post()`, `Put()`, `Patch()` copiam valores bound para a entidade.
 
 ---
 
-## 🚀 Instalação
+## Instalação rápida
 
-### Via NuGet Package Manager
-
-```powershell
-Install-Package ModelWrapper -Version 9.0.10.0
+```bash
+dotnet add package ModelWrapper
 ```
 
-### Via .NET CLI
-```
-dotnet add package ModelWrapper --version 9.0.10.0
-```
+```csharp
+using ModelWrapper.Middleware;
 
-### 💻 Exemplo de Uso
-```
-// Modelo de domínio
-public class Produto
-{
-    public int Id { get; set; }
-    public string Nome { get; set; }
-    public decimal Preco { get; set; }
-}
-
-// ViewModel de requisição
-public class ProdutoRequest : WrapRequest<Produto>
-{
-    public string Observacao { get; set; }
-}
-
-// ViewModel de resposta
-public class ProdutoResponse : WrapResponse<Produto>
-{
-    public string Categoria { get; set; }
-}
-
-// Controller
-[HttpPost]
-public ActionResult<ProdutoResponse> Criar([FromBody] ProdutoRequest req)
-{
-    var produto = new Produto { Nome = req.Nome, Preco = req.Preco };
-
-    // Persistir entidade, etc.
-
-    var resp = new ProdutoResponse();
-    resp.MapFrom(produto); // conforme métodos implementados pela biblioteca
-    resp.Categoria = "Exemplo";
-    return Ok(resp);
-}
+builder.Services.AddModelWrapper();
 ```
 
-## 📚 Documentação
-- Repositório: https://github.com/isilveira/ModelWrapper
-- Pacote NuGet: https://www.nuget.org/packages/ModelWrapper
-- Licença: MIT
+---
 
-## 💡 Benefícios
-- Evita duplicação entre entidades e ViewModels.
-- Padroniza estrutura de requisições e respostas.
-- Facilita manutenção e refatoração de APIs.
-- Facilmente integrável com frameworks e ferramentas já utilizadas.
-- Ideal para arquiteturas limpas e camadas de aplicação bem definidas.
+## Documentação
 
-## 🧠 Boas Práticas
-- Utilize WrapRequest<TModel> para entrada de dados e WrapResponse<TModel> para saída.
-- Prefira manter validações e regras de negócio fora dos wrappers.
-- Se estiver usando AutoMapper, configure perfis que reconheçam os wrappers.
-- Use os wrappers para manter consistência entre diferentes endpoints e serviços.
+| Seção | Conteúdo |
+|-------|----------|
+| [Primeiros passos](docs/getting-started.md) | Instalação, DI e primeiro controller |
+| [Configuração](docs/configuration.md) | Opções globais e por requisição |
+| [WrapRequest](docs/wrap-request.md) / [WrapResponse](docs/wrap-response.md) | Tipos centrais |
+| [Comandos](docs/commands/README.md) | Todos os parâmetros de query com exemplos |
+| [CRUD](docs/crud.md) | Post / Put / Patch |
+| [Exemplos](docs/examples.md) | API completa de referência |
 
-## 🤝 Contribuição
-Contribuições são bem-vindas!
+Comece por: **[docs/README.md](docs/README.md)**
 
-Abra um issue ou envie um pull request diretamente no repositório.
+---
 
-Sinta-se à vontade para sugerir melhorias, correções ou novos exemplos de uso.
+## Contribuição
 
-## 🧾 Licença
-Este projeto está licenciado sob a MIT License.
+Issues e pull requests são bem-vindos no [GitHub](https://github.com/isilveira/ModelWrapper).
 
-Você pode usar, modificar e distribuir livremente, desde que mantenha os créditos ao autor original.
+## Licença
+
+Este projeto está sob a [licença MIT](LICENSE).

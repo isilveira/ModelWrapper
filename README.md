@@ -1,112 +1,60 @@
 # ModelWrapper ![Nuget](https://img.shields.io/nuget/v/ModelWrapper)
 
-**ModelWrapper** is a C# (.NET) library designed for Web API projects.  
-It simplifies the use of request and response ViewModels by providing a unified way to work with your domain model (`TModel`).
+**ModelWrapper** is a C# (.NET) library for ASP.NET Core Web APIs. It wraps domain models in request/response ViewModels and turns query-string **commands** (filter, search, sort, page, select, aggregate) into `IQueryable` operations.
 
-Author: **Ítalo Silveira**  
-License: **MIT**  
-Company: **BAYSOFT**
+| | |
+|---|---|
+| **Author** | Ítalo Silveira |
+| **License** | MIT |
+| **NuGet** | [ModelWrapper](https://www.nuget.org/packages/ModelWrapper) |
+| **Target** | .NET 10 (`net10.0`) |
 
----
-
-## 🔍 Overview
-
-In RESTful applications, developers usually define separate classes for entities, requests, and responses.  
-**ModelWrapper** provides a generic foundation for these models, allowing you to:
-
-- Create **request ViewModels** inheriting from `WrapRequest<TModel>`, reusing all base entity properties.  
-- Create **response ViewModels** inheriting from `WrapResponse<TModel>`, exposing specific fields in a strongly-typed way.  
-- Avoid code duplication and keep your domain and API models consistent.  
-- Centralize shared logic and metadata between request and response models.
+[Documentação em português](README.pt-br.md) · **[Full documentation →](docs/README.md)**
 
 ---
 
-## ✅ Main Features
+## Why ModelWrapper?
 
-- `WrapRequest<TModel>` — Base class for request ViewModels inheriting all `TModel` properties.  
-- `WrapResponse<TModel>` — Base class for response ViewModels with extendable typed properties.  
-- Built for RESTful APIs in C#.  
-- Available on NuGet: [`ModelWrapper`](https://www.nuget.org/packages/ModelWrapper) (version 9.0.10.0).  
-- Can be extended or combined with AutoMapper or other mapping frameworks.
+- **`WrapRequest<TModel>`** — binds body, form, query, and route into one object; reuses `TModel` properties; exposes query commands.
+- **`WrapResponse<TModel>`** — standard response envelope with data, result count, and echoed request metadata.
+- **Query commands** — filter (`name_Contains`, `price_GreaterThan`, …), search (`query`), order, pagination, field selection, and aggregations — applied via extensions such as `FullSearch`.
+- **CRUD helpers** — `Post()`, `Put()`, `Patch()` copy bound values onto entities.
 
 ---
 
-## 🚀 Installation
+## Quick install
 
-### Using NuGet Package Manager
-
-```powershell
-Install-Package ModelWrapper -Version 9.0.10.0
-```
-
-### Using .NET CLI
 ```bash
-dotnet add package ModelWrapper --version 9.0.10.0
+dotnet add package ModelWrapper
 ```
-
-## 💻 Example Usage
 
 ```csharp
-// Domain model
-public class Product
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-}
+using ModelWrapper.Middleware;
 
-// Request ViewModel
-public class ProductRequest : WrapRequest<Product>
-{
-    public string Notes { get; set; }
-}
-
-// Response ViewModel
-public class ProductResponse : WrapResponse<Product>
-{
-    public string Category { get; set; }
-}
-
-// Controller
-[HttpPost]
-public ActionResult<ProductResponse> Create([FromBody] ProductRequest req)
-{
-    var product = new Product { Name = req.Name, Price = req.Price };
-
-    // Save entity, etc.
-
-    var resp = new ProductResponse();
-    resp.MapFrom(product); // depending on the library’s implementation
-    resp.Category = "Example";
-    return Ok(resp);
-}
+builder.Services.AddModelWrapper();
 ```
 
-## 📚 Documentation
-- Repository: [`https://github.com/isilveira/ModelWrapper`](https://github.com/isilveira/ModelWrapper)
-- NuGet Package: [`https://www.nuget.org/packages/ModelWrapper`](https://www.nuget.org/packages/ModelWrapper)
-- License: [`MIT`](https://mit-license.org/)
+---
 
-## 💡 Benefits
-- Eliminates duplication between entities and ViewModels.
-- Provides consistent request/response structure.
-- Simplifies API maintenance and refactoring.
-- Works seamlessly with mapping tools such as AutoMapper.
-- Ideal for clean architectures and layered applications.
+## Documentation
 
-## 🧠 Best Practices
-- Use WrapRequest<TModel> for input models and WrapResponse<TModel> for output models.
-- Keep business rules and validation logic outside the wrappers.
-- If you use AutoMapper, configure profiles that recognize wrapper types.
-- Use wrappers to ensure consistency across multiple services and controllers.
+| Section | Description |
+|---------|-------------|
+| [Getting started](docs/getting-started.md) | Install, DI registration, first controller |
+| [Configuration](docs/configuration.md) | Global and per-request options |
+| [WrapRequest](docs/wrap-request.md) / [WrapResponse](docs/wrap-response.md) | Core types |
+| [Commands](docs/commands/README.md) | All query parameters with examples |
+| [CRUD](docs/crud.md) | Post / Put / Patch |
+| [Examples](docs/examples.md) | End-to-end API samples |
 
-## 🤝 Contributing
-Contributions are welcome!
-Feel free to open an issue or submit a pull request directly on the repository.
+Start here: **[docs/README.md](docs/README.md)**
 
-Suggestions and feature improvements are appreciated.
+---
 
-## 🧾 License
-This project is licensed under the MIT License.
+## Contributing
 
-You are free to use, modify, and distribute it, provided you credit the original author.
+Issues and pull requests are welcome on [GitHub](https://github.com/isilveira/ModelWrapper).
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
